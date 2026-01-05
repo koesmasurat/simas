@@ -568,7 +568,7 @@
         </div> <!-- End Wrapper -->
     </div> <!-- End appContent -->
 
-    <!-- MODAL DISPOSISI -->
+    <!-- MODAL DISPOSISI (UPDATED WITH HYBRID INPUT) -->
     <div class="modal fade" id="modalDisposisi" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -586,9 +586,10 @@
                             <strong>Pengirim:</strong> <span id="dispPengirimReview"></span>
                         </div>
 
+                        <!-- Level 1 & 2 (Dropdown Struktural) -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label small">Level 1: Wadir</label>
+                                <label class="form-label small text-info">Level 1: Wadir</label>
                                 <select class="form-control form-select" id="disposisiWadir" name="disposisiWadir" required>
                                     <option value="" selected disabled>Pilih Wadir...</option>
                                     <option value="Wadir Pelayanan">Wakil Direktur Pelayanan</option>
@@ -596,16 +597,28 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label small">Level 2: Bidang/Bagian</label>
+                                <label class="form-label small text-info">Level 2: Bidang/Bagian</label>
                                 <select class="form-control form-select" id="disposisiBidang" name="disposisiBidang" required disabled>
                                     <option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>
                                 </select>
                             </div>
                         </div>
 
+                        <!-- Level 3 & 4 (Input Text Personel) -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-warning">Level 3: Jabatan Fungsional (JF)</label>
+                                <input type="text" class="form-control" name="disposisiJF" placeholder="Ketik Nama/Jabatan JF...">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-warning">Level 4: Staf Pelaksana</label>
+                                <input type="text" class="form-control" name="disposisiStaf" placeholder="Ketik Nama Staf...">
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label small">Isi Instruksi</label>
-                            <textarea class="form-control" name="isiDisposisi" rows="3" placeholder="Tuliskan instruksi..."></textarea>
+                            <textarea class="form-control" name="isiDisposisi" rows="3" placeholder="Tuliskan instruksi pimpinan..."></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Tgl Disposisi</label>
@@ -796,7 +809,6 @@
         function showApp() {
             $('#loginSection').fadeOut(300, function() {
                 $('#appContent').fadeIn(300);
-                // Load data awal jika perlu
             });
         }
 
@@ -889,22 +901,29 @@
                     
                     if (res.data) {
                         res.data.forEach(row => {
-                            // Row: [Ts, Agenda, NoSurat, TglTerima, Pengirim, Perihal, Link, Wadir, Bidang, Isi, TglDisp, Status]
+                            // Row indices update:
+                            // 0:Ts, 1:Agenda, 2:NoSurat, 3:TglTerima, 4:Pengirim, 5:Perihal, 6:Link
+                            // 7:Wadir, 8:Bidang, 9:Isi, 10:TglDisp, 11:JF, 12:Staf, 13:Status
+                            
                             let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat"><i class="fas fa-file-pdf"></i></a>` : '-';
                             let tgl = new Date(row[3]).toLocaleDateString('id-ID');
                             
-                            // Status Badge
-                            let statusBadge = row[11] === 'Terdisposisi' 
+                            // Status Badge (Updated Index to 13)
+                            let statusBadge = row[13] === 'Terdisposisi' 
                                 ? `<span class="badge bg-success">Selesai</span>` 
                                 : `<span class="badge bg-warning text-dark">Menunggu</span>`;
                             
-                            // Disposisi Content
+                            // Disposisi Content Logic
                             let dispContent = '-';
-                            if(row[11] === 'Terdisposisi') {
-                                dispContent = `<div class="d-flex flex-column">
-                                    <span class="fw-bold text-info">${row[7]}</span>
-                                    <span class="small text-white-50">${row[8]}</span>
-                                    <div class="mt-1 small text-warning fst-italic"><i class="fas fa-comment me-1"></i> "${row[9]}"</div>
+                            if(row[13] === 'Terdisposisi') {
+                                dispContent = `<div class="d-flex flex-column gap-1">
+                                    <div class="badge bg-primary bg-opacity-25 text-white text-start">Wadir: ${row[7]}</div>
+                                    <div class="badge bg-info bg-opacity-25 text-white text-start">Bidang: ${row[8]}</div>`;
+                                
+                                if(row[11]) dispContent += `<div class="badge bg-warning bg-opacity-25 text-white text-start">JF: ${row[11]}</div>`;
+                                if(row[12]) dispContent += `<div class="badge bg-success bg-opacity-25 text-white text-start">Staf: ${row[12]}</div>`;
+                                
+                                dispContent += `<div class="mt-1 small text-warning fst-italic border-top border-secondary pt-1"><i class="fas fa-comment me-1"></i> "${row[9]}"</div>
                                 </div>`;
                             }
 
@@ -931,14 +950,18 @@
                     dt.clear();
                     
                     if (res.data) {
-                        $('#badgePending').text(res.data.length).show(); // Update badge count
+                        const count = res.data.length;
+                        if(count > 0) {
+                             $('#badgePending').text(count).show();
+                        } else {
+                             $('#badgePending').hide();
+                        }
                         
                         res.data.forEach(row => {
                             let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat"><i class="fas fa-file-pdf"></i></a>` : '-';
                             let tgl = new Date(row[3]).toLocaleDateString('id-ID');
                             
-                            // Tombol Proses: Kirim data row ke fungsi open modal
-                            // Kita kirim No Agenda (row[1]), No Surat (row[2]), Pengirim (row[4]), Perihal (row[5])
+                            // Tombol Proses
                             let btnProses = `<button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openModalDisposisi('${row[1]}', '${row[2]}', '${row[4]}', '${row[5]}')">
                                 <i class="fas fa-edit me-1"></i> Proses
                             </button>`;
@@ -965,13 +988,15 @@
             $('#dispPengirimReview').text(pengirim);
             $('#dispPerihalReview').text(perihal);
             
-            // Set Default Date Today
+            // Set Default Date
             document.querySelector('input[name="tglDisposisi"]').valueAsDate = new Date();
             
             // Reset Form fields
             $('#disposisiWadir').val('');
             $('#disposisiBidang').empty().append('<option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>').prop('disabled', true);
             $('textarea[name="isiDisposisi"]').val('');
+            $('input[name="disposisiJF"]').val('');
+            $('input[name="disposisiStaf"]').val('');
             
             const modal = new bootstrap.Modal(document.getElementById('modalDisposisi'));
             modal.show();
@@ -983,12 +1008,14 @@
                 noAgenda: $('#dispNoAgenda').val(),
                 disposisiWadir: $('#disposisiWadir').val(),
                 disposisiBidang: $('#disposisiBidang').val(),
+                disposisiJF: $('input[name="disposisiJF"]').val(),
+                disposisiStaf: $('input[name="disposisiStaf"]').val(),
                 isiDisposisi: $('textarea[name="isiDisposisi"]').val(),
                 tglDisposisi: $('input[name="tglDisposisi"]').val()
             };
 
             if(!formData.disposisiWadir || !formData.disposisiBidang) {
-                Swal.fire('Peringatan', 'Mohon pilih Tujuan Disposisi (Wadir & Bidang)', 'warning');
+                Swal.fire('Peringatan', 'Mohon pilih Tujuan Disposisi Wadir & Bidang (Wajib)', 'warning');
                 return;
             }
 

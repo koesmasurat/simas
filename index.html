@@ -18,7 +18,6 @@
             --glass-border: rgba(255, 255, 255, 0.2);
             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             --text-light: #f8f9fa;
-            /* UBAH WARNA DI SINI: Dari Hijau (#10b981) ke Oranye (#f97316) */
             --emerald-accent: #f97316; 
             --blue-accent: #3b82f6;
             --sidebar-width: 280px;
@@ -26,7 +25,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* UBAH BACKGROUND: Dari Hijau Tua (#064e3b) ke Oranye Tua (#9a3412) */
             background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%);
             background-attachment: fixed;
             color: var(--text-light);
@@ -51,7 +49,7 @@
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .login-card { width: 100%; max-width: 400px; padding: 2.5rem; }
         .form-control { background: rgba(255, 255, 255, 0.9); border: none; border-radius: 8px; padding: 12px; }
-        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); /* Orange Glow */ }
+        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); }
         .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
 
@@ -236,7 +234,7 @@
                 <!-- UPDATED LOGO -->
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
                 <h3 class="fw-bold">SIMAS KOESMA</h3>
-                <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat RSUD dr. R. Koesma</p>
+                <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat<br>RSUD dr. R. Koesma</p>
             </div>
             <form id="formLogin">
                 <div class="mb-4 text-start">
@@ -265,10 +263,11 @@
                 <div class="p-3">
                     <div class="nav flex-column nav-pills">
                         
-                        <button class="nav-link active" onclick="activateTab('input-masuk-content', this)">
+                        <!-- Added IDs to buttons for state persistence -->
+                        <button class="nav-link active" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)">
                             <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
-                        <button class="nav-link" onclick="activateTab('input-keluar-content', this)">
+                        <button class="nav-link" id="btn-input-keluar" onclick="activateTab('input-keluar-content', this)">
                             <i class="fas fa-paper-plane"></i> Surat Keluar
                         </button>
 
@@ -278,26 +277,26 @@
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
                         <div class="collapse submenu" id="submenuDisposisi">
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', this)">
+                            <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir', this)">
+                            <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-wadir" onclick="openDisposisiPage('wadir', this)">
                                 <span>2. Wadir</span> <span class="badge-count" id="count-wadir">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid', this)">
+                            <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-kabid" onclick="openDisposisiPage('kabid', this)">
                                 <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf', this)">
+                            <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-jf" onclick="openDisposisiPage('jf', this)">
                                 <span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span>
                             </button>
                         </div>
 
                         <div class="sidebar-divider"></div>
 
-                        <button class="nav-link" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
+                        <button class="nav-link" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
                             <i class="fas fa-inbox"></i> Arsip Masuk
                         </button>
-                        <button class="nav-link" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)">
+                        <button class="nav-link" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)">
                             <i class="fas fa-archive"></i> Arsip Keluar
                         </button>
                     </div>
@@ -526,6 +525,7 @@
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 showApp();
                 loadCounters(); 
+                restoreState(); // Restore Tab State
             }
             
             const today = new Date();
@@ -543,7 +543,12 @@
                 fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'login', password: $('#loginPassword').val() }) })
                 .then(r => r.json()).then(r => {
                     showLoading(false);
-                    if (r.status === 'success') { sessionStorage.setItem('isLoggedIn', 'true'); showApp(); loadCounters(); }
+                    if (r.status === 'success') { 
+                        sessionStorage.setItem('isLoggedIn', 'true'); 
+                        showApp(); 
+                        loadCounters();
+                        restoreState(); 
+                    }
                     else Swal.fire({ icon: 'error', title: 'Gagal', text: r.message });
                 }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi', 'error'); });
             });
@@ -556,8 +561,21 @@
             setupSimpleForm('#formSuratMasuk', 'simpan_masuk', 'Tercatat.');
             setupSimpleForm('#formSuratKeluar', 'simpan_keluar', 'Tercatat.');
             
+            // Auto collapse submenu if not clicked
             $('button[onclick^="activateTab"]').on('click', function (e) { $('.submenu .nav-link').removeClass('active'); });
         });
+
+        function restoreState() {
+            const lastBtnId = sessionStorage.getItem('lastActiveBtn');
+            if(lastBtnId && $('#'+lastBtnId).length) {
+                // If button is inside submenu, open submenu
+                if($('#'+lastBtnId).closest('.submenu').length) {
+                    $('#submenuDisposisi').addClass('show');
+                    $('a[href="#submenuDisposisi"]').removeClass('collapsed').attr('aria-expanded', 'true');
+                }
+                $('#'+lastBtnId).click();
+            }
+        }
 
         function loadCounters() {
             fetch(`${GAS_URL}?action=get_counts`).then(r=>r.json()).then(r => {
@@ -638,6 +656,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     sessionStorage.removeItem('isLoggedIn');
+                    sessionStorage.removeItem('lastActiveBtn'); // Clear state on logout
                     $('#appContent').stop().hide(); 
                     $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300);
                     setTimeout(() => { location.reload(); }, 500); 
@@ -646,13 +665,14 @@
         }
 
         function activateTab(tabId, element, callback) {
+            if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); // Save State
+            
             $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); 
             if(element) $(element).addClass('active');
             $('.tab-pane').removeClass('show active'); 
             const target = $('#' + tabId); target.addClass('active');
             setTimeout(() => { target.addClass('show'); }, 50);
             
-            // Auto-hide sidebar on mobile after clicking a menu item
             if ($(window).width() <= 991) {
                 $('#sidebar, #content').removeClass('toggled');
             }
@@ -661,9 +681,21 @@
         }
         
         function openDisposisiPage(level, element) {
-            currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi);
+            if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); // Save State
+            
+            currentLevel = level; 
+            // Call activateTab internally just for transitions, callback is separate
+            $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); 
+            if(element) $(element).addClass('active');
+            $('.tab-pane').removeClass('show active'); 
+            $('#disposisi-container').addClass('active').addClass('show');
+            
+            if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled');
+
             $('#dispPageTitle').text(level === 'kabid' ? "KABAG / KABID" : level.toUpperCase());
+            refreshCurrentDisposisi();
         }
+        
         function refreshCurrentDisposisi() {
             showLoading(true);
             fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`).then(r=>r.json()).then(r => {
@@ -715,7 +747,7 @@
         }
         function viewHistory(row) {
             let html = createTimelineItem(true, "SURAT DITERIMA", `Agenda: ${row[1]}`, `Tgl Surat: ${new Date(row[3]).toLocaleDateString('id-ID')}`, row[0]);
-            if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu", "", "");
+            if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", "");
             if(row[11]) html += createTimelineItem(true, "WADIR", `Ke: ${row[11]}`, row[12], row[13]);
             if(row[14]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[14]}`, row[15], row[16]);
             if(row[17]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[17]}`, row[18], row[19]);

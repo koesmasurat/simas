@@ -9,7 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -65,10 +64,12 @@
         .nav-pills .nav-link.active { background: linear-gradient(90deg, var(--emerald-accent), transparent); color: #fff; border-left: 4px solid #fff; }
         .nav-link i { width: 25px; margin-right: 10px; }
 
-        /* Submenu Styles */
+        /* Submenu & Badges */
         .submenu { padding-left: 20px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px; }
         .submenu .nav-link { font-size: 0.9em; padding: 8px 15px; border-left: none !important; }
         .submenu .nav-link.active { background: rgba(255,255,255,0.1); color: var(--emerald-accent); font-weight: bold; }
+        .badge-count { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; margin-left: auto; background: var(--blue-accent); color: white; display: none; }
+        .badge-count.has-data { display: inline-block; background: #ef4444; }
 
         /* Table & Utils */
         .form-container-limit { max-width: 900px; margin: 0 auto; }
@@ -78,7 +79,7 @@
         .page-link { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1); color: white; }
         .page-item.active .page-link { background-color: var(--emerald-accent); border-color: var(--emerald-accent); }
         
-        /* Timeline Styles (History) */
+        /* Timeline */
         .timeline-item { padding-left: 30px; border-left: 2px solid rgba(255,255,255,0.2); position: relative; padding-bottom: 20px; }
         .timeline-item::before { content: ''; position: absolute; left: -9px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--blue-accent); border: 2px solid #fff; }
         .timeline-item.done::before { background: var(--emerald-accent); }
@@ -129,20 +130,27 @@
                         <button class="nav-link" id="nav-input-keluar" data-bs-toggle="pill" data-bs-target="#input-keluar-content" type="button"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
 
                         <div class="sidebar-label mt-3">Proses Disposisi</div>
-                        <!-- Accordion Style Menu -->
-                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
+                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="true">
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
                         <div class="collapse submenu show" id="submenuDisposisi">
-                            <button class="nav-link w-100" onclick="openDisposisiPage('direktur')">1. Direktur</button>
-                            <button class="nav-link w-100" onclick="openDisposisiPage('wadir')">2. Wadir</button>
-                            <button class="nav-link w-100" onclick="openDisposisiPage('kabid')">3. Kabag/Kabid</button>
-                            <button class="nav-link w-100" onclick="openDisposisiPage('jf')">4. JF (Final)</button>
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur')">
+                                <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
+                            </button>
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir')">
+                                <span>2. Wadir</span> <span class="badge-count" id="count-wadir">0</span>
+                            </button>
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid')">
+                                <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
+                            </button>
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf')">
+                                <span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span>
+                            </button>
                         </div>
 
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-label">Arsip</div>
-                        <button class="nav-link" id="nav-arsip-masuk" data-bs-toggle="pill" data-bs-target="#arsip-masuk-content" type="button" onclick="loadDataMasuk()"><i class="fas fa-inbox"></i> Arsip Masuk</button>
+                        <button class="nav-link" id="nav-arsip-masuk" onclick="openArsipMasuk()"><i class="fas fa-inbox"></i> Arsip Masuk</button>
                         <button class="nav-link" id="nav-arsip-keluar" data-bs-toggle="pill" data-bs-target="#arsip-keluar-content" type="button" onclick="loadDataKeluar()"><i class="fas fa-archive"></i> Arsip Keluar</button>
                     </div>
                 </div>
@@ -199,7 +207,7 @@
                         </div>
                     </div>
 
-                    <!-- DYNAMIC DISPOSISI PAGE (SHARED CONTAINER) -->
+                    <!-- DYNAMIC DISPOSISI PAGE -->
                     <div class="tab-pane fade" id="disposisi-container">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Inbox Disposisi: <b class="text-warning" id="dispPageTitle">Direktur</b></h2>
@@ -221,11 +229,11 @@
                         </div>
                     </div>
 
-                    <!-- ARSIP MASUK (SIMPLIFIED) -->
+                    <!-- ARSIP MASUK (FIXED) -->
                     <div class="tab-pane fade" id="arsip-masuk-content">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2>
-                            <button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i></button>
+                            <button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
                         </div>
                         <div class="card">
                             <div class="card-body">
@@ -248,7 +256,7 @@
                     <div class="tab-pane fade" id="arsip-keluar-content">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
-                            <button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i></button>
+                            <button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
                         </div>
                         <div class="card">
                             <div class="card-body">
@@ -269,7 +277,7 @@
         </div>
     </div>
 
-    <!-- MODAL PROCESS DISPOSISI (DYNAMIC FORM) -->
+    <!-- MODAL PROCESS DISPOSISI -->
     <div class="modal fade" id="modalDisposisi" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -358,7 +366,10 @@
         };
 
         $(document).ready(function() {
-            if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                showApp();
+                updateCounts();
+            }
             
             $('#formLogin').on('submit', function(e) {
                 e.preventDefault();
@@ -367,7 +378,11 @@
                 fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'login', password: pass }) })
                 .then(res => res.json()).then(res => {
                     showLoading(false);
-                    if (res.status === 'success') { sessionStorage.setItem('isLoggedIn', 'true'); showApp(); }
+                    if (res.status === 'success') { 
+                        sessionStorage.setItem('isLoggedIn', 'true'); 
+                        showApp(); 
+                        updateCounts();
+                    }
                     else Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: res.message });
                 }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi Gagal', 'error'); });
             });
@@ -378,13 +393,8 @@
             $('#tableMasuk').DataTable(dtConfig);
             $('#tableKeluar').DataTable(dtConfig);
 
-            // Handler Wadir Dynamic Dropdown inside Modal
-            $('#actTargetWadir').change(function() {
-                // Not used here, logic handles populating Bidang later if Wadir was already selected
-            });
-
-            // Standard Form Submits
-            setupSimpleForm('#formSuratMasuk', 'simpan_masuk', 'Surat masuk tercatat. Status: Menunggu Disposisi');
+            // Setup Forms
+            setupSimpleForm('#formSuratMasuk', 'simpan_masuk', 'Surat masuk tercatat.');
             setupSimpleForm('#formSuratKeluar', 'simpan_keluar', 'Surat keluar tercatat.');
         });
 
@@ -405,6 +415,7 @@
                 
                 sendData(formData, () => {
                     $(selector)[0].reset();
+                    updateCounts(); // Refresh counters on submit
                     Swal.fire('Sukses', successMsg, 'success');
                 });
             });
@@ -412,13 +423,31 @@
 
         // --- DISPOSISI LOGIC ---
 
+        function updateCounts() {
+            fetch(`${GAS_URL}?action=get_counts`)
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    setCount('direktur', res.data.direktur);
+                    setCount('wadir', res.data.wadir);
+                    setCount('kabid', res.data.kabid);
+                    setCount('jf', res.data.jf);
+                }
+            });
+        }
+
+        function setCount(id, count) {
+            const el = $(`#count-${id}`);
+            el.text(count);
+            if(count > 0) el.addClass('has-data');
+            else el.removeClass('has-data');
+        }
+
         function openDisposisiPage(level) {
             currentLevel = level;
-            // Hide other tabs content manually to use the shared container
+            // Manual Tab Switch
             $('.tab-pane').removeClass('show active');
             $('#disposisi-container').addClass('show active');
-            
-            // Highlight Submenu
             $('.submenu .nav-link').removeClass('active');
             $(event.target).addClass('active');
 
@@ -427,6 +456,15 @@
             $('#dispPageTitle').text(title);
             
             refreshCurrentDisposisi();
+        }
+
+        function openArsipMasuk() {
+            // Fix Tab UI
+            $('.tab-pane').removeClass('show active');
+            $('#arsip-masuk-content').addClass('show active');
+            // Remove active from submenu
+            $('.submenu .nav-link').removeClass('active');
+            loadDataMasuk();
         }
 
         function refreshCurrentDisposisi() {
@@ -461,7 +499,6 @@
                 $('#fieldDirektur').removeClass('d-none');
             } else if (currentLevel === 'wadir') {
                 $('#fieldWadir').removeClass('d-none');
-                // Populate Bidang based on PREVIOUS CHOICE (Column 7 is Target Wadir)
                 let selectedWadir = rowData[7]; 
                 let options = structureOrg[selectedWadir] || [];
                 let html = options.map(o => `<option value="${o}">${o}</option>`).join('');
@@ -484,7 +521,6 @@
                 instruksi: $('#actInstruksi').val()
             };
 
-            // Capture Targets
             if(currentLevel === 'direktur') formData.targetWadir = $('#actTargetWadir').val();
             if(currentLevel === 'wadir') formData.targetBidang = $('#actTargetBidang').val();
             if(currentLevel === 'kabid') formData.targetJF = $('#actTargetJF').val();
@@ -494,6 +530,7 @@
             showLoading(true);
             sendData(formData, () => {
                 refreshCurrentDisposisi();
+                updateCounts(); // Update badges immediately
                 Swal.fire('Sukses', 'Disposisi berhasil diteruskan!', 'success');
             });
         }
@@ -507,8 +544,8 @@
                 if(res.data) {
                     res.data.forEach(row => {
                         let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-';
-                        let status = `<span class="badge bg-secondary">${row[16]}</span>`;
-                        if(row[16] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
+                        let status = `<span class="badge bg-secondary">${row[19]}</span>`;
+                        if(row[19] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
                         
                         let btnHistory = `<button class="btn btn-sm btn-light text-primary border" onclick='viewHistory(${JSON.stringify(row)})'><i class="fas fa-eye"></i></button>`;
 
@@ -520,36 +557,40 @@
         }
 
         function viewHistory(row) {
-            // Row Indices:
-            // 7:Wadir, 8:InstrDir
-            // 9:Bidang, 10:InstrWadir
-            // 11:JF, 12:InstrKabid
-            // 13:Staf, 14:InstrJF
+            // New Indices Mapping:
+            // 7:TargetWadir, 8:InstrDir, 9:TglDir
+            // 10:TargetBidang, 11:InstrWadir, 12:TglWadir
+            // 13:TargetJF, 14:InstrKabid, 15:TglKabid
+            // 16:TargetStaf, 17:InstrJF, 18:TglJF
             
             let html = '';
             
-            // Step 1: Direktur
-            if(row[7]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[7]}`, row[8]);
-            else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "");
+            // Direktur
+            if(row[7]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[7]}`, row[8], row[9]);
+            else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", "");
 
-            // Step 2: Wadir
-            if(row[9]) html += createTimelineItem(true, "WADIR", `Ke: ${row[9]}`, row[10]);
+            // Wadir
+            if(row[10]) html += createTimelineItem(true, "WADIR", `Ke: ${row[10]}`, row[11], row[12]);
             
-            // Step 3: Kabid
-            if(row[11]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[11]}`, row[12]);
+            // Kabid
+            if(row[13]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[13]}`, row[14], row[15]);
 
-            // Step 4: JF
-            if(row[13]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[13]}`, row[14]);
+            // JF
+            if(row[16]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[16]}`, row[17], row[18]);
 
             $('#timelineContent').html(html);
             new bootstrap.Modal(document.getElementById('modalHistory')).show();
         }
 
-        function createTimelineItem(isDone, title, target, note) {
+        function createTimelineItem(isDone, title, target, note, date) {
             let cls = isDone ? 'done' : '';
+            let dateStr = date ? `<span class="badge bg-dark ms-2">${new Date(date).toLocaleDateString('id-ID')}</span>` : '';
             return `
             <div class="timeline-item ${cls}">
-                <div class="fw-bold text-warning small">${title}</div>
+                <div class="fw-bold text-warning small d-flex justify-content-between align-items-center">
+                    <span>${title}</span>
+                    ${dateStr}
+                </div>
                 <div class="timeline-content mt-1">
                     <div class="fw-bold small mb-1">${target}</div>
                     <div class="text-white-50 small fst-italic">"${note || '-'}"</div>

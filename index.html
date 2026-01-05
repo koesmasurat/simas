@@ -134,23 +134,24 @@
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
                         <div class="collapse submenu show" id="submenuDisposisi">
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur')">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', event)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir')">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir', event)">
                                 <span>2. Wadir</span> <span class="badge-count" id="count-wadir">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid')">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid', event)">
                                 <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf')">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf', event)">
                                 <span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span>
                             </button>
                         </div>
 
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-label">Arsip</div>
-                        <button class="nav-link" id="nav-arsip-masuk" onclick="openArsipMasuk()"><i class="fas fa-inbox"></i> Arsip Masuk</button>
+                        <!-- PERBAIKAN: Menambahkan data-bs-toggle agar konsisten dengan Bootstrap -->
+                        <button class="nav-link" id="nav-arsip-masuk" data-bs-toggle="pill" data-bs-target="#arsip-masuk-content" type="button" onclick="loadDataMasuk()"><i class="fas fa-inbox"></i> Arsip Masuk</button>
                         <button class="nav-link" id="nav-arsip-keluar" data-bs-toggle="pill" data-bs-target="#arsip-keluar-content" type="button" onclick="loadDataKeluar()"><i class="fas fa-archive"></i> Arsip Keluar</button>
                     </div>
                 </div>
@@ -396,6 +397,11 @@
             // Setup Forms
             setupSimpleForm('#formSuratMasuk', 'simpan_masuk', 'Surat masuk tercatat.');
             setupSimpleForm('#formSuratKeluar', 'simpan_keluar', 'Surat keluar tercatat.');
+
+            // Event Listener Global: Reset Submenu Active state when main tabs are clicked
+            $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+                $('.submenu .nav-link').removeClass('active');
+            });
         });
 
         function setupSimpleForm(selector, type, successMsg) {
@@ -443,28 +449,25 @@
             else el.removeClass('has-data');
         }
 
-        function openDisposisiPage(level) {
+        function openDisposisiPage(level, event) {
             currentLevel = level;
-            // Manual Tab Switch
+            
+            // 1. Matikan semua tab utama (Input, Arsip) agar tidak bentrok
+            $('#sidebar .nav-pills > .nav-link').removeClass('active');
             $('.tab-pane').removeClass('show active');
+            
+            // 2. Tampilkan Kontainer Disposisi
             $('#disposisi-container').addClass('show active');
+            
+            // 3. Highlight Submenu yang diklik
             $('.submenu .nav-link').removeClass('active');
-            $(event.target).addClass('active');
+            if(event && event.currentTarget) $(event.currentTarget).addClass('active');
 
             let title = level.toUpperCase();
             if(level==='kabid') title = "KABAG / KABID";
             $('#dispPageTitle').text(title);
             
             refreshCurrentDisposisi();
-        }
-
-        function openArsipMasuk() {
-            // Fix Tab UI
-            $('.tab-pane').removeClass('show active');
-            $('#arsip-masuk-content').addClass('show active');
-            // Remove active from submenu
-            $('.submenu .nav-link').removeClass('active');
-            loadDataMasuk();
         }
 
         function refreshCurrentDisposisi() {

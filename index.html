@@ -41,7 +41,7 @@
             color: white;
         }
         
-        .card { margin-bottom: 25px; border-radius: 16px; }
+        .card { margin-bottom: 25px; border-radius: 16px; transition: transform 0.2s; }
         .modal-content { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 
         /* Login */
@@ -59,17 +59,22 @@
         #sidebar .sidebar-header { padding: 20px; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--glass-border); }
         #content { width: 100%; padding: 20px; margin-left: var(--sidebar-width); transition: all 0.3s; }
         
-        .nav-pills .nav-link { color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 12px 20px; margin-bottom: 8px; text-align: left; display: flex; align-items: center; cursor: pointer; }
-        .nav-pills .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .nav-pills .nav-link { color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 12px 20px; margin-bottom: 8px; text-align: left; display: flex; align-items: center; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .nav-pills .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateX(5px); }
         .nav-pills .nav-link.active { background: linear-gradient(90deg, var(--emerald-accent), transparent); color: #fff; border-left: 4px solid #fff; }
         .nav-link i { width: 25px; margin-right: 10px; }
 
         /* Submenu & Badges */
         .submenu { padding-left: 20px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px; }
         .submenu .nav-link { font-size: 0.9em; padding: 8px 15px; border-left: none !important; }
-        .submenu .nav-link.active { background: rgba(255,255,255,0.1); color: var(--emerald-accent); font-weight: bold; }
+        .submenu .nav-link.active { background: rgba(255,255,255,0.1); color: var(--emerald-accent); font-weight: bold; transform: none; }
         .badge-count { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; margin-left: auto; background: var(--blue-accent); color: white; display: none; }
         .badge-count.has-data { display: inline-block; background: #ef4444; }
+
+        /* Tab Transitions */
+        .tab-pane { transition: opacity 0.3s ease-in-out; opacity: 0; display: none; }
+        .tab-pane.active { display: block; }
+        .tab-pane.show { opacity: 1; }
 
         /* Table & Utils */
         .form-container-limit { max-width: 900px; margin: 0 auto; }
@@ -123,36 +128,45 @@
                     <small class="text-white-50">Admin Panel</small>
                 </div>
                 <div class="p-3">
-                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                    <div class="nav flex-column nav-pills">
                         
                         <div class="sidebar-label">Pencatatan</div>
-                        <button class="nav-link active" id="nav-input-masuk" data-bs-toggle="pill" data-bs-target="#input-masuk-content" type="button"><i class="fas fa-plus-circle"></i> Surat Masuk</button>
-                        <button class="nav-link" id="nav-input-keluar" data-bs-toggle="pill" data-bs-target="#input-keluar-content" type="button"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
+                        <!-- Updated Buttons: Removed data-bs-toggle to use Custom JS Navigation -->
+                        <button class="nav-link active" onclick="activateTab('input-masuk-content', this)">
+                            <i class="fas fa-plus-circle"></i> Surat Masuk
+                        </button>
+                        <button class="nav-link" onclick="activateTab('input-keluar-content', this)">
+                            <i class="fas fa-paper-plane"></i> Surat Keluar
+                        </button>
 
                         <div class="sidebar-label mt-3">Proses Disposisi</div>
                         <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="true">
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
                         <div class="collapse submenu show" id="submenuDisposisi">
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', event)">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir', event)">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('wadir', this)">
                                 <span>2. Wadir</span> <span class="badge-count" id="count-wadir">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid', event)">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('kabid', this)">
                                 <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf', event)">
+                            <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('jf', this)">
                                 <span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span>
                             </button>
                         </div>
 
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-label">Arsip</div>
-                        <!-- PERBAIKAN: Menambahkan data-bs-toggle agar konsisten dengan Bootstrap -->
-                        <button class="nav-link" id="nav-arsip-masuk" data-bs-toggle="pill" data-bs-target="#arsip-masuk-content" type="button" onclick="loadDataMasuk()"><i class="fas fa-inbox"></i> Arsip Masuk</button>
-                        <button class="nav-link" id="nav-arsip-keluar" data-bs-toggle="pill" data-bs-target="#arsip-keluar-content" type="button" onclick="loadDataKeluar()"><i class="fas fa-archive"></i> Arsip Keluar</button>
+                        <!-- Updated Buttons: Using activateTab wrapper -->
+                        <button class="nav-link" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
+                            <i class="fas fa-inbox"></i> Arsip Masuk
+                        </button>
+                        <button class="nav-link" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)">
+                            <i class="fas fa-archive"></i> Arsip Keluar
+                        </button>
                     </div>
                 </div>
                 <div class="mt-auto p-3" style="position: absolute; bottom: 0; width: 100%;">
@@ -165,7 +179,7 @@
                 <div class="tab-content">
                     
                     <!-- INPUT MASUK -->
-                    <div class="tab-pane fade show active" id="input-masuk-content">
+                    <div class="tab-pane active show" id="input-masuk-content">
                         <div class="form-container-limit">
                             <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2>
                             <div class="card">
@@ -187,7 +201,7 @@
                     </div>
 
                     <!-- INPUT KELUAR -->
-                    <div class="tab-pane fade" id="input-keluar-content">
+                    <div class="tab-pane" id="input-keluar-content">
                         <div class="form-container-limit">
                             <h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2>
                             <div class="card">
@@ -209,7 +223,7 @@
                     </div>
 
                     <!-- DYNAMIC DISPOSISI PAGE -->
-                    <div class="tab-pane fade" id="disposisi-container">
+                    <div class="tab-pane" id="disposisi-container">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Inbox Disposisi: <b class="text-warning" id="dispPageTitle">Direktur</b></h2>
                             <button class="btn btn-outline-light" onclick="refreshCurrentDisposisi()"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -231,7 +245,7 @@
                     </div>
 
                     <!-- ARSIP MASUK (FIXED) -->
-                    <div class="tab-pane fade" id="arsip-masuk-content">
+                    <div class="tab-pane" id="arsip-masuk-content">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2>
                             <button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
@@ -254,7 +268,7 @@
                     </div>
 
                     <!-- ARSIP KELUAR -->
-                    <div class="tab-pane fade" id="arsip-keluar-content">
+                    <div class="tab-pane" id="arsip-keluar-content">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
                             <button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
@@ -397,37 +411,48 @@
             // Setup Forms
             setupSimpleForm('#formSuratMasuk', 'simpan_masuk', 'Surat masuk tercatat.');
             setupSimpleForm('#formSuratKeluar', 'simpan_keluar', 'Surat keluar tercatat.');
-
-            // Event Listener Global: Reset Submenu Active state when main tabs are clicked
-            $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
-                $('.submenu .nav-link').removeClass('active');
-            });
         });
 
-        function setupSimpleForm(selector, type, successMsg) {
-            $(selector).on('submit', async function(e) {
-                e.preventDefault();
-                showLoading(true);
-                let fileData = "", fileName = "";
-                const fileInput = $(this).find('input[type="file"]')[0];
-                if (fileInput.files.length > 0) {
-                    try {
-                        fileData = await readFileToBase64(fileInput.files[0]);
-                        fileName = fileInput.files[0].name;
-                    } catch(e) { showLoading(false); return Swal.fire('Error File', '', 'error'); }
-                }
-                const formData = { type: type, fileData: fileData, fileName: fileName };
-                $(this).serializeArray().forEach(item => formData[item.name] = item.value);
-                
-                sendData(formData, () => {
-                    $(selector)[0].reset();
-                    updateCounts(); // Refresh counters on submit
-                    Swal.fire('Sukses', successMsg, 'success');
-                });
-            });
+        // ========================================================
+        // CORE NAVIGATION SYSTEM (SMOOTH TRANSITION FIX)
+        // ========================================================
+        
+        function activateTab(tabId, element, callback) {
+            // 1. Reset Sidebar State
+            $('#sidebar .nav-link').removeClass('active'); // Hapus active dari semua tombol sidebar
+            $('.submenu .nav-link').removeClass('active'); // Hapus active dari submenu
+            
+            // 2. Set Active to Clicked Element (Jika ada)
+            if(element) $(element).addClass('active');
+
+            // 3. Handle Content Transition
+            // Hide all tab panes first
+            $('.tab-pane').removeClass('show active'); 
+            
+            // Show target tab with a tiny delay for fade effect logic
+            const target = $('#' + tabId);
+            target.addClass('active');
+            
+            // Trigger reflow/delay for CSS transition
+            setTimeout(() => {
+                target.addClass('show');
+            }, 50);
+
+            // 4. Run Callback (Load Data) if provided
+            if (callback) callback();
         }
 
         // --- DISPOSISI LOGIC ---
+
+        function openDisposisiPage(level, element) {
+            currentLevel = level;
+            // Use the centralized navigation function for consistency
+            activateTab('disposisi-container', element, refreshCurrentDisposisi);
+
+            let title = level.toUpperCase();
+            if(level==='kabid') title = "KABAG / KABID";
+            $('#dispPageTitle').text(title);
+        }
 
         function updateCounts() {
             fetch(`${GAS_URL}?action=get_counts`)
@@ -447,27 +472,6 @@
             el.text(count);
             if(count > 0) el.addClass('has-data');
             else el.removeClass('has-data');
-        }
-
-        function openDisposisiPage(level, event) {
-            currentLevel = level;
-            
-            // 1. Matikan semua tab utama (Input, Arsip) agar tidak bentrok
-            $('#sidebar .nav-pills > .nav-link').removeClass('active');
-            $('.tab-pane').removeClass('show active');
-            
-            // 2. Tampilkan Kontainer Disposisi
-            $('#disposisi-container').addClass('show active');
-            
-            // 3. Highlight Submenu yang diklik
-            $('.submenu .nav-link').removeClass('active');
-            if(event && event.currentTarget) $(event.currentTarget).addClass('active');
-
-            let title = level.toUpperCase();
-            if(level==='kabid') title = "KABAG / KABID";
-            $('#dispPageTitle').text(title);
-            
-            refreshCurrentDisposisi();
         }
 
         function refreshCurrentDisposisi() {
@@ -560,12 +564,6 @@
         }
 
         function viewHistory(row) {
-            // New Indices Mapping:
-            // 7:TargetWadir, 8:InstrDir, 9:TglDir
-            // 10:TargetBidang, 11:InstrWadir, 12:TglWadir
-            // 13:TargetJF, 14:InstrKabid, 15:TglKabid
-            // 16:TargetStaf, 17:InstrJF, 18:TglJF
-            
             let html = '';
             
             // Step 0: Surat Diterima
@@ -619,6 +617,29 @@
         }
 
         // --- UTILS ---
+        function setupSimpleForm(selector, type, successMsg) {
+            $(selector).on('submit', async function(e) {
+                e.preventDefault();
+                showLoading(true);
+                let fileData = "", fileName = "";
+                const fileInput = $(this).find('input[type="file"]')[0];
+                if (fileInput.files.length > 0) {
+                    try {
+                        fileData = await readFileToBase64(fileInput.files[0]);
+                        fileName = fileInput.files[0].name;
+                    } catch(e) { showLoading(false); return Swal.fire('Error File', '', 'error'); }
+                }
+                const formData = { type: type, fileData: fileData, fileName: fileName };
+                $(this).serializeArray().forEach(item => formData[item.name] = item.value);
+                
+                sendData(formData, () => {
+                    $(selector)[0].reset();
+                    updateCounts(); // Refresh counters on submit
+                    Swal.fire('Sukses', successMsg, 'success');
+                });
+            });
+        }
+
         function showApp() { $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); }
         function logout() { sessionStorage.removeItem('isLoggedIn'); location.reload(); }
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }

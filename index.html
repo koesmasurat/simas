@@ -565,6 +565,9 @@
             
             let html = '';
             
+            // Step 0: Surat Diterima
+            html += createTimelineItem(true, "SURAT DITERIMA", `Agenda No: ${row[1]}`, "Surat berhasil dicatat oleh staf administrasi.", row[3]);
+
             // Direktur
             if(row[7]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[7]}`, row[8], row[9]);
             else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", "");

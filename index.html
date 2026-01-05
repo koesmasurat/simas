@@ -18,14 +18,16 @@
             --glass-border: rgba(255, 255, 255, 0.2);
             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             --text-light: #f8f9fa;
-            --emerald-accent: #10b981;
+            /* UBAH WARNA DI SINI: Dari Hijau (#10b981) ke Oranye (#f97316) */
+            --emerald-accent: #f97316; 
             --blue-accent: #3b82f6;
             --sidebar-width: 280px;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+            /* UBAH BACKGROUND: Dari Hijau Tua (#064e3b) ke Oranye Tua (#9a3412) */
+            background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%);
             background-attachment: fixed;
             color: var(--text-light);
             min-height: 100vh;
@@ -49,9 +51,9 @@
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .login-card { width: 100%; max-width: 400px; padding: 2.5rem; }
         .form-control { background: rgba(255, 255, 255, 0.9); border: none; border-radius: 8px; padding: 12px; }
-        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25); }
+        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); /* Orange Glow */ }
         .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
 
         /* Main App Container (Hidden by Default) */
         #appContent { display: none; width: 100%; min-height: 100vh; }
@@ -69,7 +71,7 @@
             transition: all 0.3s; 
             position: fixed; 
             height: 100vh; 
-            z-index: 999;
+            z-index: 1000;
             margin-left: 0;
         }
         
@@ -114,9 +116,9 @@
 
         #arsip-masuk-content .card-header,
         #arsip-keluar-content .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-            color: #064e3b; /* Emerald Dark */
+            background-color: #fff7ed; /* Light Orange Background */
+            border-bottom: 2px solid #ffedd5;
+            color: #c2410c; /* Dark Orange Text */
         }
 
         #disposisi-container .card-header {
@@ -129,24 +131,24 @@
         #arsip-keluar-content .table,
         #disposisi-container .table {
             color: #333 !important;
-            font-size: 0.9rem; /* Ukuran Font Compact */
+            font-size: 0.9rem;
         }
         
         #arsip-masuk-content .table th,
         #arsip-keluar-content .table th,
         #disposisi-container .table th {
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 8px 8px; /* Padding Header Kecil */
+            background-color: #ffedd5; /* Light Orange Header */
+            color: #9a3412;
+            padding: 8px 8px;
             font-weight: 600;
         }
 
         #arsip-masuk-content .table td,
         #arsip-keluar-content .table td,
         #disposisi-container .table td {
-            padding: 4px 8px; /* Padding Baris Sangat Rapat (Compact) */
+            padding: 4px 8px;
             vertical-align: middle;
-            border-color: #dee2e6;
+            border-color: #fed7aa; /* Orange border */
         }
 
         #tableMasuk tbody tr,
@@ -157,12 +159,12 @@
         }
 
         .table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: rgba(0, 0, 0, 0.02) !important;
+            background-color: rgba(255, 237, 213, 0.3) !important; /* Very Light Orange Striped */
             color: #333 !important;
         }
 
         .table-hover tbody tr:hover > * {
-            background-color: #e2e8f0 !important; /* Hover Highlight */
+            background-color: #ffedd5 !important; /* Hover Highlight */
             color: #000 !important;
         }
 
@@ -170,12 +172,14 @@
         #arsip-keluar-content .page-link,
         #disposisi-container .page-link {
             background: white;
-            color: #064e3b;
-            border: 1px solid #dee2e6;
+            color: #c2410c; /* Dark Orange */
+            border: 1px solid #fed7aa;
         }
         #arsip-masuk-content .page-item.active .page-link,
         #arsip-keluar-content .page-item.active .page-link {
-            background: #064e3b; color: white; border-color: #064e3b;
+            background: #f97316; /* Orange */
+            color: white;
+            border-color: #f97316;
         }
         
         #arsip-masuk-content .form-control, 
@@ -232,7 +236,7 @@
                 <!-- UPDATED LOGO -->
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
                 <h3 class="fw-bold">SIMAS KOESMA</h3>
-                <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat RSUD dr R. Koesma</p>
+                <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat RSUD dr. R. Koesma</p>
             </div>
             <form id="formLogin">
                 <div class="mb-4 text-start">
@@ -247,7 +251,12 @@
         <div class="wrapper">
             <!-- SIDEBAR -->
             <nav id="sidebar">
-                <div class="sidebar-header text-center">
+                <div class="sidebar-header text-center position-relative">
+                    <!-- Tombol Close Khusus Mobile -->
+                    <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2">
+                        <i class="fas fa-times"></i>
+                    </button>
+
                     <!-- UPDATED LOGO -->
                     <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo" class="mb-2" style="width: 60px; height: auto;">
                     <h5 class="fw-bold m-0">SIMAS KOESMA</h5>
@@ -522,7 +531,10 @@
             const today = new Date();
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = today);
             
-            $('#sidebarCollapse').on('click', function() { $('#sidebar, #content').toggleClass('toggled'); });
+            // Sidebar Toggle & Close Mobile
+            $('#sidebarCollapse, #sidebarCloseMobile').on('click', function() {
+                $('#sidebar, #content').toggleClass('toggled');
+            });
             
             $('#formLogin').on('submit', function(e) {
                 e.preventDefault();
@@ -639,8 +651,15 @@
             $('.tab-pane').removeClass('show active'); 
             const target = $('#' + tabId); target.addClass('active');
             setTimeout(() => { target.addClass('show'); }, 50);
+            
+            // Auto-hide sidebar on mobile after clicking a menu item
+            if ($(window).width() <= 991) {
+                $('#sidebar, #content').removeClass('toggled');
+            }
+
             if (callback) callback();
         }
+        
         function openDisposisiPage(level, element) {
             currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi);
             $('#dispPageTitle').text(level === 'kabid' ? "KABAG / KABID" : level.toUpperCase());

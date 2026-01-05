@@ -130,8 +130,7 @@
                 <div class="p-3">
                     <div class="nav flex-column nav-pills">
                         
-                        <div class="sidebar-label">Pencatatan</div>
-                        <!-- Updated Buttons: Removed data-bs-toggle to use Custom JS Navigation -->
+                        <!-- Pencatatan (Label dihapus) -->
                         <button class="nav-link active" onclick="activateTab('input-masuk-content', this)">
                             <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
@@ -139,11 +138,14 @@
                             <i class="fas fa-paper-plane"></i> Surat Keluar
                         </button>
 
-                        <div class="sidebar-label mt-3">Proses Disposisi</div>
-                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="true">
+                        <div class="sidebar-divider"></div>
+
+                        <!-- Menu Disposisi (Label dihapus & Default Hidden) -->
+                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
-                        <div class="collapse submenu show" id="submenuDisposisi">
+                        <!-- Class 'show' dihapus agar default hidden -->
+                        <div class="collapse submenu" id="submenuDisposisi">
                             <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
@@ -159,8 +161,8 @@
                         </div>
 
                         <div class="sidebar-divider"></div>
-                        <div class="sidebar-label">Arsip</div>
-                        <!-- Updated Buttons: Using activateTab wrapper -->
+
+                        <!-- Arsip (Label dihapus) -->
                         <button class="nav-link" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
                             <i class="fas fa-inbox"></i> Arsip Masuk
                         </button>

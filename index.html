@@ -130,7 +130,6 @@
                 <div class="p-3">
                     <div class="nav flex-column nav-pills">
                         
-                        <!-- Pencatatan (Label dihapus) -->
                         <button class="nav-link active" onclick="activateTab('input-masuk-content', this)">
                             <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
@@ -140,11 +139,9 @@
 
                         <div class="sidebar-divider"></div>
 
-                        <!-- Menu Disposisi (Label dihapus & Default Hidden) -->
                         <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
                             <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
                         </a>
-                        <!-- Class 'show' dihapus agar default hidden -->
                         <div class="collapse submenu" id="submenuDisposisi">
                             <button class="nav-link w-100 d-flex justify-content-between" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
@@ -162,7 +159,6 @@
 
                         <div class="sidebar-divider"></div>
 
-                        <!-- Arsip (Label dihapus) -->
                         <button class="nav-link" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
                             <i class="fas fa-inbox"></i> Arsip Masuk
                         </button>
@@ -388,6 +384,9 @@
                 updateCounts();
             }
             
+            // Set Default Date Today for Input
+            document.querySelector('#formSuratMasuk input[name="tglTerima"]').valueAsDate = new Date();
+            
             $('#formLogin').on('submit', function(e) {
                 e.preventDefault();
                 const pass = $('#loginPassword').val();
@@ -421,26 +420,20 @@
         
         function activateTab(tabId, element, callback) {
             // 1. Reset Sidebar State
-            $('#sidebar .nav-link').removeClass('active'); // Hapus active dari semua tombol sidebar
-            $('.submenu .nav-link').removeClass('active'); // Hapus active dari submenu
+            $('#sidebar .nav-link').removeClass('active'); 
+            $('.submenu .nav-link').removeClass('active'); 
             
-            // 2. Set Active to Clicked Element (Jika ada)
+            // 2. Set Active to Clicked Element
             if(element) $(element).addClass('active');
 
             // 3. Handle Content Transition
-            // Hide all tab panes first
             $('.tab-pane').removeClass('show active'); 
             
-            // Show target tab with a tiny delay for fade effect logic
             const target = $('#' + tabId);
             target.addClass('active');
-            
-            // Trigger reflow/delay for CSS transition
-            setTimeout(() => {
-                target.addClass('show');
-            }, 50);
+            setTimeout(() => { target.addClass('show'); }, 50);
 
-            // 4. Run Callback (Load Data) if provided
+            // 4. Run Callback if provided
             if (callback) callback();
         }
 
@@ -448,7 +441,6 @@
 
         function openDisposisiPage(level, element) {
             currentLevel = level;
-            // Use the centralized navigation function for consistency
             activateTab('disposisi-container', element, refreshCurrentDisposisi);
 
             let title = level.toUpperCase();
@@ -526,7 +518,7 @@
                 type: 'update_disposisi_level',
                 level: currentLevel,
                 noAgenda: $('#actNoAgenda').val(),
-                tglDisposisi: $('#actTgl').val(),
+                tglDisposisi: $('#actTgl').val(), // Note: Backend will use NEW DATE() for history, this is just for reference/unused
                 instruksi: $('#actInstruksi').val()
             };
 
@@ -539,7 +531,7 @@
             showLoading(true);
             sendData(formData, () => {
                 refreshCurrentDisposisi();
-                updateCounts(); // Update badges immediately
+                updateCounts(); 
                 Swal.fire('Sukses', 'Disposisi berhasil diteruskan!', 'success');
             });
         }
@@ -568,29 +560,37 @@
         function viewHistory(row) {
             let html = '';
             
-            // Step 0: Surat Diterima
-            html += createTimelineItem(true, "SURAT DITERIMA", `Agenda No: ${row[1]}`, "Surat berhasil dicatat oleh staf administrasi.", row[3]);
+            // Step 0: Surat Diterima (Using Timestamp in row[0])
+            html += createTimelineItem(true, "SURAT DITERIMA", `Agenda No: ${row[1]}`, "Surat berhasil dicatat oleh staf.", row[0]);
 
-            // Direktur
+            // Direktur (Tgl: row[9])
             if(row[7]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[7]}`, row[8], row[9]);
             else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", "");
 
-            // Wadir
+            // Wadir (Tgl: row[12])
             if(row[10]) html += createTimelineItem(true, "WADIR", `Ke: ${row[10]}`, row[11], row[12]);
             
-            // Kabid
+            // Kabid (Tgl: row[15])
             if(row[13]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[13]}`, row[14], row[15]);
 
-            // JF
+            // JF (Tgl: row[18])
             if(row[16]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[16]}`, row[17], row[18]);
 
             $('#timelineContent').html(html);
             new bootstrap.Modal(document.getElementById('modalHistory')).show();
         }
 
+        function formatDateTime(dateString) {
+            if(!dateString) return '';
+            const d = new Date(dateString);
+            if(isNaN(d.getTime())) return '';
+            // Format: dd/mm/yyyy HH:MM
+            return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+        }
+
         function createTimelineItem(isDone, title, target, note, date) {
             let cls = isDone ? 'done' : '';
-            let dateStr = date ? `<span class="badge bg-dark ms-2">${new Date(date).toLocaleDateString('id-ID')}</span>` : '';
+            let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : '';
             return `
             <div class="timeline-item ${cls}">
                 <div class="fw-bold text-warning small d-flex justify-content-between align-items-center">
@@ -636,7 +636,9 @@
                 
                 sendData(formData, () => {
                     $(selector)[0].reset();
-                    updateCounts(); // Refresh counters on submit
+                    // Reset default date again after submit
+                    document.querySelector('#formSuratMasuk input[name="tglTerima"]').valueAsDate = new Date();
+                    updateCounts(); 
                     Swal.fire('Sukses', successMsg, 'success');
                 });
             });

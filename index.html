@@ -172,7 +172,7 @@
         #content {
             width: 100%;
             padding: 20px;
-            margin-left: var(--sidebar-width); /* Offset for fixed sidebar */
+            margin-left: var(--sidebar-width);
             transition: all 0.3s;
         }
 
@@ -234,6 +234,16 @@
             border-color: var(--emerald-accent);
         }
 
+        /* Modal Customization */
+        .modal-content {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+        }
+        .modal-header, .modal-footer {
+            border-color: rgba(255,255,255,0.1);
+        }
+
         /* Responsive Behavior */
         @media (max-width: 991.98px) {
             #sidebar {
@@ -267,12 +277,12 @@
         #loadingOverlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 10000; /* Pastikan di atas semua elemen */
-            display: none; /* Default hidden */
+            z-index: 10000;
+            display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            background: rgba(15, 23, 42, 0.95); /* Dark background */
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(5px);
         }
     </style>
@@ -341,6 +351,10 @@
                             <i class="fas fa-paper-plane"></i> Surat Keluar
                         </button>
 
+                        <button class="nav-link text-warning" id="nav-disposisi" data-bs-toggle="pill" data-bs-target="#disposisi-content" type="button" role="tab" onclick="loadDataDisposisiPending()">
+                            <i class="fas fa-tasks"></i> Disposisi <span class="badge bg-danger ms-auto small" id="badgePending" style="display:none">!</span>
+                        </button>
+
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-label">Arsip & Data</div>
 
@@ -368,7 +382,7 @@
                 <!-- Tab Content Container -->
                 <div class="tab-content" id="v-pills-tabContent">
                     
-                    <!-- 1. FORM SURAT MASUK -->
+                    <!-- 1. FORM SURAT MASUK (TANPA DISPOSISI) -->
                     <div class="tab-pane fade show active" id="input-masuk-content" role="tabpanel">
                         <div class="form-container-limit">
                             <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk Baru</b></h2>
@@ -401,35 +415,8 @@
                                             <textarea class="form-control" name="perihal" rows="3" required></textarea>
                                         </div>
                                         
-                                        <!-- Disposisi Logic Box -->
-                                        <div class="p-4 rounded mb-4" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.3);">
-                                            <small class="text-info fw-bold d-block mb-3"><i class="fas fa-sitemap me-1"></i> LEMBAR DISPOSISI</small>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label text-white-50 small">Level 1: Wadir</label>
-                                                    <select class="form-control form-select" id="disposisiWadir" name="disposisiWadir" required>
-                                                        <option value="" selected disabled>Pilih Wadir...</option>
-                                                        <option value="Wadir Pelayanan">Wakil Direktur Pelayanan</option>
-                                                        <option value="Wadir Admin & Keuangan">Wakil Direktur Admin & Keuangan</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label text-white-50 small">Level 2: Bidang/Bagian</label>
-                                                    <select class="form-control form-select" id="disposisiBidang" name="disposisiBidang" required disabled>
-                                                        <option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <!-- Isi & Tanggal Disposisi -->
-                                            <div class="mb-2">
-                                                <label class="form-label text-white-50 small">Isi Instruksi</label>
-                                                <textarea class="form-control" name="isiDisposisi" rows="2" placeholder="Tuliskan instruksi..."></textarea>
-                                            </div>
-                                            <div class="mb-0">
-                                                <label class="form-label text-white-50 small">Tgl Disposisi</label>
-                                                <input type="date" class="form-control" name="tglDisposisi">
-                                            </div>
+                                        <div class="alert alert-info bg-opacity-10 border-0 text-white small">
+                                            <i class="fas fa-info-circle me-2"></i> Surat akan disimpan dengan status <b>"Menunggu Disposisi"</b>. Pimpinan dapat memberikan disposisi melalui menu <i>Disposisi</i>.
                                         </div>
 
                                         <div class="mb-4">
@@ -492,7 +479,35 @@
                         </div>
                     </div>
 
-                    <!-- 3. ARSIP SURAT MASUK -->
+                    <!-- 3. HALAMAN DISPOSISI PENDING (BARU) -->
+                    <div class="tab-pane fade" id="disposisi-content" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="fw-light text-white m-0">Antrian <b class="text-warning">Disposisi Surat</b></h2>
+                            <button class="btn btn-outline-light" onclick="loadDataDisposisiPending()"><i class="fas fa-sync-alt me-2"></i>Refresh</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tableDisposisi" class="table table-hover w-100 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th width="10%">Tanggal</th>
+                                                <th width="10%">Agenda</th>
+                                                <th width="20%">Pengirim</th>
+                                                <th width="35%">Perihal</th>
+                                                <th width="10%">File</th>
+                                                <th width="15%">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. ARSIP SURAT MASUK -->
                     <div class="tab-pane fade" id="arsip-masuk-content" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2>
@@ -508,9 +523,10 @@
                                                 <th width="10%">Tanggal</th>
                                                 <th width="10%">Agenda</th>
                                                 <th width="15%">Pengirim</th>
-                                                <th width="25%">Disposisi</th>
+                                                <th width="20%">Disposisi</th>
                                                 <th width="30%">Perihal</th>
-                                                <th width="10%">Aksi</th>
+                                                <th width="10%">Status</th>
+                                                <th width="5%">File</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -520,7 +536,7 @@
                         </div>
                     </div>
 
-                    <!-- 4. ARSIP SURAT KELUAR -->
+                    <!-- 5. ARSIP SURAT KELUAR -->
                     <div class="tab-pane fade" id="arsip-keluar-content" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
@@ -551,6 +567,59 @@
             </div> <!-- End Page Content -->
         </div> <!-- End Wrapper -->
     </div> <!-- End appContent -->
+
+    <!-- MODAL DISPOSISI -->
+    <div class="modal fade" id="modalDisposisi" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Proses Disposisi Pimpinan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formDisposisi">
+                        <input type="hidden" id="dispNoAgenda" name="noAgenda">
+                        <input type="hidden" id="dispNoSurat" name="noSurat">
+                        
+                        <div class="alert alert-secondary text-white small mb-3">
+                            <strong>Perihal:</strong> <span id="dispPerihalReview"></span><br>
+                            <strong>Pengirim:</strong> <span id="dispPengirimReview"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small">Level 1: Wadir</label>
+                                <select class="form-control form-select" id="disposisiWadir" name="disposisiWadir" required>
+                                    <option value="" selected disabled>Pilih Wadir...</option>
+                                    <option value="Wadir Pelayanan">Wakil Direktur Pelayanan</option>
+                                    <option value="Wadir Admin & Keuangan">Wakil Direktur Admin & Keuangan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small">Level 2: Bidang/Bagian</label>
+                                <select class="form-control form-select" id="disposisiBidang" name="disposisiBidang" required disabled>
+                                    <option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Isi Instruksi</label>
+                            <textarea class="form-control" name="isiDisposisi" rows="3" placeholder="Tuliskan instruksi..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Tgl Disposisi</label>
+                            <input type="date" class="form-control" name="tglDisposisi" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="submitDisposisi()">Simpan Disposisi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay">
@@ -607,28 +676,16 @@
                         sessionStorage.setItem('isLoggedIn', 'true');
                         showApp();
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Akses Ditolak',
-                            text: res.message,
-                            background: '#1e293b',
-                            color: '#fff'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: res.message });
                     }
                 })
                 .catch(err => {
                     showLoading(false);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Koneksi Gagal',
-                        text: 'Tidak dapat terhubung ke server',
-                        background: '#1e293b',
-                        color: '#fff'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Koneksi Gagal', text: 'Tidak dapat terhubung ke server' });
                 });
             });
 
-            // Initialize DataTables with Dark Theme Config
+            // Initialize DataTables
             const dtConfig = {
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
                 "order": [[ 0, "desc" ]],
@@ -639,8 +696,9 @@
             
             const dtMasuk = $('#tableMasuk').DataTable(dtConfig);
             const dtKeluar = $('#tableKeluar').DataTable(dtConfig);
+            const dtDisposisi = $('#tableDisposisi').DataTable(dtConfig);
 
-            // Handler Dropdown Wadir Change
+            // Handler Dropdown Wadir Change (Modal)
             $('#disposisiWadir').change(function() {
                 const wadir = $(this).val();
                 const bidangSelect = $('#disposisiBidang');
@@ -657,7 +715,7 @@
                 }
             });
 
-            // === Handle Form Submit Surat Masuk ===
+            // === Handle Form Submit Surat Masuk (Tanpa Disposisi) ===
             $('#formSuratMasuk').on('submit', async function(e) {
                 e.preventDefault();
                 showLoading(true);
@@ -685,17 +743,13 @@
                     tglTerima: $('input[name="tglTerima"]').val(),
                     pengirim: $('input[name="pengirim"]').val(),
                     perihal: $('textarea[name="perihal"]').val(),
-                    disposisiWadir: $('#disposisiWadir').val(),
-                    disposisiBidang: $('#disposisiBidang').val(),
-                    isiDisposisi: $('textarea[name="isiDisposisi"]').val(),
-                    tglDisposisi: $('input[name="tglDisposisi"]').val(),
                     fileData: fileData,
                     fileName: fileName
                 };
 
                 sendData(formData, () => {
                     $('#formSuratMasuk')[0].reset();
-                    $('#disposisiBidang').prop('disabled', true);
+                    Swal.fire('Tersimpan', 'Surat masuk berhasil dicatat. Status: Menunggu Disposisi', 'success');
                 });
             });
 
@@ -742,8 +796,7 @@
         function showApp() {
             $('#loginSection').fadeOut(300, function() {
                 $('#appContent').fadeIn(300);
-                loadDataMasuk();
-                loadDataKeluar();
+                // Load data awal jika perlu
             });
         }
 
@@ -797,21 +850,9 @@
                     .then(res => {
                         showLoading(false);
                         if (res.status === 'success') {
-                            Swal.fire({
-                                title: 'Sukses',
-                                text: 'Password berhasil diubah',
-                                icon: 'success',
-                                background: '#1e293b',
-                                color: '#fff'
-                            });
+                            Swal.fire({ title: 'Sukses', text: 'Password berhasil diubah', icon: 'success' });
                         } else {
-                            Swal.fire({
-                                title: 'Gagal',
-                                text: res.message,
-                                icon: 'error',
-                                background: '#1e293b',
-                                color: '#fff'
-                            });
+                            Swal.fire({ title: 'Gagal', text: res.message, icon: 'error' });
                         }
                     });
                 }
@@ -827,71 +868,140 @@
             .then(result => {
                 showLoading(false);
                 if (result.status === 'success') {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Data telah disimpan.',
-                        icon: 'success',
-                        background: '#1e293b',
-                        color: '#fff'
-                    });
                     if (callback) callback();
+                    else Swal.fire({ title: 'Berhasil!', text: 'Data telah disimpan.', icon: 'success' });
                 } else {
-                    Swal.fire({
-                        title: 'Gagal',
-                        text: result.message,
-                        icon: 'error',
-                        background: '#1e293b',
-                        color: '#fff'
-                    });
+                    Swal.fire({ title: 'Gagal', text: result.message, icon: 'error' });
                 }
             })
             .catch(error => {
                 showLoading(false);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Terjadi kesalahan koneksi.',
-                    icon: 'error',
-                    background: '#1e293b',
-                    color: '#fff'
-                });
+                Swal.fire({ title: 'Error', text: 'Terjadi kesalahan koneksi.', icon: 'error' });
             });
         }
 
         function loadDataMasuk() {
-            // Optional: Show loading state inside table or overlay
-            // showLoading(true); 
             fetch(`${GAS_URL}?action=read_masuk`)
                 .then(res => res.json())
                 .then(res => {
-                    // showLoading(false);
                     const dt = $('#tableMasuk').DataTable();
                     dt.clear();
                     
                     if (res.data) {
                         res.data.forEach(row => {
-                            let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat File"><i class="fas fa-file-pdf"></i></a>` : '<span class="text-white-50">-</span>';
+                            // Row: [Ts, Agenda, NoSurat, TglTerima, Pengirim, Perihal, Link, Wadir, Bidang, Isi, TglDisp, Status]
+                            let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat"><i class="fas fa-file-pdf"></i></a>` : '-';
                             let tgl = new Date(row[3]).toLocaleDateString('id-ID');
                             
-                            let dispContent = `<div class="d-flex flex-column">
-                                <span class="fw-bold text-info">${row[7]}</span>
-                                <span class="small text-white-50">${row[8]}</span>`;
+                            // Status Badge
+                            let statusBadge = row[11] === 'Terdisposisi' 
+                                ? `<span class="badge bg-success">Selesai</span>` 
+                                : `<span class="badge bg-warning text-dark">Menunggu</span>`;
                             
-                            if(row[9]) dispContent += `<div class="mt-1 small text-warning fst-italic"><i class="fas fa-comment me-1"></i> "${row[9]}"</div>`;
-                            dispContent += `</div>`;
-                            
+                            // Disposisi Content
+                            let dispContent = '-';
+                            if(row[11] === 'Terdisposisi') {
+                                dispContent = `<div class="d-flex flex-column">
+                                    <span class="fw-bold text-info">${row[7]}</span>
+                                    <span class="small text-white-50">${row[8]}</span>
+                                    <div class="mt-1 small text-warning fst-italic"><i class="fas fa-comment me-1"></i> "${row[9]}"</div>
+                                </div>`;
+                            }
+
                             dt.row.add([
                                 tgl,
                                 `<span class="badge bg-secondary">${row[1]}</span>`,
-                                row[4],
+                                row[4], // Pengirim
                                 dispContent,
-                                row[5],
+                                row[5], // Perihal
+                                statusBadge,
                                 btnFile
                             ]);
                         });
                         dt.draw();
                     }
-                })
-                .catch(err => console.error("Gagal load data masuk", err));
+                });
+        }
+
+        function loadDataDisposisiPending() {
+            fetch(`${GAS_URL}?action=read_pending`)
+                .then(res => res.json())
+                .then(res => {
+                    const dt = $('#tableDisposisi').DataTable();
+                    dt.clear();
+                    
+                    if (res.data) {
+                        $('#badgePending').text(res.data.length).show(); // Update badge count
+                        
+                        res.data.forEach(row => {
+                            let btnFile = row[6] ? `<a href="${row[6]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat"><i class="fas fa-file-pdf"></i></a>` : '-';
+                            let tgl = new Date(row[3]).toLocaleDateString('id-ID');
+                            
+                            // Tombol Proses: Kirim data row ke fungsi open modal
+                            // Kita kirim No Agenda (row[1]), No Surat (row[2]), Pengirim (row[4]), Perihal (row[5])
+                            let btnProses = `<button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openModalDisposisi('${row[1]}', '${row[2]}', '${row[4]}', '${row[5]}')">
+                                <i class="fas fa-edit me-1"></i> Proses
+                            </button>`;
+
+                            dt.row.add([
+                                tgl,
+                                row[1],
+                                row[4],
+                                row[5],
+                                btnFile,
+                                btnProses
+                            ]);
+                        });
+                        dt.draw();
+                    } else {
+                        $('#badgePending').hide();
+                    }
+                });
+        }
+
+        function openModalDisposisi(agenda, noSurat, pengirim, perihal) {
+            $('#dispNoAgenda').val(agenda);
+            $('#dispNoSurat').val(noSurat);
+            $('#dispPengirimReview').text(pengirim);
+            $('#dispPerihalReview').text(perihal);
+            
+            // Set Default Date Today
+            document.querySelector('input[name="tglDisposisi"]').valueAsDate = new Date();
+            
+            // Reset Form fields
+            $('#disposisiWadir').val('');
+            $('#disposisiBidang').empty().append('<option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>').prop('disabled', true);
+            $('textarea[name="isiDisposisi"]').val('');
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalDisposisi'));
+            modal.show();
+        }
+
+        function submitDisposisi() {
+            const formData = {
+                type: 'update_disposisi',
+                noAgenda: $('#dispNoAgenda').val(),
+                disposisiWadir: $('#disposisiWadir').val(),
+                disposisiBidang: $('#disposisiBidang').val(),
+                isiDisposisi: $('textarea[name="isiDisposisi"]').val(),
+                tglDisposisi: $('input[name="tglDisposisi"]').val()
+            };
+
+            if(!formData.disposisiWadir || !formData.disposisiBidang) {
+                Swal.fire('Peringatan', 'Mohon pilih Tujuan Disposisi (Wadir & Bidang)', 'warning');
+                return;
+            }
+
+            // Close Modal
+            const modalEl = document.getElementById('modalDisposisi');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            showLoading(true);
+            sendData(formData, () => {
+                loadDataDisposisiPending(); // Refresh tabel pending
+                Swal.fire('Sukses', 'Surat berhasil didisposisi!', 'success');
+            });
         }
 
         function loadDataKeluar() {
@@ -903,7 +1013,7 @@
                     
                     if (res.data) {
                         res.data.forEach(row => {
-                            let btnFile = row[5] ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat File"><i class="fas fa-file-pdf"></i></a>` : '<span class="text-white-50">-</span>';
+                            let btnFile = row[5] ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat"><i class="fas fa-file-pdf"></i></a>` : '-';
                             let tgl = new Date(row[2]).toLocaleDateString('id-ID');
 
                             dt.row.add([
@@ -916,8 +1026,7 @@
                         });
                         dt.draw();
                     }
-                })
-                .catch(err => console.error("Gagal load data keluar", err));
+                });
         }
 
         function readFileToBase64(file) {

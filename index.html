@@ -153,6 +153,21 @@
             margin-right: 10px;
         }
 
+        .sidebar-divider {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 10px 0;
+        }
+        
+        .sidebar-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 10px;
+        }
+
         /* Content Styling */
         #content {
             width: 100%;
@@ -178,6 +193,12 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Form Container Limit */
+        .form-container-limit {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         /* DataTables Customization for Dark Theme */
@@ -242,9 +263,17 @@
             }
         }
 
-        /* Loading Overlay */
+        /* Loading Overlay Fix */
         #loadingOverlay {
-            background: rgba(15, 23, 42, 0.9); /* Dark background */
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10000; /* Pastikan di atas semua elemen */
+            display: none; /* Default hidden */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.95); /* Dark background */
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
@@ -301,12 +330,28 @@
                     </div>
 
                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                        <button class="nav-link active" id="masuk-tab" data-bs-toggle="pill" data-bs-target="#masuk-content" type="button" role="tab">
-                            <i class="fas fa-inbox"></i> Surat Masuk
+                        
+                        <div class="sidebar-label">Pencatatan</div>
+                        
+                        <button class="nav-link active" id="nav-input-masuk" data-bs-toggle="pill" data-bs-target="#input-masuk-content" type="button" role="tab">
+                            <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
-                        <button class="nav-link" id="keluar-tab" data-bs-toggle="pill" data-bs-target="#keluar-content" type="button" role="tab">
+                        
+                        <button class="nav-link" id="nav-input-keluar" data-bs-toggle="pill" data-bs-target="#input-keluar-content" type="button" role="tab">
                             <i class="fas fa-paper-plane"></i> Surat Keluar
                         </button>
+
+                        <div class="sidebar-divider"></div>
+                        <div class="sidebar-label">Arsip & Data</div>
+
+                        <button class="nav-link" id="nav-arsip-masuk" data-bs-toggle="pill" data-bs-target="#arsip-masuk-content" type="button" role="tab" onclick="loadDataMasuk()">
+                            <i class="fas fa-inbox"></i> Arsip Masuk
+                        </button>
+                        
+                        <button class="nav-link" id="nav-arsip-keluar" data-bs-toggle="pill" data-bs-target="#arsip-keluar-content" type="button" role="tab" onclick="loadDataKeluar()">
+                            <i class="fas fa-archive"></i> Arsip Keluar
+                        </button>
+
                     </div>
                 </div>
 
@@ -323,45 +368,44 @@
                 <!-- Tab Content Container -->
                 <div class="tab-content" id="v-pills-tabContent">
                     
-                    <!-- TAB SURAT MASUK -->
-                    <div class="tab-pane fade show active" id="masuk-content" role="tabpanel">
-                        <h2 class="mb-4 fw-light text-white">Dashboard <b class="text-info">Surat Masuk</b></h2>
-                        
-                        <div class="row">
-                            <!-- Form Input -->
-                            <div class="col-xl-4 col-lg-5 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header"><i class="fas fa-plus-circle me-2"></i>Registrasi Surat Masuk</div>
-                                    <div class="card-body">
-                                        <form id="formSuratMasuk">
-                                            <div class="row">
-                                                <div class="col-6 mb-3">
-                                                    <label class="form-label text-white-50 small">No. Agenda</label>
-                                                    <input type="text" class="form-control" name="noAgenda" required>
-                                                </div>
-                                                <div class="col-6 mb-3">
-                                                    <label class="form-label text-white-50 small">Tanggal Terima</label>
-                                                    <input type="date" class="form-control" name="tglTerima" required>
-                                                </div>
+                    <!-- 1. FORM SURAT MASUK -->
+                    <div class="tab-pane fade show active" id="input-masuk-content" role="tabpanel">
+                        <div class="form-container-limit">
+                            <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk Baru</b></h2>
+                            
+                            <div class="card">
+                                <div class="card-header"><i class="fas fa-pen-fancy me-2"></i>Formulir Agenda Surat Masuk</div>
+                                <div class="card-body p-4">
+                                    <form id="formSuratMasuk">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white-50 small">No. Agenda</label>
+                                                <input type="text" class="form-control" name="noAgenda" required>
                                             </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white-50 small">Tanggal Terima</label>
+                                                <input type="date" class="form-control" name="tglTerima" required>
+                                            </div>
+                                        </div>
 
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">No. Surat</label>
-                                                <input type="text" class="form-control" name="noSurat" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">Pengirim</label>
-                                                <input type="text" class="form-control" name="pengirim" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">Perihal</label>
-                                                <textarea class="form-control" name="perihal" rows="2" required></textarea>
-                                            </div>
-                                            
-                                            <!-- Disposisi Logic Box -->
-                                            <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.3);">
-                                                <small class="text-info fw-bold d-block mb-3"><i class="fas fa-sitemap me-1"></i> LEMBAR DISPOSISI</small>
-                                                <div class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">No. Surat</label>
+                                            <input type="text" class="form-control" name="noSurat" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">Pengirim</label>
+                                            <input type="text" class="form-control" name="pengirim" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">Perihal</label>
+                                            <textarea class="form-control" name="perihal" rows="3" required></textarea>
+                                        </div>
+                                        
+                                        <!-- Disposisi Logic Box -->
+                                        <div class="p-4 rounded mb-4" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.3);">
+                                            <small class="text-info fw-bold d-block mb-3"><i class="fas fa-sitemap me-1"></i> LEMBAR DISPOSISI</small>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
                                                     <label class="form-label text-white-50 small">Level 1: Wadir</label>
                                                     <select class="form-control form-select" id="disposisiWadir" name="disposisiWadir" required>
                                                         <option value="" selected disabled>Pilih Wadir...</option>
@@ -369,133 +413,135 @@
                                                         <option value="Wadir Admin & Keuangan">Wakil Direktur Admin & Keuangan</option>
                                                     </select>
                                                 </div>
-                                                <div class="mb-3">
+                                                <div class="col-md-6 mb-3">
                                                     <label class="form-label text-white-50 small">Level 2: Bidang/Bagian</label>
                                                     <select class="form-control form-select" id="disposisiBidang" name="disposisiBidang" required disabled>
                                                         <option value="" selected disabled>-- Menunggu Pilihan Wadir --</option>
                                                     </select>
                                                 </div>
-
-                                                <!-- Isi & Tanggal Disposisi -->
-                                                <div class="mb-2">
-                                                    <label class="form-label text-white-50 small">Isi Instruksi</label>
-                                                    <textarea class="form-control" name="isiDisposisi" rows="2" placeholder="Tuliskan instruksi..."></textarea>
-                                                </div>
-                                                <div class="mb-0">
-                                                    <label class="form-label text-white-50 small">Tgl Disposisi</label>
-                                                    <input type="date" class="form-control" name="tglDisposisi">
-                                                </div>
                                             </div>
 
-                                            <div class="mb-4">
-                                                <label class="form-label text-white-50 small">Scan Dokumen (PDF/Img)</label>
-                                                <input type="file" class="form-control" id="fileSuratMasuk" accept=".pdf, .jpg, .jpeg, .png">
+                                            <!-- Isi & Tanggal Disposisi -->
+                                            <div class="mb-2">
+                                                <label class="form-label text-white-50 small">Isi Instruksi</label>
+                                                <textarea class="form-control" name="isiDisposisi" rows="2" placeholder="Tuliskan instruksi..."></textarea>
                                             </div>
-
-                                            <div class="d-grid">
-                                                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan Surat Masuk</button>
+                                            <div class="mb-0">
+                                                <label class="form-label text-white-50 small">Tgl Disposisi</label>
+                                                <input type="date" class="form-control" name="tglDisposisi">
                                             </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Table Data -->
-                            <div class="col-xl-8 col-lg-7">
-                                <div class="card h-100">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-database me-2"></i>Arsip Surat Masuk</span>
-                                        <button class="btn btn-sm btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i></button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="tableMasuk" class="table table-hover w-100 align-middle">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tanggal</th>
-                                                        <th>Agenda</th>
-                                                        <th>Pengirim</th>
-                                                        <th>Disposisi</th>
-                                                        <th>Perihal</th>
-                                                        <th>Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
                                         </div>
-                                    </div>
+
+                                        <div class="mb-4">
+                                            <label class="form-label text-white-50 small">Scan Dokumen (PDF/Img)</label>
+                                            <input type="file" class="form-control" id="fileSuratMasuk" accept=".pdf, .jpg, .jpeg, .png">
+                                        </div>
+
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Simpan Surat Masuk</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- TAB SURAT KELUAR -->
-                    <div class="tab-pane fade" id="keluar-content" role="tabpanel">
-                        <h2 class="mb-4 fw-light text-white">Dashboard <b class="text-success">Surat Keluar</b></h2>
-                        
-                        <div class="row">
-                            <!-- Form Input -->
-                            <div class="col-xl-4 col-lg-5 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header"><i class="fas fa-paper-plane me-2"></i>Registrasi Surat Keluar</div>
-                                    <div class="card-body">
-                                        <form id="formSuratKeluar">
-                                            <div class="mb-3">
+                    <!-- 2. FORM SURAT KELUAR -->
+                    <div class="tab-pane fade" id="input-keluar-content" role="tabpanel">
+                        <div class="form-container-limit">
+                            <h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar Baru</b></h2>
+                            
+                            <div class="card">
+                                <div class="card-header"><i class="fas fa-paper-plane me-2"></i>Formulir Registrasi Surat Keluar</div>
+                                <div class="card-body p-4">
+                                    <form id="formSuratKeluar">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
                                                 <label class="form-label text-white-50 small">No. Surat</label>
                                                 <input type="text" class="form-control" name="noSurat" required>
                                             </div>
-                                            <div class="mb-3">
+                                            <div class="col-md-6 mb-3">
                                                 <label class="form-label text-white-50 small">Tanggal Surat</label>
                                                 <input type="date" class="form-control" name="tglSurat" required>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">Tujuan</label>
-                                                <input type="text" class="form-control" name="tujuan" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">Perihal</label>
-                                                <textarea class="form-control" name="perihal" rows="3" required></textarea>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label text-white-50 small">Pembuat / Bagian</label>
-                                                <input type="text" class="form-control" name="pembuat" placeholder="Contoh: Bagian Umum">
-                                            </div>
-                                            <div class="mb-4">
-                                                <label class="form-label text-white-50 small">File Arsip</label>
-                                                <input type="file" class="form-control" id="fileSuratKeluar" accept=".pdf, .jpg, .jpeg, .png">
-                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">Tujuan</label>
+                                            <input type="text" class="form-control" name="tujuan" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">Perihal</label>
+                                            <textarea class="form-control" name="perihal" rows="3" required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50 small">Pembuat / Bagian</label>
+                                            <input type="text" class="form-control" name="pembuat" placeholder="Contoh: Bagian Umum">
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label text-white-50 small">File Arsip</label>
+                                            <input type="file" class="form-control" id="fileSuratKeluar" accept=".pdf, .jpg, .jpeg, .png">
+                                        </div>
 
-                                            <div class="d-grid">
-                                                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan Surat Keluar</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Simpan Surat Keluar</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Table Data -->
-                            <div class="col-xl-8 col-lg-7">
-                                <div class="card h-100">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-database me-2"></i>Arsip Surat Keluar</span>
-                                        <button class="btn btn-sm btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i></button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="tableKeluar" class="table table-hover w-100 align-middle">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tgl Surat</th>
-                                                        <th>No. Surat</th>
-                                                        <th>Tujuan</th>
-                                                        <th>Perihal</th>
-                                                        <th>File</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                    <!-- 3. ARSIP SURAT MASUK -->
+                    <div class="tab-pane fade" id="arsip-masuk-content" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2>
+                            <button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt me-2"></i>Refresh Data</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tableMasuk" class="table table-hover w-100 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th width="10%">Tanggal</th>
+                                                <th width="10%">Agenda</th>
+                                                <th width="15%">Pengirim</th>
+                                                <th width="25%">Disposisi</th>
+                                                <th width="30%">Perihal</th>
+                                                <th width="10%">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. ARSIP SURAT KELUAR -->
+                    <div class="tab-pane fade" id="arsip-keluar-content" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
+                            <button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt me-2"></i>Refresh Data</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tableKeluar" class="table table-hover w-100 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th width="15%">Tgl Surat</th>
+                                                <th width="15%">No. Surat</th>
+                                                <th width="20%">Tujuan</th>
+                                                <th width="40%">Perihal</th>
+                                                <th width="10%">File</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -586,8 +632,8 @@
             const dtConfig = {
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
                 "order": [[ 0, "desc" ]],
-                "pageLength": 5,
-                "lengthMenu": [5, 10, 25, 50],
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
                 "autoWidth": false
             };
             
@@ -650,7 +696,6 @@
                 sendData(formData, () => {
                     $('#formSuratMasuk')[0].reset();
                     $('#disposisiBidang').prop('disabled', true);
-                    loadDataMasuk();
                 });
             });
 
@@ -688,7 +733,6 @@
 
                 sendData(formData, () => {
                     $('#formSuratKeluar')[0].reset();
-                    loadDataKeluar();
                 });
             });
         });
@@ -814,9 +858,12 @@
         }
 
         function loadDataMasuk() {
+            // Optional: Show loading state inside table or overlay
+            // showLoading(true); 
             fetch(`${GAS_URL}?action=read_masuk`)
                 .then(res => res.json())
                 .then(res => {
+                    // showLoading(false);
                     const dt = $('#tableMasuk').DataTable();
                     dt.clear();
                     

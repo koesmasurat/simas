@@ -165,7 +165,6 @@
 
     <div id="appContent">
         <div class="wrapper">
-            <!-- SIDEBAR -->
             <nav id="sidebar">
                 <div class="sidebar-header text-center position-relative">
                     <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2">
@@ -195,14 +194,16 @@
                             <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_direktur" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)">
+                            
+                            <!-- SPLIT WADIR BUTTONS (Specific Permissions) -->
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_admin" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)">
                                 <span style="font-size:0.85em">2a. Wadir Adm & Keu</span> <span class="badge-count" id="count-wadir_admin">0</span>
                             </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)">
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_pelayanan" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)">
                                 <span style="font-size:0.85em">2b. Wadir Pelayanan</span> <span class="badge-count" id="count-wadir_pelayanan">0</span>
                             </button>
                             
-                            <!-- SPLIT KABID BUTTONS WITH SPECIFIC PERMISSIONS -->
+                            <!-- SPLIT KABID BUTTONS -->
                             <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_umum" id="btn-disp-kabag-umum" onclick="openDisposisiPage('kabag_umum', this)">
                                 <span style="font-size:0.85em">3a. Kabag Umum</span> <span class="badge-count" id="count-kabag_umum">0</span>
                             </button>
@@ -259,13 +260,14 @@
                     
                     <!-- INPUT MASUK -->
                     <div class="tab-pane active show" id="input-masuk-content">
-                        <!-- Content same as previous -->
-                        <div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div>
+                        <div class="form-container-limit">
+                            <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2>
+                            <div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div>
+                        </div>
                     </div>
 
                     <!-- INPUT KELUAR -->
                     <div class="tab-pane" id="input-keluar-content">
-                        <!-- Content same as previous -->
                         <div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratKeluar"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><div class="input-group"><input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required><button class="btn btn-warning" type="button" onclick="openBookingModal()">Booking No.</button></div></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tanggal Surat Diterima</label><input type="date" class="form-control" name="tglSurat" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat (Format Dinas)</label><input type="text" class="form-control" name="noSurat" required placeholder="Contoh: 445/001/405.08/2024"></div><div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-3"><label class="small text-white-50">Pembuat</label><input type="text" class="form-control" name="pembuat"></div><div class="mb-4"><label class="small text-white-50">File</label><input type="file" class="form-control" id="fileSuratKeluar"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div>
                     </div>
 
@@ -325,7 +327,11 @@
                                     <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div>
                                     <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div>
                                     <div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div>
-                                    <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir" id="perm_wad"><label class="form-check-label text-white" for="perm_wad">Wadir (Semua)</label></div>
+                                    
+                                    <!-- SPLIT WADIR CHECKBOXES -->
+                                    <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm & Keu</label></div>
+                                    <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pelayanan</label></div>
+                                    
                                     <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div>
                                 </div>
                                 <div class="col-6">
@@ -378,6 +384,7 @@
             
             const today = new Date();
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = today);
+            
             $('#sidebarCollapse, #sidebarCloseMobile').on('click', function() { $('#sidebar, #content').toggleClass('toggled'); });
             
             const dtConfig = { language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" }, pageLength: 10, autoWidth: false };

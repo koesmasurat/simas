@@ -51,8 +51,12 @@
         /* Login */
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; }
-        
-        /* Main App Container (Hidden by Default) */
+        .form-control { background: rgba(255, 255, 255, 0.9); border: none; border-radius: 8px; padding: 12px; }
+        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); }
+        .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
+
+        /* Main App Container */
         #appContent { display: none; width: 100%; min-height: 100vh; }
 
         /* Sidebar Toggle Logic */
@@ -103,9 +107,7 @@
         .page-item.active .page-link { background: #f97316; color: white; border-color: #f97316; }
         
         .form-control, .form-select { background: #fff; border: 1px solid #ced4da; color: #333; }
-        .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
-
+        
         /* Nav Pills */
         .nav-pills .nav-link { color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 12px 20px; margin-bottom: 8px; text-align: left; display: flex; align-items: center; cursor: pointer; transition: all 0.2s ease-in-out; }
         .nav-pills .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateX(5px); }
@@ -135,14 +137,14 @@
 
         #loadingOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); }
         
-        /* Permission Helper Class */
-        .restricted-feature { display: none; }
+        /* Permission Helper Class - UPDATE: Gunakan !important */
+        .restricted-feature { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="loginSection">
-        <div class="glass-panel login-card text-center">
+        <div class="glass-panel login-card">
             <div class="mb-4">
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
                 <h3 class="fw-bold">SIMAS KOESMA</h3>
@@ -346,8 +348,16 @@
         let currentLevel = ""; 
         let currentUserEmail = "";
         const structureOrg = {
-            "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
-            "Wadir Admin & Keuangan": ["Bagian Adm dan Umum", "Bagian Keuangan", "Bagian Progpel"]
+            "Wadir Pelayanan": [
+                "Bidang Pelayanan Medis",
+                "Bidang Pelayanan Keperawatan",
+                "Bidang Pelayanan Penunjang"
+            ],
+            "Wadir Admin & Keuangan": [
+                "Bagian Adm dan Umum",
+                "Bagian Keuangan",
+                "Bagian Progpel"
+            ]
         };
 
         $(document).ready(function() {
@@ -410,20 +420,27 @@
             $('#userDisplayName').text(name);
             $('#userRoleBadge').text(role);
 
-            // 1. Sembunyikan semua fitur yang dibatasi (Reset)
-            $('.restricted-feature').hide();
+            // 1. Initial Hide for All Restricted
+            $('.restricted-feature').addClass('restricted-feature'); 
+            // Note: CSS sets .restricted-feature { display: none !important; }
+            // So to show, we MUST remove the class.
 
-            // 2. Logika Super Admin (Langsung Tampilkan Semua)
+            // 2. Super Admin Check
             if (role === 'Super Admin') {
-                $('.restricted-feature').show(); 
+                $('.restricted-feature').removeClass('restricted-feature');
                 return;
             }
 
-            // 3. Logika User Biasa / Admin Biasa
+            // 3. Normal User Check
             if (perms && Array.isArray(perms)) {
                 perms.forEach(p => {
-                    $(`[data-perm="${p}"]`).show();
+                    $(`[data-perm="${p}"]`).removeClass('restricted-feature');
                 });
+            }
+            
+            // Settings Button Check
+            if(role !== 'Super Admin') {
+                $('#btn-settings').addClass('restricted-feature');
             }
         }
 
@@ -460,10 +477,7 @@
             $('#editUserRole').val(user.role);
             $('#editUserStatus').val(user.status);
             
-            // Clear checks
             $('.perm-check').prop('checked', false);
-            
-            // Check existing permissions
             try {
                 const perms = JSON.parse(user.permissions);
                 perms.forEach(p => {

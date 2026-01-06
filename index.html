@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMAS KOESMA - RSUD dr. R. Koesma</title>
     <link rel="icon" href="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" type="image/png">
-    
-    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
-    <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -35,7 +31,6 @@
             overflow-x: hidden;
         }
 
-        /* Glassmorphism Defaults */
         .glass-panel, .card, .modal-content {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -48,7 +43,6 @@
         .card { margin-bottom: 25px; border-radius: 16px; transition: transform 0.2s; }
         .modal-content { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 
-        /* Login */
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; }
         .form-control { background: rgba(255, 255, 255, 0.9); border: none; border-radius: 8px; padding: 12px; }
@@ -56,10 +50,7 @@
         .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
 
-        /* Main App Container */
         #appContent { display: none; width: 100%; min-height: 100vh; }
-
-        /* Sidebar Toggle Logic */
         .wrapper { display: flex; width: 100%; align-items: stretch; transition: all 0.3s; }
         
         #sidebar {
@@ -71,27 +62,23 @@
         }
         
         #sidebar.toggled { margin-left: calc(var(--sidebar-width) * -1); }
-
         .sidebar-menu-scroll {
             flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 1rem;
             scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
         }
         .sidebar-menu-scroll::-webkit-scrollbar { width: 4px; }
         .sidebar-menu-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
         .sidebar-footer { padding: 1rem; flex-shrink: 0; background: rgba(0,0,0,0.1); }
 
         #content { width: 100%; padding: 20px; margin-left: var(--sidebar-width); transition: all 0.3s; }
         #content.toggled { margin-left: 0; }
 
-        /* Toggle Button */
         #sidebarCollapse {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
             padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; transition: all 0.3s;
         }
         #sidebarCollapse:hover { background: var(--emerald-accent); }
 
-        /* Light Theme for Content */
         #arsip-masuk-content .card, #arsip-keluar-content .card, #disposisi-container .card, #settings-content .card {
             background: #ffffff !important; backdrop-filter: none; color: #333333; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
@@ -108,7 +95,6 @@
         
         .form-control, .form-select { background: #fff; border: 1px solid #ced4da; color: #333; }
         
-        /* Nav Pills */
         .nav-pills .nav-link { color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 12px 20px; margin-bottom: 8px; text-align: left; display: flex; align-items: center; cursor: pointer; transition: all 0.2s ease-in-out; }
         .nav-pills .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateX(5px); }
         .nav-pills .nav-link.active { background: linear-gradient(90deg, var(--emerald-accent), transparent); color: #fff; border-left: 4px solid #fff; }
@@ -136,8 +122,6 @@
         }
 
         #loadingOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); }
-        
-        /* Permission Helper Class - UPDATE: Gunakan !important */
         .restricted-feature { display: none !important; }
     </style>
 </head>
@@ -167,9 +151,7 @@
         <div class="wrapper">
             <nav id="sidebar">
                 <div class="sidebar-header text-center position-relative">
-                    <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2"><i class="fas fa-times"></i></button>
                     <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo" class="mb-2" style="width: 60px; height: auto;">
                     <h5 class="fw-bold m-0">SIMAS KOESMA</h5>
                     <small class="text-white-50 d-block" id="userDisplayName">User</small>
@@ -178,58 +160,38 @@
                 
                 <div class="sidebar-menu-scroll">
                     <div class="nav flex-column nav-pills">
-                        <button class="nav-link active restricted-feature" data-perm="input_masuk" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)">
-                            <i class="fas fa-plus-circle"></i> Surat Masuk
-                        </button>
-                        <button class="nav-link restricted-feature" data-perm="input_keluar" id="btn-input-keluar" onclick="activateTab('input-keluar-content', this)">
-                            <i class="fas fa-paper-plane"></i> Surat Keluar
-                        </button>
+                        <button class="nav-link active restricted-feature" data-perm="input_masuk" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-plus-circle"></i> Surat Masuk</button>
+                        <button class="nav-link restricted-feature" data-perm="input_keluar" id="btn-input-keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
 
                         <div class="sidebar-divider"></div>
 
-                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
-                            <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
-                        </a>
+                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false"><i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i></a>
                         <div class="collapse submenu" id="submenuDisposisi">
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_direktur" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)">
-                                <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
-                            </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)">
-                                <span style="font-size:0.85em">2a. Wadir Adm & Keu</span> <span class="badge-count" id="count-wadir_admin">0</span>
-                            </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)">
-                                <span style="font-size:0.85em">2b. Wadir Pelayanan</span> <span class="badge-count" id="count-wadir_pelayanan">0</span>
-                            </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabid" onclick="openDisposisiPage('kabid', this)">
-                                <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
-                            </button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_jf" id="btn-disp-jf" onclick="openDisposisiPage('jf', this)">
-                                <span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span>
-                            </button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_direktur" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)"><span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)"><span style="font-size:0.85em">2a. Wadir Adm</span> <span class="badge-count" id="count-wadir_admin">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)"><span style="font-size:0.85em">2b. Wadir Pel</span> <span class="badge-count" id="count-wadir_pelayanan">0</span></button>
+                            
+                            <!-- SPLIT KABID BUTTONS -->
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabag-umum" onclick="openDisposisiPage('kabag_umum', this)"><span style="font-size:0.85em">3a. Kabag Umum</span> <span class="badge-count" id="count-kabag_umum">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabag-keuangan" onclick="openDisposisiPage('kabag_keuangan', this)"><span style="font-size:0.85em">3b. Kabag Keu</span> <span class="badge-count" id="count-kabag_keuangan">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabag-progpel" onclick="openDisposisiPage('kabag_progpel', this)"><span style="font-size:0.85em">3c. Kabag Prog</span> <span class="badge-count" id="count-kabag_progpel">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabid-yanmed" onclick="openDisposisiPage('kabid_yanmed', this)"><span style="font-size:0.85em">3d. Kabid Yanmed</span> <span class="badge-count" id="count-kabid_yanmed">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabid-kep" onclick="openDisposisiPage('kabid_keperawatan', this)"><span style="font-size:0.85em">3e. Kabid Kep</span> <span class="badge-count" id="count-kabid_keperawatan">0</span></button>
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid" id="btn-disp-kabid-penunjang" onclick="openDisposisiPage('kabid_penunjang', this)"><span style="font-size:0.85em">3f. Kabid Penunjang</span> <span class="badge-count" id="count-kabid_penunjang">0</span></button>
+                            
+                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_jf" id="btn-disp-jf" onclick="openDisposisiPage('jf', this)"><span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span></button>
                         </div>
 
                         <div class="sidebar-divider"></div>
-
-                        <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)">
-                            <i class="fas fa-inbox"></i> Arsip Masuk
-                        </button>
-                        <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)">
-                            <i class="fas fa-archive"></i> Arsip Keluar
-                        </button>
-
+                        <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)"><i class="fas fa-inbox"></i> Arsip Masuk</button>
+                        <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)"><i class="fas fa-archive"></i> Arsip Keluar</button>
                         <div class="sidebar-divider"></div>
-                        
-                        <!-- Settings Menu (Super Admin Only) -->
-                        <button class="nav-link text-info restricted-feature" data-perm="settings_admin" id="btn-settings" onclick="openSettingsPage(this)">
-                            <i class="fas fa-cogs"></i> Pengaturan Pengguna
-                        </button>
+                        <button class="nav-link text-info restricted-feature" data-perm="settings_admin" id="btn-settings" onclick="openSettingsPage(this)"><i class="fas fa-cogs"></i> Pengaturan Pengguna</button>
                     </div>
                 </div>
 
                 <div class="sidebar-footer">
-                    <button class="btn btn-danger w-100 btn-sm" onclick="logout()">
-                        <i class="fas fa-sign-out-alt me-2"></i> Keluar
-                    </button>
+                    <button class="btn btn-danger w-100 btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Keluar</button>
                 </div>
             </nav>
 
@@ -266,21 +228,7 @@
 
                     <!-- SETTINGS PAGE (Super Admin) -->
                     <div class="tab-pane" id="settings-content">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna</b></h2>
-                            <button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        </div>
-                        <div class="card shadow-lg">
-                            <div class="card-header border-bottom"><i class="fas fa-users-cog me-2"></i> Daftar Pengguna</div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="tableUsers" class="table table-striped table-hover table-sm w-100 align-middle">
-                                        <thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna</b></h2><button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="card shadow-lg"><div class="card-header border-bottom"><i class="fas fa-users-cog me-2"></i> Daftar Pengguna</div><div class="card-body"><div class="table-responsive"><table id="tableUsers" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>
                     </div>
 
                 </div>
@@ -296,22 +244,8 @@
                 <div class="modal-body">
                     <form id="formEditUser">
                         <input type="hidden" id="editUserEmail">
-                        <div class="mb-3">
-                            <label class="small text-white-50">Role</label>
-                            <select class="form-select" id="editUserRole">
-                                <option value="User">User Biasa</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Super Admin">Super Admin</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="small text-white-50">Status</label>
-                            <select class="form-select" id="editUserStatus">
-                                <option value="Aktif">Aktif</option>
-                                <option value="Blokir">Blokir</option>
-                                <option value="Pending">Pending</option>
-                            </select>
-                        </div>
+                        <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div>
+                        <div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div>
                         <div class="mb-3">
                             <label class="small text-white-50 d-block mb-2">Hak Akses Menu</label>
                             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm1"><label class="form-check-label text-white" for="perm1">Catat Surat Masuk</label></div>
@@ -348,16 +282,8 @@
         let currentLevel = ""; 
         let currentUserEmail = "";
         const structureOrg = {
-            "Wadir Pelayanan": [
-                "Bidang Pelayanan Medis",
-                "Bidang Pelayanan Keperawatan",
-                "Bidang Pelayanan Penunjang"
-            ],
-            "Wadir Admin & Keuangan": [
-                "Bagian Adm dan Umum",
-                "Bagian Keuangan",
-                "Bagian Progpel"
-            ]
+            "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
+            "Wadir Admin & Keuangan": ["Bagian Adm dan Umum", "Bagian Keuangan", "Bagian Progpel"]
         };
 
         $(document).ready(function() {
@@ -422,16 +348,14 @@
 
             // 1. Initial Hide for All Restricted
             $('.restricted-feature').addClass('restricted-feature'); 
-            // Note: CSS sets .restricted-feature { display: none !important; }
-            // So to show, we MUST remove the class.
-
+            
             // 2. Super Admin Check
             if (role === 'Super Admin') {
                 $('.restricted-feature').removeClass('restricted-feature');
                 return;
             }
 
-            // 3. Normal User Check
+            // 3. Normal User Check (Using removeClass to override css !important)
             if (perms && Array.isArray(perms)) {
                 perms.forEach(p => {
                     $(`[data-perm="${p}"]`).removeClass('restricted-feature');
@@ -529,7 +453,12 @@
                     setCount('direktur', r.data.direktur);
                     setCount('wadir_admin', r.data.wadir_admin);
                     setCount('wadir_pelayanan', r.data.wadir_pelayanan);
-                    setCount('kabid', r.data.kabid);
+                    setCount('kabag_umum', r.data.kabag_umum);
+                    setCount('kabag_keuangan', r.data.kabag_keuangan);
+                    setCount('kabag_progpel', r.data.kabag_progpel);
+                    setCount('kabid_yanmed', r.data.kabid_yanmed);
+                    setCount('kabid_keperawatan', r.data.kabid_keperawatan);
+                    setCount('kabid_penunjang', r.data.kabid_penunjang);
                     setCount('jf', r.data.jf);
                 }
             });
@@ -608,8 +537,9 @@
         function openDisposisiPage(level, element) {
             if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id);
             currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi);
+            
             let title = level.toUpperCase();
-            if(level==='kabid') title = "KABAG / KABID";
+            if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase();
             if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase();
             $('#dispPageTitle').text(title);
         }
@@ -630,12 +560,16 @@
             $('#actNoAgenda').val(rowData[1]); $('#actPerihal').text(rowData[6]); 
             document.querySelector('#actTgl').valueAsDate = new Date(); $('#actInstruksi').val('');
             $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); $('.disp-field').addClass('d-none');
+            
             if(currentLevel === 'direktur') $('#fieldDirektur').removeClass('d-none');
+            
             else if (currentLevel.includes('wadir')) {
                 $('#fieldWadir').removeClass('d-none');
-                let html = (structureOrg[rowData[8]] || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                let selectedWadir = rowData[8]; 
+                let html = (structureOrg[selectedWadir] || []).map(o => `<option value="${o}">${o}</option>`).join('');
                 $('#actTargetBidang').html(html);
-            } else if (currentLevel === 'kabid') $('#fieldKabid').removeClass('d-none');
+            } 
+            else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) $('#fieldKabid').removeClass('d-none');
             else if (currentLevel === 'jf') $('#fieldJF').removeClass('d-none');
             new bootstrap.Modal(document.getElementById('modalDisposisi')).show();
         }
@@ -643,7 +577,7 @@
             const formData = { type: 'update_disposisi_level', email: currentUserEmail, level: currentLevel, noAgenda: $('#actNoAgenda').val(), tglDisposisi: $('#actTgl').val(), instruksi: $('#actInstruksi').val() };
             if(currentLevel === 'direktur') formData.targetWadir = $('#actTargetWadir').val();
             if(currentLevel.includes('wadir')) formData.targetBidang = $('#actTargetBidang').val();
-            if(currentLevel === 'kabid') formData.targetJF = $('#actTargetJF').val();
+            if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) formData.targetJF = $('#actTargetJF').val();
             if(currentLevel === 'jf') formData.targetStaf = $('#actTargetStaf').val();
             bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide();
             showLoading(true);

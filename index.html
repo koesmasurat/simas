@@ -11,7 +11,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Added SheetJS, JSZip, FileSaver for Backup Feature -->
+    <!-- SheetJS, JSZip, FileSaver for Manual Backup Feature -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -176,8 +176,10 @@
                         <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)"><i class="fas fa-inbox"></i> Arsip Masuk</button>
                         <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)"><i class="fas fa-archive"></i> Arsip Keluar</button>
                         
-                        <!-- NEW: BACKUP BUTTON -->
+                        <!-- BACKUP BUTTON -->
                         <button class="nav-link restricted-feature text-warning mt-2" data-perm="backup_data" id="btn-backup" onclick="downloadBackup()"><i class="fas fa-download"></i> Backup Data</button>
+                        <!-- AUTO-BACKUP ACTIVATION BUTTON (NEW) -->
+                        <button class="nav-link restricted-feature text-info btn-sm" style="font-size:0.8rem; margin-left:15px; margin-top:-5px;" data-perm="backup_data" id="btn-auto-backup" onclick="activateAutoBackup()"><i class="fas fa-robot"></i> Aktifkan Email Harian</button>
                         
                         <div class="sidebar-divider"></div>
                         <button class="nav-link text-info restricted-feature" data-perm="settings_admin" id="btn-settings" onclick="openSettingsPage(this)"><i class="fas fa-cogs"></i> Pengaturan Pengguna</button>
@@ -782,142 +784,32 @@
             let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : '';
             return `<div class="timeline-item ${cls}"><div class="fw-bold text-warning small d-flex justify-content-between"><span>${title}</span>${dateStr}</div><div class="timeline-content mt-1"><div class="fw-bold small mb-1">${target}</div><div class="text-white-50 small fst-italic">"${note || '-'}"</div></div></div>`;
         }
-        
-        // --- UPDATED: loadDataKeluar Correct Column Mapping & Logic ---
         function loadDataKeluar() {
             fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{
                 const dt = $('#tableKeluar').DataTable(); dt.clear();
                 if(r.data) r.data.forEach(row => {
                     // Mapping UPDATED: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat, 9:Status
-                    
                     let dateDiterima = '-';
                     if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
-                    
-                    // Link for Perihal
-                    let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
-
-                    // Status Badge Logic
+                    let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-';
                     let statusText = row[9] || "Proses";
-                    let statusBadge = statusText === 'Selesai' ? 
-                        `<span class="badge bg-success">Selesai</span>` : 
-                        `<span class="badge bg-warning text-dark">Proses</span>`;
-
-                    // Action Buttons Logic
-                    let btnEdit = `<button class="btn btn-sm btn-light text-primary border" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button>`;
-                    let btnFinish = '';
-                    
-                    // Show Finish (Check) button ONLY if NOT finished
-                    if (statusText !== 'Selesai') {
-                        btnFinish = `<button class="btn btn-sm btn-outline-success ms-1" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`; // Pass No Agenda
-                    }
-
-                    dt.row.add([ 
-                        row[1],         // Agenda
-                        dateDiterima, 
-                        row[2],         // No Surat
-                        row[5],         // Tujuan
-                        perihalHtml,    // Perihal (Link)
-                        row[8],         // Pembuat
-                        statusBadge,    // Status Badge (Separate Column)
-                        `<div class="d-flex gap-1">${btnFinish}${btnEdit}</div>` // Actions
-                    ]);
+                    let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
+                    let actions = `<div class="d-flex gap-1">${status}<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button></div>`;
+                    dt.row.add([ dateDiterima, row[2], row[5], row[6], btnFile, statusText, actions ]);
                 });
                 dt.draw();
             });
         }
-
-        // --- UPDATED: Update Status Selesai with Date Input ---
-        function updateStatusSelesai(noAgenda) {
-            // Default Today
-            const d = new Date();
-            const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-
-            Swal.fire({
-                title: 'Selesaikan Surat?',
-                html: `
-                    <p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p>
-                    <input type="date" id="swal-date-input" class="swal2-input" value="${today}">
-                `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'Selesai',
-                preConfirm: () => {
-                    const dateVal = document.getElementById('swal-date-input').value;
-                    if (!dateVal) {
-                        Swal.showValidationMessage('Tanggal Surat Resmi harus diisi');
-                    }
-                    return dateVal;
-                }
-            }).then((result) => {
-                if(result.isConfirmed) {
-                    showLoading(true);
-                    fetch(GAS_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ 
-                            type: 'update_status_keluar', 
-                            noAgenda: noAgenda,
-                            tglSurat: result.value 
-                        }) 
-                    })
-                    .then(r=>r.json())
-                    .then(r=>{ 
-                        showLoading(false); 
-                        if(r.status==='success') { 
-                            Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); 
-                            loadDataKeluar(); 
-                        } else {
-                            Swal.fire('Gagal', r.message, 'error');
-                        }
-                    }); 
-                }
-            });
+        function updateStatusSelesai(noSurat) {
+            Swal.fire({ title: 'Selesaikan Surat?', html: `<p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p><input type="date" id="swal-date-input" class="swal2-input">`, focusConfirm: false, showCancelButton: true, confirmButtonText: 'Selesai', preConfirm: () => { const dateVal = document.getElementById('swal-date-input').value; if (!dateVal) { Swal.showValidationMessage('Tanggal Surat Resmi harus diisi'); } return dateVal; }
+            }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'update_status_keluar', noAgenda: noSurat, tglSurat: result.value }) }).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); loadDataKeluar(); } else { Swal.fire('Gagal', r.message, 'error'); }}); } });
         }
-
-        // --- NEW: Edit Surat Keluar Functions ---
-        function openEditKeluar(row) {
-            // Mapping: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat...
-            $('#editKeluarNoAgenda').val(row[1]);
-            $('#editKeluarNoSurat').val(row[2]);
-            
-            if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; }
-            if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } else { $('#editKeluarTglSurat').val(''); }
-            
-            $('#editKeluarTujuan').val(row[5]);
-            $('#editKeluarPerihal').val(row[6]);
-            $('#editKeluarPembuat').val(row[8]); // Populate Pembuat
-            
-            new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show();
-        }
-
-        function saveEditKeluar() {
-            const payload = {
-                type: 'edit_surat_keluar',
-                email: currentUserEmail, 
-                noAgenda: $('#editKeluarNoAgenda').val(),
-                noSurat: $('#editKeluarNoSurat').val(),
-                tglDiterima: $('#editKeluarTglDiterima').val(),
-                tglSurat: $('#editKeluarTglSurat').val(),
-                tujuan: $('#editKeluarTujuan').val(),
-                perihal: $('#editKeluarPerihal').val(),
-                pembuat: $('#editKeluarPembuat').val() // Send Pembuat
-            };
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide();
-            showLoading(true);
-            
-            sendData(payload, () => {
-                Swal.fire('Sukses', 'Data surat berhasil diperbarui', 'success');
-                loadDataKeluar();
-            });
-        }
-
-        // ... (Rest of functions remain same) ...
         
         // --- NEW: Edit Surat Masuk Logic ---
         function openEditMasuk(row) {
             // Row Mapping: 0:Timestamp, 1:No_Agenda, 2:No_Surat, 3:Tgl_Surat, 4:Tgl_Terima, 5:Pengirim, 6:Perihal...
             $('#editMasukNoAgenda').val(row[1]);
-            $('#editMasukAgendaDisplay').val(row[1]); 
+            $('#editMasukAgendaDisplay').val(row[1]); // Display only
             $('#editMasukNoSurat').val(row[2]);
             if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; }
             if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; }
@@ -946,6 +838,22 @@
                 Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success');
                 loadDataMasuk();
             });
+        }
+
+        // --- Edit Keluar Logic (Existing) ---
+        function openEditKeluar(row) {
+            $('#editKeluarNoAgenda').val(row[1]);
+            $('#editKeluarNoSurat').val(row[2]);
+            if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; }
+            if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } else { $('#editKeluarTglSurat').val(''); }
+            $('#editKeluarTujuan').val(row[5]);
+            $('#editKeluarPerihal').val(row[6]);
+            new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show();
+        }
+        function saveEditKeluar() {
+            const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val() };
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true);
+            sendData(payload, () => { Swal.fire('Sukses', 'Data surat berhasil diperbarui', 'success'); loadDataKeluar(); });
         }
 
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
@@ -1009,6 +917,38 @@
             .then(function(content) {
                 saveAs(content, zipFilename);
                 Swal.fire('Sukses', 'Backup data berhasil diunduh.', 'success');
+            });
+        }
+
+        // --- NEW: AUTO-BACKUP TRIGGER ACTIVATION ---
+        function activateAutoBackup() {
+            Swal.fire({
+                title: 'Aktifkan Email Backup Harian?',
+                text: "Sistem akan mengirimkan data backup otomatis ke email admin (rusita.aprilia30@gmail.com) setiap jam 23:00.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Aktifkan'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    showLoading(true);
+                    fetch(GAS_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ type: 'setup_auto_backup', requestor: currentUserEmail }) 
+                    })
+                    .then(r => r.json())
+                    .then(r => {
+                        showLoading(false);
+                        if(r.status === 'success') {
+                            Swal.fire('Sukses', r.message, 'success');
+                        } else {
+                            Swal.fire('Gagal', r.message, 'error');
+                        }
+                    })
+                    .catch(e => {
+                        showLoading(false);
+                        Swal.fire('Error', 'Koneksi gagal', 'error');
+                    });
+                }
             });
         }
     </script>

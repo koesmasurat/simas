@@ -196,8 +196,18 @@
                     <div class="tab-pane" id="arsip-masuk-content">
                         <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2><button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div><div class="card shadow-lg"><div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Masuk</div><div class="card-body"><div class="table-responsive"><table id="tableMasuk" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tgl Terima</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>Status</th><th>File</th><th class="text-center">History</th></tr></thead><tbody></tbody></table></div></div></div>
                     </div>
+                    
+                    <!-- UPDATE: Table Structure for Arsip Keluar -->
                     <div class="tab-pane" id="arsip-keluar-content">
-                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2><button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div><div class="card shadow-lg"><div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div><div class="card-body"><div class="table-responsive"><table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>File</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2><button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div><div class="card shadow-lg"><div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div><div class="card-body"><div class="table-responsive">
+                            <table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle">
+                                <thead>
+                                    <!-- RESTRUCTURED HEADERS -->
+                                    <tr><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>Pembuat</th><th>Status</th><th>Aksi</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div></div></div>
                     </div>
 
                     <!-- SETTINGS PAGE (Super Admin) -->
@@ -211,9 +221,12 @@
 
     <!-- MODAL EDIT SURAT KELUAR -->
     <div class="modal fade" id="modalEditSuratKeluar" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Surat Keluar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditKeluar"><input type="hidden" id="editKeluarNoAgenda"><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" id="editKeluarNoSurat" required></div><div class="mb-3"><label class="small text-white-50">Tanggal Surat Diterima (Pencatatan)</label><input type="date" class="form-control" id="editKeluarTglDiterima" required></div>
-    <!-- NEW FIELD -->
+    <!-- NEW FIELDS -->
     <div class="mb-3"><label class="small text-white-50">Tanggal Surat (Resmi)</label><input type="date" class="form-control" id="editKeluarTglSurat"></div>
-    <div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" id="editKeluarTujuan" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editKeluarPerihal" rows="3" required></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditKeluar()">Simpan Perubahan</button></div></div></div></div>
+    <div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" id="editKeluarTujuan" required></div>
+    <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editKeluarPerihal" rows="3" required></textarea></div>
+    <div class="mb-3"><label class="small text-white-50">Pembuat Surat</label><input type="text" class="form-control" id="editKeluarPembuat"></div>
+    </form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditKeluar()">Simpan Perubahan</button></div></div></div></div>
 
     <!-- MODAL EDIT SURAT MASUK (NEW) -->
     <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditMasuk"><input type="hidden" id="editMasukNoAgenda"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Read-Only)</label><input type="text" class="form-control" id="editMasukAgendaDisplay" disabled></div><div class="col-md-6 mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" id="editMasukNoSurat" required></div></div><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Surat</label><input type="date" class="form-control" id="editMasukTglSurat" required></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Terima</label><input type="date" class="form-control" id="editMasukTglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" id="editMasukPengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editMasukPerihal" rows="3" required></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditMasuk()">Simpan Perubahan</button></div></div></div></div>
@@ -740,62 +753,141 @@
             let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : '';
             return `<div class="timeline-item ${cls}"><div class="fw-bold text-warning small d-flex justify-content-between"><span>${title}</span>${dateStr}</div><div class="timeline-content mt-1"><div class="fw-bold small mb-1">${target}</div><div class="text-white-50 small fst-italic">"${note || '-'}"</div></div></div>`;
         }
+        
+        // --- UPDATED: loadDataKeluar Correct Column Mapping & Logic ---
         function loadDataKeluar() {
             fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{
                 const dt = $('#tableKeluar').DataTable(); dt.clear();
                 if(r.data) r.data.forEach(row => {
                     // Mapping UPDATED: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat, 9:Status
+                    
                     let dateDiterima = '-';
                     if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
-                    let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-';
+                    
+                    // Link for Perihal
+                    let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
+
+                    // Status Badge Logic
                     let statusText = row[9] || "Proses";
-                    let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
-                    let actions = `<div class="d-flex gap-1">${status}<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button></div>`;
-                    dt.row.add([ dateDiterima, row[2], row[5], row[6], btnFile, statusText, actions ]);
+                    let statusBadge = statusText === 'Selesai' ? 
+                        `<span class="badge bg-success">Selesai</span>` : 
+                        `<span class="badge bg-warning text-dark">Proses</span>`;
+
+                    // Action Buttons Logic
+                    let btnEdit = `<button class="btn btn-sm btn-light text-primary border" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button>`;
+                    let btnFinish = '';
+                    
+                    // Show Finish (Check) button ONLY if NOT finished
+                    if (statusText !== 'Selesai') {
+                        btnFinish = `<button class="btn btn-sm btn-outline-success ms-1" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`; // Pass No Agenda
+                    }
+
+                    dt.row.add([ 
+                        dateDiterima, 
+                        row[2],         // No Surat
+                        row[5],         // Tujuan
+                        perihalHtml,    // Perihal (Link)
+                        row[8],         // Pembuat
+                        statusBadge,    // Status Badge (Separate Column)
+                        `<div class="d-flex gap-1">${btnFinish}${btnEdit}</div>` // Actions
+                    ]);
                 });
                 dt.draw();
             });
         }
-        function updateStatusSelesai(noSurat) {
-            // Calculate Today YYYY-MM-DD
+
+        // --- UPDATED: Update Status Selesai with Date Input ---
+        function updateStatusSelesai(noAgenda) {
+            // Default Today
             const d = new Date();
             const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 
-            Swal.fire({ 
-                title: 'Selesaikan Surat?', 
-                html: `<p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p><input type="date" id="swal-date-input" class="swal2-input" value="${today}">`, 
-                focusConfirm: false, 
-                showCancelButton: true, 
-                confirmButtonText: 'Selesai', 
-                preConfirm: () => { 
-                    const dateVal = document.getElementById('swal-date-input').value; 
-                    if (!dateVal) { Swal.showValidationMessage('Tanggal Surat Resmi harus diisi'); } 
-                    return dateVal; 
+            Swal.fire({
+                title: 'Selesaikan Surat?',
+                html: `
+                    <p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p>
+                    <input type="date" id="swal-date-input" class="swal2-input" value="${today}">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Selesai',
+                preConfirm: () => {
+                    const dateVal = document.getElementById('swal-date-input').value;
+                    if (!dateVal) {
+                        Swal.showValidationMessage('Tanggal Surat Resmi harus diisi');
+                    }
+                    return dateVal;
                 }
-            }).then((result) => { 
-                if(result.isConfirmed) { 
-                    showLoading(true); 
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    showLoading(true);
                     fetch(GAS_URL, { 
                         method: 'POST', 
-                        body: JSON.stringify({ type: 'update_status_keluar', noAgenda: noSurat, tglSurat: result.value }) 
-                    }).then(r=>r.json()).then(r=>{ 
+                        body: JSON.stringify({ 
+                            type: 'update_status_keluar', 
+                            noAgenda: noAgenda,
+                            tglSurat: result.value 
+                        }) 
+                    })
+                    .then(r=>r.json())
+                    .then(r=>{ 
                         showLoading(false); 
                         if(r.status==='success') { 
                             Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); 
                             loadDataKeluar(); 
-                        } else { 
-                            Swal.fire('Gagal', r.message, 'error'); 
+                        } else {
+                            Swal.fire('Gagal', r.message, 'error');
                         }
                     }); 
-                } 
+                }
             });
         }
+
+        // --- NEW: Edit Surat Keluar Functions ---
+        function openEditKeluar(row) {
+            // Mapping: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat...
+            $('#editKeluarNoAgenda').val(row[1]);
+            $('#editKeluarNoSurat').val(row[2]);
+            
+            if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; }
+            if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } else { $('#editKeluarTglSurat').val(''); }
+            
+            $('#editKeluarTujuan').val(row[5]);
+            $('#editKeluarPerihal').val(row[6]);
+            $('#editKeluarPembuat').val(row[8]); // Populate Pembuat
+            
+            new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show();
+        }
+
+        function saveEditKeluar() {
+            const payload = {
+                type: 'edit_surat_keluar',
+                email: currentUserEmail, 
+                noAgenda: $('#editKeluarNoAgenda').val(),
+                noSurat: $('#editKeluarNoSurat').val(),
+                tglDiterima: $('#editKeluarTglDiterima').val(),
+                tglSurat: $('#editKeluarTglSurat').val(),
+                tujuan: $('#editKeluarTujuan').val(),
+                perihal: $('#editKeluarPerihal').val(),
+                pembuat: $('#editKeluarPembuat').val() // Send Pembuat
+            };
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide();
+            showLoading(true);
+            
+            sendData(payload, () => {
+                Swal.fire('Sukses', 'Data surat berhasil diperbarui', 'success');
+                loadDataKeluar();
+            });
+        }
+
+        // ... (Rest of functions remain same) ...
         
         // --- NEW: Edit Surat Masuk Logic ---
         function openEditMasuk(row) {
             // Row Mapping: 0:Timestamp, 1:No_Agenda, 2:No_Surat, 3:Tgl_Surat, 4:Tgl_Terima, 5:Pengirim, 6:Perihal...
             $('#editMasukNoAgenda').val(row[1]);
-            $('#editMasukAgendaDisplay').val(row[1]); // Display only
+            $('#editMasukAgendaDisplay').val(row[1]); 
             $('#editMasukNoSurat').val(row[2]);
             if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; }
             if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; }
@@ -824,22 +916,6 @@
                 Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success');
                 loadDataMasuk();
             });
-        }
-
-        // --- Edit Keluar Logic (Existing) ---
-        function openEditKeluar(row) {
-            $('#editKeluarNoAgenda').val(row[1]);
-            $('#editKeluarNoSurat').val(row[2]);
-            if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; }
-            if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } else { $('#editKeluarTglSurat').val(''); }
-            $('#editKeluarTujuan').val(row[5]);
-            $('#editKeluarPerihal').val(row[6]);
-            new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show();
-        }
-        function saveEditKeluar() {
-            const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val() };
-            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true);
-            sendData(payload, () => { Swal.fire('Sukses', 'Data surat berhasil diperbarui', 'success'); loadDataKeluar(); });
         }
 
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }

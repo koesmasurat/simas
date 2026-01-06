@@ -51,11 +51,7 @@
         /* Login */
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; }
-        .form-control { background: rgba(255, 255, 255, 0.9); border: none; border-radius: 8px; padding: 12px; }
-        .form-control:focus { background: #fff; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); }
-        .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
-
+        
         /* Main App Container (Hidden by Default) */
         #appContent { display: none; width: 100%; min-height: 100vh; }
 
@@ -63,24 +59,14 @@
         .wrapper { display: flex; width: 100%; align-items: stretch; transition: all 0.3s; }
         
         #sidebar {
-            min-width: var(--sidebar-width); 
-            max-width: var(--sidebar-width); 
-            background: rgba(0, 0, 0, 0.3); 
-            backdrop-filter: blur(15px); 
-            border-right: 1px solid var(--glass-border); 
-            color: #fff; 
-            transition: all 0.3s; 
-            position: fixed; 
-            height: 100vh; 
-            z-index: 1000;
-            margin-left: 0;
-            display: flex;
-            flex-direction: column;
+            min-width: var(--sidebar-width); max-width: var(--sidebar-width); 
+            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px); 
+            border-right: 1px solid var(--glass-border); color: #fff; 
+            transition: all 0.3s; position: fixed; height: 100vh; z-index: 1000; margin-left: 0;
+            display: flex; flex-direction: column;
         }
         
-        #sidebar.toggled {
-            margin-left: calc(var(--sidebar-width) * -1);
-        }
+        #sidebar.toggled { margin-left: calc(var(--sidebar-width) * -1); }
 
         .sidebar-menu-scroll {
             flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 1rem;
@@ -89,128 +75,36 @@
         .sidebar-menu-scroll::-webkit-scrollbar { width: 4px; }
         .sidebar-menu-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        .sidebar-footer {
-            padding: 1rem;
-            flex-shrink: 0; 
-            background: rgba(0,0,0,0.1);
-        }
+        .sidebar-footer { padding: 1rem; flex-shrink: 0; background: rgba(0,0,0,0.1); }
 
-        #content {
-            width: 100%; 
-            padding: 20px; 
-            margin-left: var(--sidebar-width); 
-            transition: all 0.3s;
-        }
-        
-        #content.toggled {
-            margin-left: 0;
-        }
+        #content { width: 100%; padding: 20px; margin-left: var(--sidebar-width); transition: all 0.3s; }
+        #content.toggled { margin-left: 0; }
 
         /* Toggle Button */
         #sidebarCollapse {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
+            padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; transition: all 0.3s;
         }
         #sidebarCollapse:hover { background: var(--emerald-accent); }
 
-        /* ARSIP SPECIFIC STYLES (Light Theme & Compact) */
-        #arsip-masuk-content .card, 
-        #arsip-keluar-content .card,
-        #disposisi-container .card,
-        #settings-content .card {
-            background: #ffffff !important; /* Putih Solid */
-            backdrop-filter: none;
-            color: #333333; /* Teks Hitam */
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        /* Light Theme for Content */
+        #arsip-masuk-content .card, #arsip-keluar-content .card, #disposisi-container .card, #settings-content .card {
+            background: #ffffff !important; backdrop-filter: none; color: #333333; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        #arsip-masuk-content .card-header,
-        #arsip-keluar-content .card-header {
-            background-color: #fff7ed; /* Light Orange Background */
-            border-bottom: 2px solid #ffedd5;
-            color: #c2410c; /* Dark Orange Text */
-        }
-
-        #disposisi-container .card-header {
-            background-color: #fffbeb; 
-            border-bottom: 2px solid #fcd34d;
-            color: #b45309; 
-        }
-
-        #arsip-masuk-content .table,
-        #arsip-keluar-content .table,
-        #disposisi-container .table {
-            color: #333 !important;
-            font-size: 0.9rem;
-        }
+        .card-header { background-color: #fff7ed; border-bottom: 2px solid #ffedd5; color: #c2410c; }
+        #disposisi-container .card-header { background-color: #fffbeb; border-bottom: 2px solid #fcd34d; color: #b45309; }
         
-        #arsip-masuk-content .table th,
-        #arsip-keluar-content .table th,
-        #disposisi-container .table th {
-            background-color: #ffedd5; 
-            color: #9a3412;
-            padding: 8px 8px; 
-            font-weight: 600;
-        }
-
-        #arsip-masuk-content .table td,
-        #arsip-keluar-content .table td,
-        #disposisi-container .table td {
-            padding: 4px 8px;
-            vertical-align: middle;
-            border-color: #fed7aa; 
-        }
-
-        #tableMasuk tbody tr,
-        #tableKeluar tbody tr,
-        #tableDisposisi tbody tr {
-            background-color: transparent !important;
-            color: #333 !important;
-        }
-
-        .table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: rgba(255, 237, 213, 0.3) !important;
-            color: #333 !important;
-        }
-
-        .table-hover tbody tr:hover > * {
-            background-color: #ffedd5 !important;
-            color: #000 !important;
-        }
-
-        #arsip-masuk-content .page-link,
-        #arsip-keluar-content .page-link,
-        #disposisi-container .page-link {
-            background: white;
-            color: #c2410c;
-            border: 1px solid #fed7aa;
-        }
-        #arsip-masuk-content .page-item.active .page-link,
-        #arsip-keluar-content .page-item.active .page-link {
-            background: #f97316;
-            color: white;
-            border-color: #f97316;
-        }
+        .table { color: #333 !important; font-size: 0.9rem; }
+        .table th { background-color: #e9ecef; color: #495057; padding: 8px; font-weight: 600; }
+        .table td { padding: 4px 8px; vertical-align: middle; border-color: #dee2e6; }
+        .table-striped > tbody > tr:nth-of-type(odd) > * { background-color: rgba(255, 237, 213, 0.3) !important; color: #333 !important; }
         
-        #arsip-masuk-content .form-control, 
-        #arsip-keluar-content .form-control,
-        #disposisi-container .form-control,
-        #arsip-masuk-content .form-select, 
-        #arsip-keluar-content .form-select,
-        #disposisi-container .form-select { 
-            background: #fff; border: 1px solid #ced4da; color: #333; 
-        }
+        .page-link { background: white; color: #c2410c; border: 1px solid #fed7aa; }
+        .page-item.active .page-link { background: #f97316; color: white; border-color: #f97316; }
         
-        #arsip-masuk-content .dataTables_info,
-        #arsip-keluar-content .dataTables_info,
-        #disposisi-container .dataTables_info { color: #6c757d !important; font-size: 0.85rem; }
+        .form-control, .form-select { background: #fff; border: 1px solid #ced4da; color: #333; }
+        .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); }
 
         /* Nav Pills */
         .nav-pills .nav-link { color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 12px 20px; margin-bottom: 8px; text-align: left; display: flex; align-items: center; cursor: pointer; transition: all 0.2s ease-in-out; }
@@ -227,10 +121,7 @@
         .tab-pane { transition: opacity 0.3s ease-in-out; opacity: 0; display: none; }
         .tab-pane.active { display: block; }
         .tab-pane.show { opacity: 1; }
-
         .form-container-limit { max-width: 900px; margin: 0 auto; }
-        .card-header { background: rgba(255, 255, 255, 0.1); border-bottom: 1px solid var(--glass-border); color: var(--emerald-accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        
         .timeline-item { padding-left: 30px; border-left: 2px solid rgba(255,255,255,0.2); position: relative; padding-bottom: 20px; }
         .timeline-item::before { content: ''; position: absolute; left: -9px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--blue-accent); border: 2px solid #fff; }
         .timeline-item.done::before { background: var(--emerald-accent); }
@@ -244,7 +135,7 @@
 
         #loadingOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); }
         
-        /* Permission Helper Class - REMOVED !important TO FIX SUPER ADMIN VIEW */
+        /* Permission Helper Class */
         .restricted-feature { display: none; }
     </style>
 </head>
@@ -257,24 +148,26 @@
                 <h3 class="fw-bold">SIMAS KOESMA</h3>
                 <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat<br>RSUD dr. R. Koesma</p>
             </div>
-            <form id="formLogin">
-                <div class="mb-4 text-start">
-                    <input type="password" class="form-control" id="loginPassword" placeholder="Kode Akses Admin" required>
+            
+            <div class="d-flex justify-content-center mt-4">
+                <div id="g_id_onload"
+                     data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
                 </div>
-                <div class="d-grid"><button type="submit" class="btn btn-primary shadow-lg">MASUK APLIKASI</button></div>
-            </form>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+            </div>
+            <p class="mt-3 small text-white-50">Silakan login menggunakan akun Google Anda.</p>
         </div>
     </div>
 
     <div id="appContent">
         <div class="wrapper">
-            <!-- SIDEBAR -->
             <nav id="sidebar">
                 <div class="sidebar-header text-center position-relative">
                     <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2">
                         <i class="fas fa-times"></i>
                     </button>
-
                     <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo" class="mb-2" style="width: 60px; height: auto;">
                     <h5 class="fw-bold m-0">SIMAS KOESMA</h5>
                     <small class="text-white-50 d-block" id="userDisplayName">User</small>
@@ -283,7 +176,6 @@
                 
                 <div class="sidebar-menu-scroll">
                     <div class="nav flex-column nav-pills">
-                        
                         <button class="nav-link active restricted-feature" data-perm="input_masuk" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)">
                             <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
@@ -339,13 +231,8 @@
                 </div>
             </nav>
 
-            <!-- CONTENT -->
             <div id="content">
-                
-                <!-- NAVBAR TOGGLE BUTTON -->
-                <button type="button" id="sidebarCollapse" class="btn">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button type="button" id="sidebarCollapse" class="btn"><i class="fas fa-bars"></i></button>
 
                 <div class="tab-content">
                     
@@ -353,126 +240,26 @@
                     <div class="tab-pane active show" id="input-masuk-content">
                         <div class="form-container-limit">
                             <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2>
-                            <div class="card">
-                                <div class="card-body p-4">
-                                    <form id="formSuratMasuk">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div>
-                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
-                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
-                                        </div>
-                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
-                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div>
-                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
-                                        <div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div>
-                                        <div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div>
-                                    </form>
-                                </div>
-                            </div>
+                            <div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div>
                         </div>
                     </div>
 
                     <!-- INPUT KELUAR -->
                     <div class="tab-pane" id="input-keluar-content">
-                        <div class="form-container-limit">
-                            <h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2>
-                            <div class="card">
-                                <div class="card-body p-4">
-                                    <form id="formSuratKeluar">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="small text-white-50">No. Agenda (Auto)</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required>
-                                                    <button class="btn btn-warning" type="button" onclick="openBookingModal()">Booking No.</button>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3"><label class="small text-white-50">Tanggal Surat Diterima</label><input type="date" class="form-control" name="tglSurat" required></div>
-                                        </div>
-                                        <div class="mb-3"><label class="small text-white-50">No. Surat (Format Dinas)</label><input type="text" class="form-control" name="noSurat" required placeholder="Contoh: 445/001/405.08/2024"></div>
-                                        <div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div>
-                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
-                                        <div class="mb-3"><label class="small text-white-50">Pembuat</label><input type="text" class="form-control" name="pembuat"></div>
-                                        <div class="mb-4"><label class="small text-white-50">File</label><input type="file" class="form-control" id="fileSuratKeluar"></div>
-                                        <div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratKeluar"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><div class="input-group"><input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required><button class="btn btn-warning" type="button" onclick="openBookingModal()">Booking No.</button></div></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tanggal Surat Diterima</label><input type="date" class="form-control" name="tglSurat" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat (Format Dinas)</label><input type="text" class="form-control" name="noSurat" required placeholder="Contoh: 445/001/405.08/2024"></div><div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-3"><label class="small text-white-50">Pembuat</label><input type="text" class="form-control" name="pembuat"></div><div class="mb-4"><label class="small text-white-50">File</label><input type="file" class="form-control" id="fileSuratKeluar"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div>
                     </div>
 
-                    <!-- DYNAMIC DISPOSISI PAGE (Light Theme) -->
+                    <!-- DISPOSISI -->
                     <div class="tab-pane" id="disposisi-container">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-light text-white m-0">Inbox Disposisi: <b class="text-warning" id="dispPageTitle">Direktur</b></h2>
-                            <button class="btn btn-outline-light" onclick="refreshCurrentDisposisi()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        </div>
-                        <div class="card shadow-lg">
-                            <div class="card-header border-bottom">
-                                <i class="fas fa-tasks me-2"></i> Daftar Tunggu
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="tableDisposisi" class="table table-striped table-hover table-sm w-100 align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>File</th><th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Inbox Disposisi: <b class="text-warning" id="dispPageTitle">Direktur</b></h2><button class="btn btn-outline-light" onclick="refreshCurrentDisposisi()"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="card shadow-lg"><div class="card-header border-bottom"><i class="fas fa-tasks me-2"></i> Daftar Tunggu</div><div class="card-body"><div class="table-responsive"><table id="tableDisposisi" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>File</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>
                     </div>
 
-                    <!-- ARSIP MASUK (Light Theme & Compact) -->
+                    <!-- ARSIP -->
                     <div class="tab-pane" id="arsip-masuk-content">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2>
-                            <button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-                        </div>
-                        <div class="card shadow-lg">
-                            <div class="card-header bg-light border-bottom">
-                                <i class="fas fa-table me-2"></i> Data Surat Masuk
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="tableMasuk" class="table table-striped table-hover table-sm w-100 align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Tgl Terima</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th>
-                                                <th>Status</th><th>File</th><th class="text-center">History</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-info">Surat Masuk</b></h2><button class="btn btn-outline-light" onclick="loadDataMasuk()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div><div class="card shadow-lg"><div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Masuk</div><div class="card-body"><div class="table-responsive"><table id="tableMasuk" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tgl Terima</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>Status</th><th>File</th><th class="text-center">History</th></tr></thead><tbody></tbody></table></div></div></div>
                     </div>
-
-                    <!-- ARSIP KELUAR (Light Theme & Compact) -->
                     <div class="tab-pane" id="arsip-keluar-content">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
-                            <button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-                        </div>
-                        <div class="card shadow-lg">
-                            <div class="card-header bg-light border-bottom">
-                                <i class="fas fa-table me-2"></i> Data Surat Keluar
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle">
-                                        <thead>
-                                            <tr><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>File</th><th>Status</th></tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2><button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div><div class="card shadow-lg"><div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div><div class="card-body"><div class="table-responsive"><table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>File</th><th>Status</th></tr></thead><tbody></tbody></table></div></div></div>
                     </div>
 
                     <!-- SETTINGS PAGE (Super Admin) -->
@@ -533,6 +320,7 @@
                             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm6"><label class="form-check-label text-white" for="perm6">Disposisi JF</label></div>
                             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm7"><label class="form-check-label text-white" for="perm7">Arsip Masuk</label></div>
                             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm8"><label class="form-check-label text-white" for="perm8">Arsip Keluar</label></div>
+                            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm9"><label class="form-check-label text-white" for="perm9">Pengaturan Admin</label></div>
                         </div>
                     </form>
                 </div>
@@ -576,23 +364,6 @@
             
             $('#sidebarCollapse, #sidebarCloseMobile').on('click', function() { $('#sidebar, #content').toggleClass('toggled'); });
             
-            $('#formLogin').on('submit', function(e) {
-                e.preventDefault();
-                const pass = $('#loginPassword').val();
-                showLoading(true);
-                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'login', password: $('#loginPassword').val() }) })
-                .then(r => r.json()).then(r => {
-                    showLoading(false);
-                    if (r.status === 'success') { 
-                        sessionStorage.setItem('isLoggedIn', 'true'); 
-                        showApp(); 
-                        loadCounters();
-                        restoreState(); 
-                    }
-                    else Swal.fire({ icon: 'error', title: 'Gagal', text: r.message });
-                }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi', 'error'); });
-            });
-
             const dtConfig = { language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" }, pageLength: 10, autoWidth: false };
             $('#tableDisposisi').DataTable(dtConfig);
             $('#tableMasuk').DataTable(dtConfig);
@@ -645,7 +416,6 @@
             // 2. Logika Super Admin (Langsung Tampilkan Semua)
             if (role === 'Super Admin') {
                 $('.restricted-feature').show(); 
-                // .show() akan menimpa display:none dari CSS
                 return;
             }
 
@@ -654,11 +424,6 @@
                 perms.forEach(p => {
                     $(`[data-perm="${p}"]`).show();
                 });
-            }
-            
-            // Settings HANYA untuk Super Admin
-            if(role !== 'Super Admin') {
-                $('#btn-settings').hide();
             }
         }
 
@@ -924,7 +689,6 @@
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
-        function showChangePassword() { /* Logic same as previous */ }
     </script>
 </body>
 </html>

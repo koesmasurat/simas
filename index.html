@@ -56,7 +56,7 @@
         /* Main App Container (Hidden by Default) */
         #appContent { display: none; width: 100%; min-height: 100vh; }
 
-        /* Sidebar Toggle Logic */
+        /* Sidebar Layout Fix (Flexbox) */
         .wrapper { display: flex; width: 100%; align-items: stretch; transition: all 0.3s; }
         
         #sidebar {
@@ -71,10 +71,33 @@
             height: 100vh; 
             z-index: 1000;
             margin-left: 0;
+            /* Flexbox Setup */
+            display: flex;
+            flex-direction: column;
         }
         
         #sidebar.toggled {
             margin-left: calc(var(--sidebar-width) * -1);
+        }
+
+        /* Scrollable Menu Area */
+        .sidebar-menu-scroll {
+            flex-grow: 1; /* Takes available space */
+            overflow-y: auto; /* Scroll if needed */
+            overflow-x: hidden;
+            padding: 1rem;
+            /* Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+        .sidebar-menu-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-menu-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        /* Footer Button Area */
+        .sidebar-footer {
+            padding: 1rem;
+            flex-shrink: 0; /* Don't shrink */
+            background: rgba(0,0,0,0.1); /* Slight darken for separation */
         }
 
         #content {
@@ -246,7 +269,7 @@
 
     <div id="appContent">
         <div class="wrapper">
-            <!-- SIDEBAR -->
+            <!-- SIDEBAR WITH FLEXBOX FIX -->
             <nav id="sidebar">
                 <div class="sidebar-header text-center position-relative">
                     <button type="button" id="sidebarCloseMobile" class="btn btn-sm btn-outline-light d-lg-none position-absolute top-0 end-0 m-2">
@@ -257,9 +280,10 @@
                     <h5 class="fw-bold m-0">SIMAS KOESMA</h5>
                     <small class="text-white-50">Admin Panel</small>
                 </div>
-                <div class="p-3">
+                
+                <!-- SCROLLABLE MENU CONTAINER -->
+                <div class="sidebar-menu-scroll">
                     <div class="nav flex-column nav-pills">
-                        
                         <button class="nav-link active" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)">
                             <i class="fas fa-plus-circle"></i> Surat Masuk
                         </button>
@@ -276,15 +300,12 @@
                             <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)">
                                 <span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span>
                             </button>
-                            
-                            <!-- SPLIT WADIR MENU -->
                             <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)">
                                 <span style="font-size:0.85em">2a. Wadir Adm & Keu</span> <span class="badge-count" id="count-wadir_admin">0</span>
                             </button>
                             <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)">
                                 <span style="font-size:0.85em">2b. Wadir Pelayanan</span> <span class="badge-count" id="count-wadir_pelayanan">0</span>
                             </button>
-
                             <button class="nav-link w-100 d-flex justify-content-between" id="btn-disp-kabid" onclick="openDisposisiPage('kabid', this)">
                                 <span>3. Kabag/Kabid</span> <span class="badge-count" id="count-kabid">0</span>
                             </button>
@@ -303,17 +324,18 @@
                         </button>
                     </div>
                 </div>
-                <div class="mt-auto p-3" style="position: absolute; bottom: 0; width: 100%;">
-                    <button class="btn btn-danger w-100 btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Keluar</button>
+
+                <!-- FIXED FOOTER -->
+                <div class="sidebar-footer">
+                    <button class="btn btn-danger w-100 btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> Keluar
+                    </button>
                 </div>
             </nav>
 
             <!-- CONTENT -->
             <div id="content">
-                
-                <button type="button" id="sidebarCollapse" class="btn">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button type="button" id="sidebarCollapse" class="btn"><i class="fas fa-bars"></i></button>
 
                 <div class="tab-content">
                     
@@ -579,7 +601,6 @@
             fetch(`${GAS_URL}?action=get_counts`).then(r=>r.json()).then(r => {
                 if(r.status === 'success') {
                     setCount('direktur', r.data.direktur);
-                    // Updated Keys for Wadir Split
                     setCount('wadir_admin', r.data.wadir_admin);
                     setCount('wadir_pelayanan', r.data.wadir_pelayanan);
                     setCount('kabid', r.data.kabid);
@@ -683,21 +704,14 @@
         function openDisposisiPage(level, element) {
             if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id);
             currentLevel = level; 
-            $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); 
-            if(element) $(element).addClass('active');
-            $('.tab-pane').removeClass('show active'); 
-            $('#disposisi-container').addClass('active').addClass('show');
-            if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled');
-
-            // Handle Page Title Logic for split wadir
+            activateTab('disposisi-container', element, refreshCurrentDisposisi);
+            
             let title = level.toUpperCase();
             if(level==='kabid') title = "KABAG / KABID";
-            if(level.includes('wadir_')) title = level.replace('_', ' ').toUpperCase();
+            if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase();
             
             $('#dispPageTitle').text(title);
-            refreshCurrentDisposisi();
         }
-        
         function refreshCurrentDisposisi() {
             showLoading(true);
             fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`).then(r=>r.json()).then(r => {
@@ -718,7 +732,6 @@
             
             if(currentLevel === 'direktur') $('#fieldDirektur').removeClass('d-none');
             
-            // Logic to handle specific wadir levels in modal
             else if (currentLevel.includes('wadir')) {
                 $('#fieldWadir').removeClass('d-none');
                 let selectedWadir = rowData[8]; 

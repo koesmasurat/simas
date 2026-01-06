@@ -11,6 +11,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <!-- Added SheetJS, JSZip, FileSaver for Backup Feature -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
     <style>
         /* ... existing styles ... */
         :root {
@@ -170,6 +175,10 @@
                         <div class="sidebar-divider"></div>
                         <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)"><i class="fas fa-inbox"></i> Arsip Masuk</button>
                         <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)"><i class="fas fa-archive"></i> Arsip Keluar</button>
+                        
+                        <!-- NEW: BACKUP BUTTON -->
+                        <button class="nav-link restricted-feature text-warning mt-2" data-perm="backup_data" id="btn-backup" onclick="downloadBackup()"><i class="fas fa-download"></i> Backup Data</button>
+                        
                         <div class="sidebar-divider"></div>
                         <button class="nav-link text-info restricted-feature" data-perm="settings_admin" id="btn-settings" onclick="openSettingsPage(this)"><i class="fas fa-cogs"></i> Pengaturan Pengguna</button>
                     </div>
@@ -246,6 +255,8 @@
     <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div>
     <!-- NEW PERMISSION: SETTINGS ADMIN -->
     <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna (User Management)</label></div></div>
+    <!-- NEW PERMISSION: BACKUP DATA -->
+    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Akses Download Backup Data (Excel)</label></div></div>
     </div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan Perubahan</button></div></div></div></div>
     
     <!-- MODAL MANAGE SUBORDINATES -->
@@ -942,6 +953,64 @@
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
+
+        // --- NEW: BACKUP FEATURE ---
+        function downloadBackup() {
+            showLoading(true);
+            fetch(`${GAS_URL}`, { 
+                method: 'POST', 
+                body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) 
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    generateZipBackup(r.data.suratMasuk, r.data.suratKeluar);
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Gagal mengunduh data backup.', 'error');
+            });
+        }
+
+        function generateZipBackup(dataMasuk, dataKeluar) {
+            // 1. Create Workbooks using SheetJS
+            const wb = XLSX.utils.book_new();
+            
+            // Surat Masuk Sheet
+            const wsMasuk = XLSX.utils.aoa_to_sheet(dataMasuk);
+            XLSX.utils.book_append_sheet(wb, wsMasuk, "SuratMasuk");
+            
+            // Surat Keluar Sheet
+            const wsKeluar = XLSX.utils.aoa_to_sheet(dataKeluar);
+            XLSX.utils.book_append_sheet(wb, wsKeluar, "SuratKeluar");
+
+            // 2. Generate XLSX Blob
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+            // 3. Create ZIP using JSZip
+            const zip = new JSZip();
+            zip.file("Data_SIMAS.xlsx", wbout);
+
+            // Generate filename: backupsimas [yyyy-mm-dd hh-mm]
+            const now = new Date();
+            const timeString = now.getFullYear() + "-" + 
+                               String(now.getMonth()+1).padStart(2, '0') + "-" + 
+                               String(now.getDate()).padStart(2, '0') + " " + 
+                               String(now.getHours()).padStart(2, '0') + "-" + 
+                               String(now.getMinutes()).padStart(2, '0');
+            const zipFilename = `backupsimas ${timeString}.zip`;
+
+            // 4. Download ZIP
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                saveAs(content, zipFilename);
+                Swal.fire('Sukses', 'Backup data berhasil diunduh.', 'success');
+            });
+        }
     </script>
 </body>
 </html>

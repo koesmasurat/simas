@@ -893,11 +893,17 @@
                     // Mapping UPDATED: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat, 9:Status
                     let dateDiterima = '-';
                     if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
+                    
+                    // UPDATED: Linkify Perihal if File Exists (row[7])
+                    let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
+                    
                     let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-';
                     let statusText = row[9] || "Proses";
                     let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
                     let actions = `<div class="d-flex gap-1">${status}<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button></div>`;
-                    dt.row.add([ row[1], dateDiterima, row[2], row[5], row[6], (row[8] || ""), statusText, actions ]);
+                    
+                    // Use perihalHtml instead of row[6]
+                    dt.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, actions ]);
                 });
                 dt.draw();
             });

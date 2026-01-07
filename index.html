@@ -197,8 +197,43 @@
 
                 <div class="tab-content">
                     
-                    <!-- INPUTS (Same) -->
-                    <div class="tab-pane active show" id="input-masuk-content"><div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasi" name="kodeKlarifikasi" placeholder="Ketik kode atau keterangan..."><datalist id="listKodeKlarifikasi"></datalist></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div></div>
+                    <!-- INPUT MASUK (UPDATED WITH OCR) -->
+                    <div class="tab-pane active show" id="input-masuk-content">
+                        <div class="form-container-limit">
+                            <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2>
+                            <div class="card">
+                                <div class="card-body p-4">
+                                    <form id="formSuratMasuk">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div>
+                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
+                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
+                                        </div>
+                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" id="inNoSurat" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" id="inPengirim" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasi" name="kodeKlarifikasi" placeholder="Ketik kode atau keterangan..."><datalist id="listKodeKlarifikasi"></datalist></div>
+                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" id="inPerihal" rows="3" required></textarea></div>
+                                        
+                                        <!-- UPDATED FILE INPUT WITH OCR BUTTON -->
+                                        <div class="mb-4">
+                                            <label class="small text-white-50">File (PDF/Img) & OCR AI</label>
+                                            <div class="input-group">
+                                                <input type="file" class="form-control" id="fileSuratMasuk">
+                                                <button class="btn btn-warning fw-bold" type="button" id="btnScanOCR" onclick="scanFileWithGemini()">
+                                                    <i class="fas fa-magic me-2"></i>Scan AI
+                                                </button>
+                                            </div>
+                                            <small class="text-white-50 fst-italic" style="font-size: 0.75rem;">*Upload gambar/PDF lalu klik Scan AI untuk isi otomatis.</small>
+                                        </div>
+                                        
+                                        <div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INPUT KELUAR -->
                     <div class="tab-pane" id="input-keluar-content"><div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratKeluar"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><div class="input-group"><input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required><button class="btn btn-warning" type="button" onclick="openBookingModal()">Booking No.</button></div></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tanggal Surat Diterima</label><input type="date" class="form-control" name="tglSurat" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat (Format Dinas)</label><input type="text" class="form-control" name="noSurat" required placeholder="Contoh: 445/001/405.08/2024"></div><div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-3"><label class="small text-white-50">Pembuat</label><input type="text" class="form-control" name="pembuat"></div><div class="mb-4"><label class="small text-white-50">File</label><input type="file" class="form-control" id="fileSuratKeluar"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div></div>
 
                     <!-- DISPOSISI -->
@@ -1153,6 +1188,67 @@
                     });
                 }
             });
+        }
+
+        // --- NEW: GEMINI OCR FUNCTION ---
+        async function scanFileWithGemini() {
+            const fileInput = document.getElementById('fileSuratMasuk');
+            
+            if (!fileInput.files.length) {
+                return Swal.fire('Peringatan', 'Pilih file (PDF/Gambar) terlebih dahulu!', 'warning');
+            }
+
+            // Tampilkan Loading
+            Swal.fire({
+                title: 'Memindai Dokumen...',
+                text: 'AI sedang membaca surat (±5 detik)...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                // Convert file ke Base64
+                const fileData = await readFileToBase64(fileInput.files[0]);
+                
+                // Kirim ke Backend
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'ocr_scan',
+                        fileData: fileData
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' && result.data) {
+                    const ocr = result.data;
+                    
+                    // Isi Otomatis Kolom (Auto-Fill)
+                    $('#inNoSurat').val(ocr.noSurat || '');
+                    $('#inPengirim').val(ocr.pengirim || '');
+                    $('#inPerihal').val(ocr.perihal || '');
+                    
+                    if (ocr.tglSurat) {
+                        // Pastikan format YYYY-MM-DD
+                        document.querySelector('input[name="tglSurat"]').value = ocr.tglSurat;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Scan Berhasil!',
+                        text: 'Silakan periksa kembali hasil pembacaan AI sebelum menyimpan.',
+                        timer: 2000
+                    });
+
+                } else {
+                    Swal.fire('Gagal', 'AI tidak dapat membaca dokumen ini atau format tidak dikenali.', 'error');
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Terjadi kesalahan saat menghubungi server AI.', 'error');
+            }
         }
     </script>
 </body>

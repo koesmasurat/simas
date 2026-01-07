@@ -384,8 +384,10 @@
                     list.empty();
                     listEdit.empty();
                     r.data.forEach(item => {
-                        list.append(`<option value="${item}">`);
-                        listEdit.append(`<option value="${item}">`);
+                        // Create option with value=code and text=desc
+                        const option = `<option value="${item.code}">${item.desc}</option>`;
+                        list.append(option);
+                        listEdit.append(option);
                     });
                 }
             });

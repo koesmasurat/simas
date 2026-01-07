@@ -827,7 +827,8 @@
                     // Add Row: TglTerima, Agenda, Pengirim, Perihal(Link), Status, Actions
                     dt.row.add([ dateTerima, row[1], row[5], perihalHtml, status, actions ]);
                 });
-                dt.draw();
+                // Sort by Column 1 (Agenda) Descending
+                dt.order([1, 'desc']).draw();
             });
         }
 
@@ -920,7 +921,8 @@
                     // Use perihalHtml instead of row[6]
                     dt.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, actions ]);
                 });
-                dt.draw();
+                // Sort by Column 0 (Agenda) Descending
+                dt.order([0, 'desc']).draw();
             });
         }
         function updateStatusSelesai(noSurat) {

@@ -770,6 +770,8 @@
                 dt.draw();
             });
         }
+        
+        // --- UPDATED: loadDataMasuk (Linkify Perihal, Remove File Col) ---
         function loadDataMasuk() {
             fetch(`${GAS_URL}?action=read_masuk`).then(r=>r.json()).then(r=>{
                 const dt = $('#tableMasuk').DataTable(); dt.clear();
@@ -788,12 +790,56 @@
                     let btnHistory = `<button class="btn btn-sm btn-light text-primary border" onclick='viewHistory(${JSON.stringify(row)})'><i class="fas fa-eye"></i></button>`;
                     let btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick='openEditMasuk(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button>`;
                     
-                    let actions = `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}</div>`;
+                    // NEW: Print Button (Yellow)
+                    let btnPrint = `<button class="btn btn-sm btn-dark text-warning border ms-1" onclick="printDisposisi('${row[1]}')"><i class="fas fa-print"></i></button>`;
+                    
+                    let actions = `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnPrint}</div>`;
 
                     // Add Row: TglTerima, Agenda, Pengirim, Perihal(Link), Status, Actions
                     dt.row.add([ dateTerima, row[1], row[5], perihalHtml, status, actions ]);
                 });
                 dt.draw();
+            });
+        }
+
+        // --- NEW: Print Disposisi Logic ---
+        function printDisposisi(noAgenda) {
+            Swal.fire({
+                title: 'Sedang Memproses PDF...',
+                text: 'Mohon tunggu, lembar disposisi sedang dibuat.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ type: 'cetak_disposisi', noAgenda: noAgenda })
+            })
+            .then(r => r.json())
+            .then(r => {
+                if (r.status === 'success') {
+                    // Convert Base64 to Blob
+                    const byteCharacters = atob(r.data.pdfBase64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: "application/pdf"});
+                    
+                    // Trigger Download
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = r.data.fileName;
+                    link.click();
+                    
+                    Swal.close();
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            })
+            .catch(e => {
+                Swal.fire('Error', 'Gagal membuat PDF', 'error');
             });
         }
 

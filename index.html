@@ -816,7 +816,8 @@
                     // CONDITIONAL EDIT BUTTON
                     let btnEdit = '';
                     if (userRole === 'Admin' || userRole === 'Super Admin') {
-                        btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick='openEditMasuk(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button>`;
+                        // Use correct escaping for onclick
+                        btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick='openEditMasuk(${JSON.stringify(row).replace(/'/g, "&apos;")})'><i class="fas fa-pencil"></i></button>`;
                     }
                     
                     // NEW: Print Button (Yellow)
@@ -913,7 +914,8 @@
                     // CONDITIONAL EDIT BUTTON
                     let btnEdit = '';
                     if (userRole === 'Admin' || userRole === 'Super Admin') {
-                        btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row)})'><i class="fas fa-pencil"></i></button>`;
+                        // Use correct escaping for onclick
+                        btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row).replace(/'/g, "&apos;")})'><i class="fas fa-pencil"></i></button>`;
                     }
 
                     let actions = `<div class="d-flex gap-1">${status}${btnEdit}</div>`;
@@ -1016,6 +1018,44 @@
             sendData(payload, () => {
                 Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success');
                 loadDataMasuk();
+            });
+        }
+        
+        // --- NEW: Edit Surat Keluar Logic (ADDED) ---
+        function openEditKeluar(row) {
+             // Mapping UPDATED: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglDiterima, 4:TglSurat(Resmi), 5:Tujuan, 6:Perihal, 7:File, 8:Pembuat, 9:Status
+            $('#editKeluarNoAgenda').val(row[1]);
+            $('#editKeluarNoSurat').val(row[2]);
+            
+            if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; }
+            if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; }
+            
+            $('#editKeluarTujuan').val(row[5]);
+            $('#editKeluarPerihal').val(row[6]);
+            $('#editKeluarPembuat').val(row[8]);
+            
+            new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show();
+        }
+
+        function saveEditKeluar() {
+            const payload = {
+                type: 'edit_surat_keluar',
+                email: currentUserEmail,
+                noAgenda: $('#editKeluarNoAgenda').val(),
+                noSurat: $('#editKeluarNoSurat').val(),
+                tglDiterima: $('#editKeluarTglDiterima').val(),
+                tglSurat: $('#editKeluarTglSurat').val(), // Tgl Resmi
+                tujuan: $('#editKeluarTujuan').val(),
+                perihal: $('#editKeluarPerihal').val(),
+                pembuat: $('#editKeluarPembuat').val()
+            };
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide();
+            showLoading(true);
+            
+            sendData(payload, () => {
+                Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success');
+                loadDataKeluar();
             });
         }
 

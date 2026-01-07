@@ -198,7 +198,7 @@
                 <div class="tab-content">
                     
                     <!-- INPUTS (Same) -->
-                    <div class="tab-pane active show" id="input-masuk-content"><div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div></div>
+                    <div class="tab-pane active show" id="input-masuk-content"><div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratMasuk"><div class="row"><div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div><div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div><div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasi" name="kodeKlarifikasi" placeholder="Ketik kode atau keterangan..."><datalist id="listKodeKlarifikasi"></datalist></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div></div>
                     <div class="tab-pane" id="input-keluar-content"><div class="form-container-limit"><h2 class="mb-4 fw-light text-white">Catat <b class="text-success">Surat Keluar</b></h2><div class="card"><div class="card-body p-4"><form id="formSuratKeluar"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><div class="input-group"><input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required><button class="btn btn-warning" type="button" onclick="openBookingModal()">Booking No.</button></div></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tanggal Surat Diterima</label><input type="date" class="form-control" name="tglSurat" required></div></div><div class="mb-3"><label class="small text-white-50">No. Surat (Format Dinas)</label><input type="text" class="form-control" name="noSurat" required placeholder="Contoh: 445/001/405.08/2024"></div><div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div><div class="mb-3"><label class="small text-white-50">Pembuat</label><input type="text" class="form-control" name="pembuat"></div><div class="mb-4"><label class="small text-white-50">File</label><input type="file" class="form-control" id="fileSuratKeluar"></div><div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div></form></div></div></div></div>
 
                     <!-- DISPOSISI -->
@@ -275,7 +275,10 @@
     </form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditKeluar()">Simpan Perubahan</button></div></div></div></div>
 
     <!-- MODAL EDIT SURAT MASUK (NEW) -->
-    <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditMasuk"><input type="hidden" id="editMasukNoAgenda"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Read-Only)</label><input type="text" class="form-control" id="editMasukAgendaDisplay" disabled></div><div class="col-md-6 mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" id="editMasukNoSurat" required></div></div><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Surat</label><input type="date" class="form-control" id="editMasukTglSurat" required></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Terima</label><input type="date" class="form-control" id="editMasukTglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" id="editMasukPengirim" required></div><div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editMasukPerihal" rows="3" required></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditMasuk()">Simpan Perubahan</button></div></div></div></div>
+    <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditMasuk"><input type="hidden" id="editMasukNoAgenda"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Read-Only)</label><input type="text" class="form-control" id="editMasukAgendaDisplay" disabled></div><div class="col-md-6 mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" id="editMasukNoSurat" required></div></div><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Surat</label><input type="date" class="form-control" id="editMasukTglSurat" required></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Terima</label><input type="date" class="form-control" id="editMasukTglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" id="editMasukPengirim" required></div>
+    <!-- ADDED: Kode Klarifikasi in Edit Modal -->
+    <div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasiEdit" id="editMasukKode" placeholder="Ketik kode..."><datalist id="listKodeKlarifikasiEdit"></datalist></div>
+    <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editMasukPerihal" rows="3" required></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditMasuk()">Simpan Perubahan</button></div></div></div></div>
 
     <!-- MODAL EDIT USER -->
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Hak Akses User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditUser"><input type="hidden" id="editUserEmail">
@@ -341,6 +344,7 @@
                 currentUserEmail = sessionStorage.getItem('userEmail');
                 showApp();
                 loadCounters();
+                loadRefCodes(); // Load codes on start
                 renderSidebarPermissions();
                 restoreState(); 
             }
@@ -369,6 +373,24 @@
             $('button[onclick^="activateTab"]').on('click', function (e) { $('.submenu .nav-link').removeClass('active'); });
         });
 
+        // --- NEW: Load Ref Codes ---
+        function loadRefCodes() {
+            fetch(`${GAS_URL}?action=get_ref_codes`)
+            .then(r => r.json())
+            .then(r => {
+                if (r.status === 'success' && r.data) {
+                    const list = $('#listKodeKlarifikasi');
+                    const listEdit = $('#listKodeKlarifikasiEdit');
+                    list.empty();
+                    listEdit.empty();
+                    r.data.forEach(item => {
+                        list.append(`<option value="${item}">`);
+                        listEdit.append(`<option value="${item}">`);
+                    });
+                }
+            });
+        }
+
         // --- AUTH GOOGLE ---
         function handleCredentialResponse(response) {
             showLoading(true);
@@ -389,6 +411,7 @@
                     currentUserEmail = r.data.email;
                     showApp();
                     loadCounters();
+                    loadRefCodes();
                     renderSidebarPermissions();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Login Gagal', text: r.message });
@@ -770,8 +793,6 @@
                 dt.draw();
             });
         }
-        
-        // --- UPDATED: loadDataMasuk (Linkify Perihal, Remove File Col) ---
         function loadDataMasuk() {
             fetch(`${GAS_URL}?action=read_masuk`).then(r=>r.json()).then(r=>{
                 const dt = $('#tableMasuk').DataTable(); dt.clear();
@@ -941,6 +962,13 @@
             $('#editMasukPengirim').val(row[5]);
             $('#editMasukPerihal').val(row[6]);
             
+            // New Kode Klarifikasi (Index 21 if exists)
+            if(row[21]) {
+                 $('#editMasukKode').val(row[21]);
+            } else {
+                 $('#editMasukKode').val('');
+            }
+            
             new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show();
         }
 
@@ -953,7 +981,8 @@
                 tglSurat: $('#editMasukTglSurat').val(),
                 tglTerima: $('#editMasukTglTerima').val(),
                 pengirim: $('#editMasukPengirim').val(),
-                perihal: $('#editMasukPerihal').val()
+                perihal: $('#editMasukPerihal').val(),
+                kodeKlarifikasi: $('#editMasukKode').val() // New Field
             };
             
             bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide();

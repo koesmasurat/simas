@@ -213,6 +213,8 @@
                         <!-- BACKUP BUTTONS -->
                         <button class="nav-link restricted-feature text-warning mt-2" data-perm="backup_data" id="btn-backup" onclick="downloadBackup()"><i class="fas fa-download"></i> Backup Data</button>
                         <button class="nav-link restricted-feature text-info btn-sm" style="font-size:0.8rem; margin-left:15px; margin-top:-5px;" data-perm="backup_data" id="btn-auto-backup" onclick="activateAutoBackup()"><i class="fas fa-robot"></i> Aktifkan Email Harian</button>
+                        <!-- OCR BUTTON (NEW) -->
+                        <button class="nav-link restricted-feature text-success btn-sm" style="font-size:0.8rem; margin-left:15px; margin-top:-5px;" data-perm="backup_data" id="btn-auto-ocr" onclick="activateOCR()"><i class="fas fa-eye"></i> Aktifkan Pemindai Otomatis</button>
                         
                         <!-- LOG BUTTON -->
                         <button class="nav-link restricted-feature text-danger mt-2" id="btn-log" onclick="activateTab('log-content', this, loadLogs)"><i class="fas fa-history"></i> Log Aktivitas</button>
@@ -328,7 +330,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-2 text-end">
-                                        <small class="text-danger fst-italic">*Pencarian ini akan memindai seluruh database di server.</small>
+                                        <small class="text-danger fst-italic">*Pencarian ini akan memindai seluruh database (termasuk Isi Surat OCR).</small>
                                     </div>
                                 </div>
                             </div>
@@ -546,7 +548,6 @@
 
         // --- SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT MASUK ---
         function performServerSideSearch() {
-            // Get inputs
             const tgl1 = $('#advM_Tgl1').val();
             const tgl2 = $('#advM_Tgl2').val();
             const kode = $('#advM_Kode').val();
@@ -598,7 +599,6 @@
 
         // --- NEW: SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT KELUAR ---
         function performServerSideSearchKeluar() {
-            // Get inputs
             const tgl1 = $('#advK_Tgl1').val();
             const tgl2 = $('#advK_Tgl2').val();
             const keyword = $('#advK_Key').val();
@@ -775,6 +775,38 @@
         function downloadBackup() { showLoading(true); fetch(`${GAS_URL}`, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { generateZipBackup(r.data.suratMasuk, r.data.suratKeluar); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal mengunduh data backup.', 'error'); }); }
         function generateZipBackup(dataMasuk, dataKeluar) { const wb = XLSX.utils.book_new(); const wsMasuk = XLSX.utils.aoa_to_sheet(dataMasuk); XLSX.utils.book_append_sheet(wb, wsMasuk, "SuratMasuk"); const wsKeluar = XLSX.utils.aoa_to_sheet(dataKeluar); XLSX.utils.book_append_sheet(wb, wsKeluar, "SuratKeluar"); const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }); const zip = new JSZip(); zip.file("Data_SIMAS.xlsx", wbout); const now = new Date(); const timeString = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0') + " " + String(now.getHours()).padStart(2, '0') + "-" + String(now.getMinutes()).padStart(2, '0'); const zipFilename = `backupsimas ${timeString}.zip`; zip.generateAsync({type:"blob"}).then(function(content) { saveAs(content, zipFilename); Swal.fire('Sukses', 'Backup data berhasil diunduh.', 'success'); }); }
         function activateAutoBackup() { Swal.fire({ title: 'Aktifkan Email Backup Harian?', text: "Sistem akan mengirimkan data backup otomatis ke email admin (rusita.aprilia30@gmail.com) setiap jam 23:00.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Aktifkan' }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'setup_auto_backup', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.message, 'success'); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi gagal', 'error'); }); } }); }
+        
+        // --- NEW: ACTIVATE OCR TRIGGER ---
+        function activateOCR() {
+            Swal.fire({
+                title: 'Aktifkan OCR Scanner?',
+                text: "Sistem akan memindai lampiran surat baru setiap 10 menit untuk mengekstrak teks agar bisa dicari. Pastikan API Drive sudah aktif di Script Editor.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Aktifkan'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    showLoading(true);
+                    fetch(GAS_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ type: 'setup_ocr_trigger', requestor: currentUserEmail }) 
+                    })
+                    .then(r => r.json())
+                    .then(r => {
+                        showLoading(false);
+                        if(r.status === 'success') {
+                            Swal.fire('Sukses', r.message, 'success');
+                        } else {
+                            Swal.fire('Gagal', r.message, 'error');
+                        }
+                    })
+                    .catch(e => {
+                        showLoading(false);
+                        Swal.fire('Error', 'Koneksi gagal', 'error');
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>

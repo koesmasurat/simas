@@ -349,9 +349,48 @@
                         </div>
                     </div>
                     
-                    <!-- ARSIP KELUAR -->
+                    <!-- ARSIP KELUAR (HYBRID SEARCH ADDED) -->
                     <div class="tab-pane" id="arsip-keluar-content">
-                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2><button class="btn btn-outline-light" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="fw-light text-white m-0">Arsip <b class="text-success">Surat Keluar</b></h2>
+                            <!-- Status Label Added -->
+                            <span id="keluarDataStatus" class="badge bg-secondary ms-3">Memuat...</span>
+                            <button class="btn btn-outline-light ms-auto" onclick="loadDataKeluar()"><i class="fas fa-sync-alt"></i> Reset / Refresh</button>
+                        </div>
+
+                        <!-- ADVANCED SEARCH PANEL KELUAR -->
+                        <div class="card search-panel">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="m-0 text-primary fw-bold"><i class="fas fa-search-plus me-2"></i>Pencarian Lanjutan (Semua Data)</h6>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advSearchKeluar" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+                                </div>
+                                <div class="collapse" id="advSearchKeluar">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-3">
+                                            <label class="small text-muted fw-bold">Dari Tanggal (Srt/Diterima)</label>
+                                            <input type="date" class="form-control form-control-sm" id="advK_Tgl1">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="small text-muted fw-bold">Sampai Tanggal</label>
+                                            <input type="date" class="form-control form-control-sm" id="advK_Tgl2">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="small text-muted fw-bold">Kata Kunci</label>
+                                            <input type="text" class="form-control form-control-sm" id="advK_Key" placeholder="Agenda/Tujuan/Perihal...">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <!-- THE SERVER SEARCH BUTTON -->
+                                            <button class="btn btn-primary btn-sm w-100" onclick="performServerSideSearchKeluar()"><i class="fas fa-search me-1"></i> Cari (Server)</button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-end">
+                                        <small class="text-danger fst-italic">*Pencarian ini akan memindai seluruh database di server.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card shadow-lg">
                             <div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div>
                             <div class="card-body">
@@ -452,7 +491,6 @@
     </div>
     
     <label class="small text-white-50 mt-2">Isi Instruksi</label><textarea class="form-control mb-3" id="actInstruksi" rows="3" placeholder="Instruksi..."></textarea><label class="small text-white-50">Tanggal Proses</label><input type="date" class="form-control" id="actTgl" required></form></div><div class="modal-footer"><button type="button" class="btn btn-primary w-100" onclick="submitDisposisiLevel()">Kirim Disposisi</button></div></div></div></div>
-    
     <div class="modal fade" id="modalHistory" tabindex="-1"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Riwayat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="timelineContent" class="ps-2 pt-2"></div></div></div></div></div>
 
     <div id="loadingOverlay" style="display:none;"><div class="spinner-border text-info" style="width: 4rem; height: 4rem;"></div><div class="mt-4 fw-bold text-white fs-5">Sedang Memproses...</div></div>
@@ -506,7 +544,7 @@
             $('button[onclick^="activateTab"]').on('click', function (e) { $('.submenu .nav-link').removeClass('active'); });
         });
 
-        // --- NEW: SERVER SIDE SEARCH FUNCTION (HYBRID) ---
+        // --- SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT MASUK ---
         function performServerSideSearch() {
             // Get inputs
             const tgl1 = $('#advM_Tgl1').val();
@@ -558,12 +596,61 @@
             });
         }
 
-        // --- HELPER: RENDER TABLE ROWS (Reused) ---
+        // --- NEW: SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT KELUAR ---
+        function performServerSideSearchKeluar() {
+            // Get inputs
+            const tgl1 = $('#advK_Tgl1').val();
+            const tgl2 = $('#advK_Tgl2').val();
+            const keyword = $('#advK_Key').val();
+
+            if (!tgl1 && !tgl2 && !keyword) {
+                return Swal.fire('Info', 'Isi minimal satu kriteria pencarian.', 'info');
+            }
+
+            showLoading(true);
+            $('#keluarDataStatus').text('Mencari di Server...').removeClass('bg-secondary bg-success').addClass('bg-warning text-dark');
+
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'search_keluar_server',
+                    startDate: tgl1,
+                    endDate: tgl2,
+                    keyword: keyword
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    const dt = $('#tableKeluar').DataTable();
+                    dt.clear();
+                    renderTableKeluarRows(dt, r.data); 
+                    dt.draw();
+
+                    const count = r.data.length;
+                    $('#keluarDataStatus')
+                        .text(`Hasil Pencarian: ${count} Data`)
+                        .removeClass('bg-warning bg-secondary text-dark')
+                        .addClass('bg-primary');
+                    
+                    if (count === 0) Swal.fire('Info', 'Tidak ditemukan data yang cocok.', 'info');
+                    
+                } else {
+                    Swal.fire('Error', r.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Gagal melakukan pencarian server', 'error');
+            });
+        }
+
+        // --- HELPER: RENDER TABLE MASUK ROWS ---
         function renderTableMasukRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
             
             dataRows.forEach(row => {
-                // Mapping: 0:Ts, 1:Agenda, 2:NoSurat, 3:TglSrt, 4:TglTerima, 5:Pengirim, 6:Perihal, 7:File, ... 20:Status
                 let dateTerima = '-';
                 if (row[4]) { const d = new Date(row[4]); if (!isNaN(d.getTime())) dateTerima = d.toLocaleDateString('id-ID'); }
                 
@@ -581,7 +668,32 @@
 
                 dtInstance.row.add([ dateTerima, row[1], row[5], perihalHtml, status, actions ]);
             });
-            dtInstance.order([1, 'desc']); // Sort by Agenda Desc
+            dtInstance.order([1, 'desc']); 
+        }
+
+        // --- NEW HELPER: RENDER TABLE KELUAR ROWS ---
+        function renderTableKeluarRows(dtInstance, dataRows) {
+            const userRole = sessionStorage.getItem('userRole');
+            
+            dataRows.forEach(row => {
+                let dateDiterima = '-';
+                if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
+                
+                let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
+                
+                let statusText = row[9] || "Proses";
+                let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
+                
+                let btnEdit = '';
+                if (userRole === 'Admin' || userRole === 'Super Admin') {
+                    btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row).replace(/'/g, "&apos;")})'><i class="fas fa-pencil"></i></button>`;
+                }
+
+                let actions = `<div class="d-flex gap-1">${status}${btnEdit}</div>`;
+                
+                dtInstance.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, actions ]);
+            });
+            dtInstance.order([0, 'desc']);
         }
 
         // --- MODIFIED: Load Data Standard (Limit 1000) ---
@@ -601,6 +713,25 @@
                     renderTableMasukRows(dt, r.data);
                     dt.draw();
                     $('#masukDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success');
+                }
+            });
+        }
+
+        function loadDataKeluar() {
+            // Reset Inputs in Advanced Search
+            $('#advK_Tgl1').val(''); $('#advK_Tgl2').val(''); $('#advK_Key').val('');
+
+            showLoading(true);
+            $('#keluarDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
+
+            fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{
+                showLoading(false);
+                const dt = $('#tableKeluar').DataTable(); 
+                dt.clear();
+                if(r.data) {
+                    renderTableKeluarRows(dt, r.data);
+                    dt.draw();
+                    $('#keluarDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success');
                 }
             });
         }
@@ -630,7 +761,6 @@
         function viewHistory(row) { let html = createTimelineItem(true, "SURAT DITERIMA", `Agenda: ${row[1]}`, `Tgl Surat: ${new Date(row[3]).toLocaleDateString('id-ID')}`, row[0]); if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", ""); if(row[11]) html += createTimelineItem(true, "WADIR", `Ke: ${row[11]}`, row[12], row[13]); if(row[14]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[14]}`, row[15], row[16]); if(row[17]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[17]}`, row[18], row[19]); $('#timelineContent').html(html); new bootstrap.Modal(document.getElementById('modalHistory')).show(); }
         function formatDateTime(dateString) { if(!dateString) return ''; const d = new Date(dateString); if(isNaN(d.getTime())) return ''; return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); }
         function createTimelineItem(isDone, title, target, note, date) { let cls = isDone ? 'done' : ''; let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : ''; return `<div class="timeline-item ${cls}"><div class="fw-bold text-warning small d-flex justify-content-between"><span>${title}</span>${dateStr}</div><div class="timeline-content mt-1"><div class="fw-bold small mb-1">${target}</div><div class="text-white-50 small fst-italic">"${note || '-'}"</div></div></div>`; }
-        function loadDataKeluar() { fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{ const dt = $('#tableKeluar').DataTable(); dt.clear(); if(r.data) r.data.forEach(row => { const userRole = sessionStorage.getItem('userRole'); let dateDiterima = '-'; if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); } let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6]; let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; let statusText = row[9] || "Proses"; let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`; let btnEdit = ''; if (userRole === 'Admin' || userRole === 'Super Admin') { btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick='openEditKeluar(${JSON.stringify(row).replace(/'/g, "&apos;")})'><i class="fas fa-pencil"></i></button>`; } let actions = `<div class="d-flex gap-1">${status}${btnEdit}</div>`; dt.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, actions ]); }); dt.order([0, 'desc']).draw(); }); }
         function updateStatusSelesai(noSurat) { const d = new Date(); const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); Swal.fire({ title: 'Selesaikan Surat?', html: `<p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p><input type="date" id="swal-date-input" class="swal2-input" value="${today}">`, focusConfirm: false, showCancelButton: true, confirmButtonText: 'Selesai', preConfirm: () => { const dateVal = document.getElementById('swal-date-input').value; if (!dateVal) { Swal.showValidationMessage('Tanggal Surat Resmi harus diisi'); } return dateVal; } }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'update_status_keluar', noAgenda: noSurat, tglSurat: result.value }) }).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); loadDataKeluar(); } else { Swal.fire('Gagal', r.message, 'error'); }}); } }); }
         function loadLogs() { showLoading(true); fetch(`${GAS_URL}?action=read_log`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableLog').DataTable(); dt.clear(); if (r.data && r.data.length > 0) { r.data.forEach(row => { let timeStr = row[0]; try { const d = new Date(row[0]); if (!isNaN(d.getTime())) { timeStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); } } catch(e) {} dt.row.add([ timeStr, `<span class="text-primary fw-bold">${row[1]}</span>`, `<span class="badge bg-info text-dark">${row[2]}</span>`, row[3] ]); }); dt.order([0, 'desc']).draw(); } else { dt.draw(); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat log aktivitas', 'error'); }); }
         function openEditMasuk(row) { $('#editMasukNoAgenda').val(row[1]); $('#editMasukAgendaDisplay').val(row[1]); $('#editMasukNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; } $('#editMasukPengirim').val(row[5]); $('#editMasukPerihal').val(row[6]); if(row[21]) { $('#editMasukKode').val(row[21]); } else { $('#editMasukKode').val(''); } new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }

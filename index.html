@@ -54,8 +54,19 @@
         .modal-content { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 
         /* Login Styles */
-        #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
-        .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; }
+        #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; overflow: hidden; }
+        .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; position: relative; z-index: 20; }
+        
+        /* --- NEW: Canvas Style for Organic Network --- */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Di belakang kartu login */
+            opacity: 0.6;
+        }
         
         /* Forms */
         .form-control, .form-select { background: #fff; border: 1px solid #ced4da; color: #333; }
@@ -149,6 +160,9 @@
 
     <!-- Login Section -->
     <div id="loginSection">
+        <!-- New Canvas for Organic Pulse Network -->
+        <canvas id="particleCanvas"></canvas>
+
         <div class="glass-panel login-card">
             <div class="mb-4">
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
@@ -768,7 +782,11 @@
         function openEditKeluar(row) { $('#editKeluarNoAgenda').val(row[1]); $('#editKeluarNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } $('#editKeluarTujuan').val(row[5]); $('#editKeluarPerihal').val(row[6]); $('#editKeluarPembuat').val(row[8]); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }
         function saveEditKeluar() { const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val(), pembuat: $('#editKeluarPembuat').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); }
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
-        function showApp() { $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); }
+        function showApp() { 
+            // STOP ANIMATION IF LOGGED IN
+            if(window.particleAnimation) cancelAnimationFrame(window.particleAnimation);
+            $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
+        }
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
@@ -807,6 +825,138 @@
                 }
             });
         }
+    </script>
+    
+    <!-- SCRIPT FOR ORGANIC PULSE NETWORK ANIMATION -->
+    <script>
+    (function() {
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        const particleCount = 80; // Jumlah partikel
+        const connectionDistance = 150; // Jarak koneksi
+        let animationFrameId;
+        
+        // Mouse/Touch Interaction
+        let mouse = { x: null, y: null, radius: 150 };
+
+        window.addEventListener('mousemove', function(e) {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        
+        // Resize Handler
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Particle Class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; // Kecepatan lambat (organic feel)
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.baseSize = Math.random() * 2 + 1; // Ukuran dasar
+                this.size = this.baseSize;
+                this.pulseSpeed = Math.random() * 0.05 + 0.02; // Kecepatan denyut
+                this.pulseAngle = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                // Gerakan dasar
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Denyutan (Pulse) Organik
+                this.pulseAngle += this.pulseSpeed;
+                this.size = this.baseSize + Math.sin(this.pulseAngle) * 0.5;
+
+                // Efek Riak (Ripple) Mouse
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        const directionX = forceDirectionX * force * 3; // Kekuatan dorong
+                        const directionY = forceDirectionY * force * 3;
+                        
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    }
+                }
+
+                // Pantulan layar (Wrap around)
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(200, 230, 255, 0.6)'; // Warna Cyan Medis Pucat
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            // Jika login section sudah tidak terlihat (user login), hentikan animasi untuk hemat baterai
+            if(document.getElementById('loginSection').style.display === 'none') return;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Update dan Gambar Partikel
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Gambar Garis Koneksi
+            connectParticles();
+            
+            window.particleAnimation = requestAnimationFrame(animate);
+        }
+
+        function connectParticles() {
+            let opacityValue = 1;
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let distance = ((particles[a].x - particles[b].x) * (particles[a].x - particles[b].x)) + 
+                                   ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
+                    
+                    if (distance < (connectionDistance * connectionDistance)) {
+                        opacityValue = 1 - (distance / 20000);
+                        ctx.strokeStyle = 'rgba(200, 230, 255, ' + opacityValue * 0.2 + ')'; // Garis tipis transparan
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Start
+        initParticles();
+        animate();
+    })();
     </script>
 </body>
 </html>

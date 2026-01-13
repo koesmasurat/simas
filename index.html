@@ -435,115 +435,54 @@
                             </div>
                         </div>
 
-                        <!-- SETTINGS PAGE (Super Admin) - MODIFIED FOR STORAGE MANAGEMENT -->
-                        <div class="tab-pane" id="settings-content">
-                            <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna & Sistem</b></h2><button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
-                            
-                            <!-- PANEL MANAJEMEN PENYIMPANAN CLOUD (BARU) -->
-                            <div class="card shadow-lg mb-4">
-                                <div class="card-header border-bottom bg-primary text-white">
-                                    <i class="fas fa-cloud me-2"></i> Manajemen Infrastruktur Penyimpanan (Distributed Storage)
-                                </div>
-                                <div class="card-body bg-white text-dark">
-                                    <!-- Monitoring Kuota -->
-                                    <div class="row g-3 mb-4 text-center">
-                                         <!-- Akun A -->
-                                         <div class="col-md-4">
-                                            <div class="p-3 border rounded bg-light h-100">
-                                                <h6 class="fw-bold text-primary"><i class="fas fa-server me-2"></i>Server Utama (A)</h6>
-                                                <h5 id="disp-quota-A" class="my-2">...</h5>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div id="prog-A" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
-                                                </div>
-                                                <small id="text-quota-A" class="text-muted d-block mt-2">-</small>
-                                            </div>
-                                         </div>
-                                         <!-- Akun B -->
-                                         <div class="col-md-4">
-                                            <div class="p-3 border rounded bg-light h-100">
-                                                <h6 class="fw-bold text-success"><i class="fas fa-warehouse me-2"></i>Gudang 1 (B)</h6>
-                                                <h5 id="disp-quota-B" class="my-2">...</h5>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div id="prog-B" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                                </div>
-                                                <small id="text-quota-B" class="text-muted d-block mt-2">-</small>
-                                            </div>
-                                         </div>
-                                         <!-- Akun C -->
-                                         <div class="col-md-4">
-                                            <div class="p-3 border rounded bg-light h-100">
-                                                <h6 class="fw-bold text-warning"><i class="fas fa-warehouse me-2"></i>Gudang 2 (C)</h6>
-                                                <h5 id="disp-quota-C" class="my-2">...</h5>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div id="prog-C" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
-                                                </div>
-                                                <small id="text-quota-C" class="text-muted d-block mt-2">-</small>
-                                            </div>
-                                         </div>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-end mb-3">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="loadStorageStats()"><i class="fas fa-sync-alt me-1"></i> Cek Realtime</button>
-                                    </div>
-                                    <hr>
-                                    
-                                    <!-- Kontrol Failover -->
-                                    <div class="row align-items-center">
-                                        <div class="col-md-6 mb-3 border-end">
-                                            <label class="fw-bold text-muted mb-2">Mode Failover Otomatis</label>
-                                            <div class="form-check form-switch fs-5">
-                                                <input class="form-check-input" type="checkbox" id="switchFailover" onchange="saveStorageSettings()">
-                                                <label class="form-check-label" for="switchFailover" id="lblFailover">OFF (Manual)</label>
-                                            </div>
-                                            <small class="text-muted" style="font-size: 0.8rem;">
-                                                <i class="fas fa-info-circle text-info"></i> <b>ON:</b> Pindah otomatis ke Gudang B/C jika Server Utama > 14GB.<br>
-                                                <i class="fas fa-exclamation-circle text-danger"></i> <b>OFF:</b> Kunci pada penyimpanan manual.
-                                            </small>
-                                        </div>
-                                        <div class="col-md-6 mb-3 ps-4">
-                                            <label class="fw-bold text-muted mb-2">Target Penyimpanan Aktif</label>
-                                            <select class="form-select border-primary" id="selectActiveNode" onchange="saveStorageSettings()">
-                                                <option value="0">Server Utama (Akun A)</option>
-                                                <option value="1">Gudang 1 (Akun B)</option>
-                                                <option value="2">Gudang 2 (Akun C)</option>
-                                            </select>
-                                            <div class="mt-2" id="activeNodeBadge"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- TABEL USER (Existing) -->
-                            <div class="card shadow-lg">
-                                <div class="card-header border-bottom"><i class="fas fa-users-cog me-2"></i> Daftar Pengguna</div>
-                                <div class="card-body">
-                                    <div class="table-responsive"><table id="tableUsers" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle">
+                                        <thead>
+                                            <tr><th>Agenda</th><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>Pembuat</th><th>Status</th><th>Aksi</th></tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- LOG PAGE -->
-                        <div class="tab-pane" id="log-content">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                 <h2 class="fw-light text-white m-0">Log <b class="text-danger">Aktivitas</b></h2>
-                                 <button class="btn btn-outline-light" onclick="loadLogs()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+
+                    <!-- SETTINGS PAGE (Super Admin) -->
+                    <div class="tab-pane" id="settings-content">
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna</b></h2><button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                        <div class="card shadow-lg">
+                            <div class="card-header border-bottom"><i class="fas fa-users-cog me-2"></i> Daftar Pengguna</div>
+                            <div class="card-body">
+                                <div class="table-responsive"><table id="tableUsers" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
                             </div>
-                            <div class="card shadow-lg">
-                                <div class="card-header bg-white border-bottom text-danger">
-                                    <i class="fas fa-list-ul me-2"></i> Riwayat Aktivitas Sistem
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="tableLog" class="table table-striped table-hover table-sm w-100 align-middle">
-                                            <thead>
-                                                <tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Detail</th></tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LOG PAGE -->
+                    <div class="tab-pane" id="log-content">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                             <h2 class="fw-light text-white m-0">Log <b class="text-danger">Aktivitas</b></h2>
+                             <button class="btn btn-outline-light" onclick="loadLogs()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-white border-bottom text-danger">
+                                <i class="fas fa-list-ul me-2"></i> Riwayat Aktivitas Sistem
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tableLog" class="table table-striped table-hover table-sm w-100 align-middle">
+                                        <thead>
+                                            <tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Detail</th></tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                 </div>
             </div>
@@ -648,107 +587,6 @@
             
             $('button[onclick^="activateTab"]').on('click', function (e) { $('.submenu .nav-link').removeClass('active'); });
         });
-
-        // --- NEW: STORAGE MANAGEMENT LOGIC ---
-        function loadStorageStats() {
-            showLoading(true);
-            
-            // Panggil API Backend (Action: get_storage_stats)
-            fetch(`${GAS_URL}?action=get_storage_stats&requestor=${encodeURIComponent(currentUserEmail)}`)
-            .then(r => r.json())
-            .then(r => {
-                showLoading(false);
-                if(r.status === 'success') {
-                    const data = r.data;
-                    
-                    // Update UI Progress Bars
-                    updateProgressBar('A', data.nodeA);
-                    updateProgressBar('B', data.nodeB);
-                    updateProgressBar('C', data.nodeC);
-                    
-                    // Update Settings UI
-                    $('#switchFailover').prop('checked', data.settings.failover);
-                    $('#selectActiveNode').val(data.settings.activeNode);
-                    
-                    // Refresh Label Text
-                    const failover = data.settings.failover;
-                    $('#lblFailover').text(failover ? "ON (Auto-Switch)" : "OFF (Manual)");
-                    $('#lblFailover').toggleClass('text-success', failover).toggleClass('text-muted', !failover);
-                    
-                    let badgeText = "Server Utama (A)";
-                    if(data.settings.activeNode == 1) badgeText = "Gudang 1 (B)";
-                    if(data.settings.activeNode == 2) badgeText = "Gudang 2 (C)";
-                    $('#activeNodeBadge').html(`<span class="badge bg-info">Target Aktif: ${badgeText}</span>`);
-
-                } else {
-                    // Jika Unauthorized atau Error
-                    Swal.fire('Akses Ditolak', 'Hanya Super Admin yang bisa melihat ini.', 'warning');
-                }
-            })
-            .catch(e => {
-                showLoading(false);
-                console.error("Gagal load storage stats:", e);
-            });
-        }
-
-        function updateProgressBar(id, nodeData) {
-            const usedGB = (nodeData.used / (1024*1024*1024)).toFixed(2);
-            const percentage = nodeData.percentage || 0;
-            
-            $(`#disp-quota-${id}`).text(`${usedGB} GB`);
-            $(`#prog-${id}`).css('width', `${percentage}%`);
-            $(`#text-quota-${id}`).text(`${percentage}% Terpakai`);
-            
-            // Warna Bar berubah jika kritis
-            if(percentage > 90) $(`#prog-${id}`).removeClass('bg-primary bg-success bg-warning').addClass('bg-danger');
-        }
-
-        function saveStorageSettings() {
-            const failover = $('#switchFailover').is(':checked');
-            const activeNode = $('#selectActiveNode').val();
-            
-            // Kirim ke Backend
-            showLoading(true);
-            fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    type: 'update_storage_settings',
-                    failover: failover,
-                    activeNode: activeNode,
-                    requestor: currentUserEmail
-                })
-            }).then(r=>r.json()).then(r => {
-                showLoading(false);
-                if(r.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Tersimpan',
-                        text: 'Pengaturan penyimpanan berhasil diperbarui.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    loadStorageStats(); // Refresh tampilan
-                } else {
-                    Swal.fire('Gagal', r.message, 'error');
-                }
-            }).catch(e => {
-                showLoading(false);
-                Swal.fire('Error', 'Gagal menyimpan pengaturan', 'error');
-            });
-        }
-        
-        function openSettingsPage(element) { 
-            activateTab('settings-content', element, () => {
-                loadUsers();
-                
-                // Cek Role, hanya load stats jika Super Admin (atau permission settings_admin)
-                // Di frontend kita cek role dasar dulu agar tidak spam request
-                const role = sessionStorage.getItem('userRole');
-                if (role === 'Super Admin' || role === 'Admin') {
-                    loadStorageStats(); 
-                }
-            }); 
-        }
 
         // --- SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT MASUK ---
         function performServerSideSearch() {
@@ -943,6 +781,7 @@
         function loadRefCodes() { fetch(`${GAS_URL}?action=get_ref_codes`).then(r => r.json()).then(r => { if (r.status === 'success' && r.data) { const list = $('#listKodeKlarifikasi'); const listEdit = $('#listKodeKlarifikasiEdit'); list.empty(); listEdit.empty(); r.data.forEach(item => { const option = `<option value="${item.code}">${item.desc}</option>`; list.append(option); listEdit.append(option); }); } }); }
         function handleCredentialResponse(response) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'google_login', credential: response.credential }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { sessionStorage.setItem('isLoggedIn', 'true'); sessionStorage.setItem('userEmail', r.data.email); sessionStorage.setItem('userRole', r.data.role); sessionStorage.setItem('userPermissions', JSON.stringify(r.data.permissions)); sessionStorage.setItem('userSubordinates', JSON.stringify(r.data.subordinates)); sessionStorage.setItem('userName', r.data.name); currentUserEmail = r.data.email; showApp(); loadCounters(); loadRefCodes(); renderSidebarPermissions(); } else { Swal.fire({ icon: 'error', title: 'Login Gagal', text: r.message }); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi Gagal', 'error'); }); }
         function renderSidebarPermissions() { const role = sessionStorage.getItem('userRole'); const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]"); const name = sessionStorage.getItem('userName'); $('#userDisplayName').text(name); $('#userRoleBadge').text(role); $('.restricted-feature').addClass('restricted-feature'); if (role === 'Super Admin') { $('.restricted-feature').removeClass('restricted-feature'); return; } if (perms && Array.isArray(perms)) { perms.forEach(p => { $(`[data-perm="${p}"]`).removeClass('restricted-feature'); }); } }
+        function openSettingsPage(element) { activateTab('settings-content', element, loadUsers); }
         function loadUsers() { showLoading(true); fetch(`${GAS_URL}?type=get_users_list`, { method: 'POST', body: JSON.stringify({ type: 'get_users_list', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableUsers').DataTable(); if ($.fn.DataTable.isDataTable('#tableUsers')) { dt.clear().destroy(); } const table = $('#tableUsers').DataTable({ language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" } }); allUsersCache = r.data; if (r.data) { r.data.forEach(u => { let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick='openEditUser(${JSON.stringify(u)})' title="Edit Akses"><i class="fas fa-edit"></i></button>`; let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick='openManageSubordinates(${JSON.stringify(u)})' title="Atur Bawahan"><i class="fas fa-users"></i></button>`; table.row.add([ u.email, u.name, u.role, u.status, btnEdit + btnTeam ]); }); table.draw(); } }); }
         function openEditUser(user) { $('#editUserEmail').val(user.email); $('#editUserName').val(user.name); $('#editUserRole').val(user.role); $('#editUserStatus').val(user.status); $('.perm-check').prop('checked', false); try { const perms = JSON.parse(user.permissions); perms.forEach(p => { $(`.perm-check[value="${p}"]`).prop('checked', true); }); } catch(e){} new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
         function saveUserPermissions() { const perms = []; $('.perm-check:checked').each(function() { perms.push($(this).val()); }); const payload = { type: 'update_user_permissions', requestor: currentUserEmail, targetEmail: $('#editUserEmail').val(), name: $('#editUserName').val(), role: $('#editUserRole').val(), status: $('#editUserStatus').val(), permissions: JSON.stringify(perms) }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Data user diupdate', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }

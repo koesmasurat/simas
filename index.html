@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     
     <!-- SheetJS, JSZip, FileSaver for Backup Feature -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -55,17 +55,39 @@
 
         /* Login Styles */
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; overflow: hidden; }
-        .login-card { width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; position: relative; z-index: 20; }
+        .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; position: relative; z-index: 20; }
         
-        /* --- NEW: Canvas Style for Organic Network --- */
+        /* --- Canvas for Organic Network --- */
         #particleCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* Di belakang kartu login */
+            z-index: 1; 
             opacity: 0.6;
+        }
+
+        /* --- Motivational Quote Styles (Updated) --- */
+        #quoteContainer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            min-height: 80px; /* Sedikit dikurangi tingginya */
+        }
+        #quoteText {
+            font-family: 'Playfair Display', serif; 
+            font-size: 0.9rem; /* Ukuran font dikurangi 1 level */
+            line-height: 1.6;
+            color: #00ff41; /* Hijau Neon / Matrix Green */
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.3); /* Efek glow neon halus */
+            font-style: italic;
+            margin-bottom: 0;
+            transition: opacity 1.5s ease-in-out; 
+            opacity: 1;
+        }
+        #quoteText.fade-out {
+            opacity: 0;
         }
         
         /* Forms */
@@ -164,7 +186,7 @@
         <canvas id="particleCanvas"></canvas>
 
         <div class="glass-panel login-card">
-            <div class="mb-4">
+            <div class="mb-3">
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
                 <h3 class="fw-bold">SIMAS KOESMA</h3>
                 <p class="text-white-50">Sistem Informasi Manajemen Arsip Surat<br>RSUD dr. R. Koesma</p>
@@ -179,6 +201,12 @@
                 <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
             </div>
             <p class="mt-3 small text-white-50">Silakan login menggunakan akun Google Anda.</p>
+
+            <!-- MOTIVATIONAL QUOTE SECTION -->
+            <div id="quoteContainer">
+                <p id="quoteText">"..."</p>
+                <!-- Removed - Golden Ways - -->
+            </div>
         </div>
     </div>
 
@@ -827,7 +855,7 @@
         }
     </script>
     
-    <!-- SCRIPT FOR ORGANIC PULSE NETWORK ANIMATION -->
+    <!-- SCRIPT FOR ORGANIC PULSE NETWORK ANIMATION & QUOTES -->
     <script>
     (function() {
         const canvas = document.getElementById('particleCanvas');
@@ -953,9 +981,55 @@
             }
         }
 
-        // Start
+        // Start Animation
         initParticles();
         animate();
+
+        // --- MOTIVATIONAL QUOTES LOGIC ---
+        const quotes = [
+            "Jangan bekerja hanya untuk menyelesaikan tugas, tapi bekerjalah untuk membangun kualitas diri. Jejak kerjamu adalah identitasmu.",
+            "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
+            "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
+            "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
+            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
+            "Jadilah solusi, bukan polusi. Di setiap rapat dan diskusi, pastikan suaramu membawa pencerahan, bukan sekadar keluhan.",
+            "Waktu tidak pernah menunggu. Lakukan yang terbaik sekarang, atau kau akan menyesal saat melihat orang lain mendahuluimu dengan ide yang sama.",
+            "Loyalitas bukan tentang seberapa lama engkau bekerja, tapi seberapa tulus engkau memberikan kontribusi terbaik bagi tempatmu bernaung.",
+            "Jangan iri pada pencapaian rekan kerja. Fokuslah menyiram rumput sendiri, hingga ia tumbuh subur dan berbunga indah.",
+            "Pulanglah dengan bangga karena hari ini kau telah memberikan yang terbaik. Esok adalah lembaran baru untuk mencetak prestasi yang lebih gemilang.",
+            "Disiplin bukan tentang aturan, tetapi tentang menghormati diri sendiri dan menghargai waktu yang diberikan Tuhan.",
+            "Kesuksesan di tempat kerja dimulai dari niat baik di pagi hari. Awali dengan doa, akhiri dengan karya nyata.",
+            "Bekerjalah seolah-olah tak butuh uang, namun hasilkanlah karya yang membuat uang mengejarmu. Kualitas tak pernah berdusta.",
+            "Setiap tantangan adalah undangan untuk naik kelas. Terima undangannya, kerjakan ujiannya, dan rayakan kelulusannya.",
+            "Jangan menunggu motivasi datang baru bekerja, tapi bekerjalah maka motivasi akan datang membersamaimu.",
+            "Integritas adalah melakukan hal yang benar, bahkan ketika tidak ada yang melihat. Itu adalah mahkota pekerja sejati.",
+            "Kerjasama tim membuat mimpi jadi nyata. Jangan berjalan sendiri jika ingin melangkah jauh dan kuat.",
+            "Fokus pada progres, bukan pada kesempurnaan. Langkah kecil yang konsisten lebih baik daripada diam menunggu waktu yang tepat.",
+            "Jadikan kritikan sebagai bahan bakar perbaikan, bukan alasan untuk kemunduran. Dewasalah dalam menerima masukan.",
+            "Senyummu adalah sedekah termudah di kantor. Tebarkan energi positif, maka lingkungan kerjamu akan menjadi surga kecilmu."
+        ];
+
+        let currentQuoteIndex = 0;
+        const quoteTextEl = document.getElementById('quoteText');
+
+        // Set quote awal
+        quoteTextEl.innerText = '"' + quotes[0] + '"';
+
+        setInterval(() => {
+            // Fade Out
+            quoteTextEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                // Ganti Teks
+                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+                quoteTextEl.innerText = '"' + quotes[currentQuoteIndex] + '"';
+                
+                // Fade In
+                quoteTextEl.classList.remove('fade-out');
+            }, 1500); // Tunggu animasi fade-out selesai (sesuai transition CSS)
+
+        }, 30000); // Ganti tiap 30 detik
+
     })();
     </script>
 </body>

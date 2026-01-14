@@ -69,7 +69,8 @@
             width: 100%;
             height: 100%;
             z-index: 1; 
-            pointer-events: none; /* Agar tidak mengganggu klik */
+            /* pointer-events: none dihapus/dibiarkan default agar interaksi window bekerja lebih baik jika diperlukan, 
+               namun dengan z-index rendah dan detect_on: window, interaksi tetap aman */
         }
 
         /* --- Motivational Quote Styles (Updated) --- */
@@ -1052,15 +1053,41 @@
     <!-- TSPARTICLES SCRIPT (Updated) -->
     <script>
     (function() {
-        // SVG Amplop Surat (Outline Putih, Fill Transparan)
-        const envelopeIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyA3YTIgMiAwIDAgMSAyLTJoMTRhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiPjwvcGF0aD48cG9seWxpbmUgcG9pbnRzPSIzIDcgMTIgMTMgMjEgNyI+PC9wb2x5bGluZT48L3N2Zz4=";
+        // SVG Amplop Surat (Warna Warni Emas & Putih)
+        const envelopeIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZEMzAwIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyA3YTIgMiAwIDAgMSAyLTJoMTRhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiIHN0cm9rZT0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0zIDcgMTIgMTMgMjEgNyIgc3Ryb2tlPSIjRkZEMzAwIi8+PC9zdmc+";
 
         tsParticles.load("tsparticles", {
             fpsLimit: 60,
             fullScreen: { enable: false },
+            interactivity: {
+                detect_on: "window", // CHANGE: Enable window-level detection
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "bubble"
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "repulse"
+                    },
+                    resize: true
+                },
+                modes: {
+                    bubble: {
+                        distance: 250,
+                        size: 40, // Increased size on hover
+                        duration: 0.4,
+                        opacity: 1
+                    },
+                    repulse: {
+                        distance: 300,
+                        duration: 0.4
+                    }
+                }
+            },
             particles: {
                 number: {
-                    value: 40, // Jumlah partikel dikurangi agar tidak terlalu ramai
+                    value: 40,
                     density: {
                         enable: true,
                         value_area: 800
@@ -1070,32 +1097,32 @@
                     value: "#ffffff"
                 },
                 shape: {
-                    type: "image", // Fokus hanya pada image
+                    type: "image",
                     image: [
                         {
                             src: envelopeIcon,
-                            width: 32, // Dimensi dasar
+                            width: 32,
                             height: 32
                         }
                     ]
                 },
                 opacity: {
-                    value: 0.7,
-                    random: true, // Opacity bervariasi agar terlihat natural
+                    value: 0.8, // Slightly more opaque
+                    random: true,
                     anim: {
                         enable: true,
                         speed: 0.5,
-                        opacity_min: 0.3,
+                        opacity_min: 0.4,
                         sync: false
                     }
                 },
                 size: {
-                    value: 12, // Ukuran diperbesar agar icon terlihat jelas
-                    random: true, // Ukuran bervariasi
+                    value: 25, // Base size increased 100% (from 12 to 25)
+                    random: true,
                     anim: {
                         enable: false,
                         speed: 40,
-                        size_min: 5,
+                        size_min: 10,
                         sync: false
                     }
                 },
@@ -1108,7 +1135,7 @@
                 },
                 move: {
                     enable: true,
-                    speed: 1, // Gerakan lambat dan tenang
+                    speed: 1,
                     direction: "none",
                     random: true,
                     straight: false,
@@ -1125,33 +1152,8 @@
                     direction: "clockwise",
                     animation: {
                         enable: true,
-                        speed: 3, // Rotasi perlahan
+                        speed: 3,
                         sync: false
-                    }
-                }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: {
-                        enable: true,
-                        mode: "bubble" // Efek bubble saat hover
-                    },
-                    onclick: {
-                        enable: true,
-                        mode: "push"
-                    },
-                    resize: true
-                },
-                modes: {
-                    bubble: {
-                        distance: 200,
-                        size: 20, // Membesar saat di-hover
-                        duration: 2,
-                        opacity: 1
-                    },
-                    push: {
-                        particles_nb: 2
                     }
                 }
             },

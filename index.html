@@ -19,6 +19,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <!-- TSParticles Library (New) -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     
     <style>
         :root {
@@ -38,6 +41,7 @@
             color: var(--text-light);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
 
         /* Glassmorphism Components */
@@ -57,15 +61,15 @@
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; overflow: hidden; }
         .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; position: relative; z-index: 20; }
         
-        /* --- Canvas for Organic Network --- */
-        #particleCanvas {
-            position: absolute;
+        /* --- TSParticles Container --- */
+        #tsparticles {
+            position: fixed; /* Fixed agar tetap terlihat saat scroll di dashboard */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 1; 
-            opacity: 0.6;
+            pointer-events: none; /* Agar tidak mengganggu klik */
         }
 
         /* --- Motivational Quote Styles (Updated) --- */
@@ -96,7 +100,7 @@
         .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
         
         /* Layout */
-        #appContent { display: none; width: 100%; min-height: 100vh; }
+        #appContent { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 5; }
         .wrapper { display: flex; width: 100%; align-items: stretch; transition: all 0.3s; }
         
         /* Sidebar */
@@ -180,11 +184,11 @@
 </head>
 <body>
 
+    <!-- Container untuk tsParticles -->
+    <div id="tsparticles"></div>
+
     <!-- Login Section -->
     <div id="loginSection">
-        <!-- New Canvas for Organic Pulse Network -->
-        <canvas id="particleCanvas"></canvas>
-
         <div class="glass-panel login-card">
             <div class="mb-3">
                 <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo RSUD" style="width: 100px; height: auto;" class="mb-3">
@@ -626,8 +630,6 @@
         let currentUserEmail = "";
         
         // --- DATA CACHE PATTERN (Robustness Fix) ---
-        // Menyimpan data baris dalam memori alih-alih di atribut HTML
-        // untuk mencegah error akibat karakter "jahat" (seperti quotes, parens, dll)
         const DATA_CACHE = {
             disposisi: new Map(),
             masuk: new Map(),
@@ -635,10 +637,7 @@
             users: new Map()
         };
         
-        // Helper: Encode ID untuk atribut HTML agar aman
-        function safeId(id) {
-            return encodeURIComponent(String(id));
-        }
+        function safeId(id) { return encodeURIComponent(String(id)); }
         
         const structureOrg = {
             "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
@@ -754,7 +753,7 @@
 
             showLoading(true);
             $('#masukDataStatus').text('Mencari di Server...').removeClass('bg-secondary bg-success').addClass('bg-warning text-dark');
-            DATA_CACHE.masuk.clear(); // Reset cache before search
+            DATA_CACHE.masuk.clear(); 
 
             fetch(GAS_URL, {
                 method: 'POST',
@@ -786,7 +785,7 @@
 
             showLoading(true);
             $('#keluarDataStatus').text('Mencari di Server...').removeClass('bg-secondary bg-success').addClass('bg-warning text-dark');
-            DATA_CACHE.keluar.clear(); // Reset cache
+            DATA_CACHE.keluar.clear(); 
 
             fetch(GAS_URL, {
                 method: 'POST',
@@ -808,12 +807,10 @@
             .catch(e => { showLoading(false); Swal.fire('Error', 'Gagal melakukan pencarian server', 'error'); });
         }
 
-        // --- HELPER: RENDER TABLE MASUK ROWS (WITH CACHE) ---
         function renderTableMasukRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
             
             dataRows.forEach(row => {
-                // CACHE DATA HERE
                 DATA_CACHE.masuk.set(String(row[1]), row);
                 const safeRowId = safeId(row[1]);
 
@@ -824,7 +821,6 @@
                 let status = `<span class="badge bg-secondary">${row[20]}</span>`;
                 if(row[20] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
                 
-                // Use safeId and FromCache function
                 let btnHistory = `<button class="btn btn-sm btn-light text-primary border" onclick="viewHistoryFromCache('${safeRowId}')"><i class="fas fa-eye"></i></button>`;
                 let btnEdit = '';
                 if (userRole === 'Admin' || userRole === 'Super Admin') {
@@ -838,12 +834,10 @@
             dtInstance.order([1, 'desc']); 
         }
 
-        // --- HELPER: RENDER TABLE KELUAR ROWS (WITH CACHE) ---
         function renderTableKeluarRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
             
             dataRows.forEach(row => {
-                // CACHE DATA HERE
                 DATA_CACHE.keluar.set(String(row[1]), row);
                 const safeRowId = safeId(row[1]);
 
@@ -867,7 +861,6 @@
             dtInstance.order([0, 'desc']);
         }
 
-        // --- TRAMPOLINE FUNCTIONS FOR CACHE (ROBUSTNESS) ---
         function openDisposisiModalFromCache(id) {
             const rowData = DATA_CACHE.disposisi.get(decodeURIComponent(id));
             if(rowData) openModalAction(rowData);
@@ -901,13 +894,11 @@
             if(user) openManageSubordinates(user);
         }
 
-
-        // --- LOAD DATA FUNCTIONS (MODIFIED) ---
         function loadDataMasuk() {
             $('#advM_Tgl1').val(''); $('#advM_Tgl2').val(''); $('#advM_Kode').val(''); $('#advM_Key').val('');
             showLoading(true); 
             $('#masukDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
-            DATA_CACHE.masuk.clear(); // Clear cache
+            DATA_CACHE.masuk.clear(); 
 
             fetch(`${GAS_URL}?action=read_masuk`).then(r=>r.json()).then(r=>{
                 showLoading(false);
@@ -925,7 +916,7 @@
             $('#advK_Tgl1').val(''); $('#advK_Tgl2').val(''); $('#advK_Key').val('');
             showLoading(true);
             $('#keluarDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
-            DATA_CACHE.keluar.clear(); // Clear cache
+            DATA_CACHE.keluar.clear(); 
 
             fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{
                 showLoading(false);
@@ -951,11 +942,10 @@
                 showLoading(false); 
                 if ($.fn.DataTable.isDataTable('#tableUsers')) { $('#tableUsers').DataTable().clear().destroy(); } 
                 const table = $('#tableUsers').DataTable({ language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" }, autoWidth: false }); 
-                DATA_CACHE.users.clear(); // Clear User Cache
+                DATA_CACHE.users.clear(); 
 
                 if (r.status === 'success' && r.data) { 
                     r.data.forEach(u => { 
-                        // CACHE USER DATA
                         DATA_CACHE.users.set(u.email, u);
                         const safeEmail = safeId(u.email);
 
@@ -985,7 +975,6 @@
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
         function openDisposisiPage(level, element) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); }
         
-        // --- MODIFIED REFRESH FUNCTION WITH CACHE ---
         function refreshCurrentDisposisi() { 
             showLoading(true); 
             fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`)
@@ -994,15 +983,13 @@
                 showLoading(false); 
                 const dt = $('#tableDisposisi').DataTable(); 
                 dt.clear(); 
-                DATA_CACHE.disposisi.clear(); // Reset cache
+                DATA_CACHE.disposisi.clear(); 
 
                 if(r.data) r.data.forEach(row => { 
-                    // Store Data in Cache
                     DATA_CACHE.disposisi.set(String(row[1]), row);
                     const safeRowId = safeId(row[1]);
 
                     let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; 
-                    // Call wrapper function with ID
                     let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick="openDisposisiModalFromCache('${safeRowId}')">Proses</button>`; 
                     dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); 
                 }); 
@@ -1022,8 +1009,6 @@
         function saveEditKeluar() { const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val(), pembuat: $('#editKeluarPembuat').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); }
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
         function showApp() { 
-            // STOP ANIMATION IF LOGGED IN
-            if(window.particleAnimation) cancelAnimationFrame(window.particleAnimation);
             $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
         }
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
@@ -1032,8 +1017,6 @@
         function downloadBackup() { showLoading(true); fetch(`${GAS_URL}`, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { generateZipBackup(r.data.suratMasuk, r.data.suratKeluar); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal mengunduh data backup.', 'error'); }); }
         function generateZipBackup(dataMasuk, dataKeluar) { const wb = XLSX.utils.book_new(); const wsMasuk = XLSX.utils.aoa_to_sheet(dataMasuk); XLSX.utils.book_append_sheet(wb, wsMasuk, "SuratMasuk"); const wsKeluar = XLSX.utils.aoa_to_sheet(dataKeluar); XLSX.utils.book_append_sheet(wb, wsKeluar, "SuratKeluar"); const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }); const zip = new JSZip(); zip.file("Data_SIMAS.xlsx", wbout); const now = new Date(); const timeString = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0') + " " + String(now.getHours()).padStart(2, '0') + "-" + String(now.getMinutes()).padStart(2, '0'); const zipFilename = `backupsimas ${timeString}.zip`; zip.generateAsync({type:"blob"}).then(function(content) { saveAs(content, zipFilename); Swal.fire('Sukses', 'Backup data berhasil diunduh.', 'success'); }); }
         function activateAutoBackup() { Swal.fire({ title: 'Aktifkan Email Backup Harian?', text: "Sistem akan mengirimkan data backup otomatis ke email admin (rusita.aprilia30@gmail.com) setiap jam 23:00.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Aktifkan' }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'setup_auto_backup', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.message, 'success'); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi gagal', 'error'); }); } }); }
-        
-        // --- NEW: ACTIVATE OCR TRIGGER ---
         function activateOCR() {
             Swal.fire({
                 title: 'Aktifkan OCR Scanner?',
@@ -1066,139 +1049,109 @@
         }
     </script>
     
-    <!-- SCRIPT FOR ORGANIC PULSE NETWORK ANIMATION & QUOTES -->
+    <!-- TSPARTICLES SCRIPT (Updated) -->
     <script>
     (function() {
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let particles = [];
-        const particleCount = 80; // Jumlah partikel
-        const connectionDistance = 150; // Jarak koneksi
-        let animationFrameId;
-        
-        // Mouse/Touch Interaction
-        let mouse = { x: null, y: null, radius: 150 };
+        const mailIconSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZmZmZmZmIj48cGF0aCBkPSJNNDggNjRDMjEuNSA2NCAwIDg1LjUgMCAxMTJjMCAxNS4xIDcuMSAyOS4zIDE5LjIgMzguNEwyMzYuOCAzMTMuNmMxMS40IDguNSAyNyA4LjUgMzguNCAwTDQ5Mi44IDE1MC40YzEyLjEtOS4xIDE5LjItMjMuMyAxOS4yLTM4LjRjMC0yNi41LTIxLjUtNDgtNDgtNDhINDh6TTAgMTc2VjM4NGMwIDM1LjMgMjguNyA2NCA2NCA2NEg0NDhjMzUuMyAwIDY0LTI4LjcgNjQtNjRWMTc2TDI5NC40IDMzOS4yYy0yMi44IDE3LjEtNTQgMTcuMS03Ni44IDBMMCAxNzZ6Ii8+PC9zdmc+`;
 
-        window.addEventListener('mousemove', function(e) {
-            mouse.x = e.x;
-            mouse.y = e.y;
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            fullScreen: { enable: false }, // Kita pakai container khusus agar tidak menimpa scroll
+            particles: {
+                number: {
+                    value: 60,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: "#ffffff"
+                },
+                shape: {
+                    type: ["circle", "image"], // Campuran titik dan icon
+                    image: [
+                        {
+                            src: mailIconSvg,
+                            width: 100,
+                            height: 100,
+                            replaceColor: false
+                        }
+                    ]
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 40,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                links: {
+                    enable: true,
+                    distance: 150,
+                    color: "#ffffff",
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "grab"
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push"
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 200,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true,
+            background: {
+                color: "transparent",
+                image: "",
+                position: "50% 50%",
+                repeat: "no-repeat",
+                size: "cover"
+            }
         });
-        
-        // Resize Handler
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Particle Class
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; // Kecepatan lambat (organic feel)
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.baseSize = Math.random() * 2 + 1; // Ukuran dasar
-                this.size = this.baseSize;
-                this.pulseSpeed = Math.random() * 0.05 + 0.02; // Kecepatan denyut
-                this.pulseAngle = Math.random() * Math.PI * 2;
-            }
-
-            update() {
-                // Gerakan dasar
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Denyutan (Pulse) Organik
-                this.pulseAngle += this.pulseSpeed;
-                this.size = this.baseSize + Math.sin(this.pulseAngle) * 0.5;
-
-                // Efek Riak (Ripple) Mouse
-                if (mouse.x != null) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < mouse.radius) {
-                        const forceDirectionX = dx / distance;
-                        const forceDirectionY = dy / distance;
-                        const force = (mouse.radius - distance) / mouse.radius;
-                        const directionX = forceDirectionX * force * 3; // Kekuatan dorong
-                        const directionY = forceDirectionY * force * 3;
-                        
-                        this.x -= directionX;
-                        this.y -= directionY;
-                    }
-                }
-
-                // Pantulan layar (Wrap around)
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(200, 230, 255, 0.6)'; // Warna Cyan Medis Pucat
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animate() {
-            // Jika login section sudah tidak terlihat (user login), hentikan animasi untuk hemat baterai
-            if(document.getElementById('loginSection').style.display === 'none') return;
-            
-            ctx.clearRect(0, 0, width, height);
-            
-            // Update dan Gambar Partikel
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-
-            // Gambar Garis Koneksi
-            connectParticles();
-            
-            window.particleAnimation = requestAnimationFrame(animate);
-        }
-
-        function connectParticles() {
-            let opacityValue = 1;
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a; b < particles.length; b++) {
-                    let distance = ((particles[a].x - particles[b].x) * (particles[a].x - particles[b].x)) + 
-                                   ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
-                    
-                    if (distance < (connectionDistance * connectionDistance)) {
-                        opacityValue = 1 - (distance / 20000);
-                        ctx.strokeStyle = 'rgba(200, 230, 255, ' + opacityValue * 0.2 + ')'; // Garis tipis transparan
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        // Start Animation
-        initParticles();
-        animate();
 
         // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
-            "Jangan bekerja hanya untuk menyelesaikan tugas, tapi bekerjalah untuk membangun kualitas diri. Jejak kerjamu adalah identitasmu.",
+            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
             "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",

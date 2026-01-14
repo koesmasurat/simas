@@ -69,8 +69,7 @@
             width: 100%;
             height: 100%;
             z-index: 1; 
-            /* pointer-events: none dihapus/dibiarkan default agar interaksi window bekerja lebih baik jika diperlukan, 
-               namun dengan z-index rendah dan detect_on: window, interaksi tetap aman */
+            pointer-events: none; /* Agar tidak mengganggu klik */
         }
 
         /* --- Motivational Quote Styles (Updated) --- */
@@ -575,18 +574,24 @@
     <div class="mb-3"><label class="small text-white-50">Tujuan</label><input type="text" class="form-control" id="editKeluarTujuan" required></div>
     <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editKeluarPerihal" rows="3" required></textarea></div>
     <div class="mb-3"><label class="small text-white-50">Pembuat Surat</label><input type="text" class="form-control" id="editKeluarPembuat"></div>
+    <div class="mb-3 bg-secondary bg-opacity-25 p-2 rounded"><label class="small text-white-50">Ganti File (Opsional)</label><input type="file" class="form-control form-control-sm" id="editKeluarFile"></div>
     </form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditKeluar()">Simpan Perubahan</button></div></div></div></div>
 
     <!-- MODAL EDIT SURAT MASUK -->
     <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditMasuk"><input type="hidden" id="editMasukNoAgenda"><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">No. Agenda (Read-Only)</label><input type="text" class="form-control" id="editMasukAgendaDisplay" disabled></div><div class="col-md-6 mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" id="editMasukNoSurat" required></div></div><div class="row"><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Surat</label><input type="date" class="form-control" id="editMasukTglSurat" required></div><div class="col-md-6 mb-3"><label class="small text-white-50">Tgl Terima</label><input type="date" class="form-control" id="editMasukTglTerima" required></div></div><div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" id="editMasukPengirim" required></div>
     <div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasiEdit" id="editMasukKode" placeholder="Ketik kode..."><datalist id="listKodeKlarifikasiEdit"></datalist></div>
-    <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editMasukPerihal" rows="3" required></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditMasuk()">Simpan Perubahan</button></div></div></div></div>
+    <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" id="editMasukPerihal" rows="3" required></textarea></div>
+    <div class="mb-3 bg-secondary bg-opacity-25 p-2 rounded"><label class="small text-white-50">Ganti File (Opsional)</label><input type="file" class="form-control form-control-sm" id="editMasukFile"></div>
+    </form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveEditMasuk()">Simpan Perubahan</button></div></div></div></div>
+
+    <!-- MODAL CORRECTION (REROUTING) -->
+    <div class="modal fade" id="modalCorrection" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-warning"><div class="modal-header bg-warning text-dark"><h5 class="modal-title"><i class="fas fa-route me-2"></i>Koreksi Tujuan Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-white-50 fst-italic">Fitur ini hanya mengubah tujuan disposisi yang salah input, tanpa mengubah instruksi atau tanggal.</p><form id="formCorrection"><input type="hidden" id="corrNoAgenda"><div class="mb-3"><label class="small text-white-50">Level Disposisi Saat Ini</label><input type="text" class="form-control" id="corrLevel" disabled></div><div class="mb-3"><label class="small text-white-50">Target Saat Ini (Salah)</label><input type="text" class="form-control text-danger fw-bold" id="corrOldTarget" disabled></div><div class="mb-3"><label class="small text-white-50">Target Seharusnya (Koreksi)</label><input type="text" class="form-control" list="listCorrectionTargets" id="corrNewTarget" placeholder="Ketik/Pilih tujuan yang benar..."><datalist id="listCorrectionTargets"></datalist></div></form></div><div class="modal-footer"><button type="button" class="btn btn-warning fw-bold w-100" onclick="submitCorrection()">Simpan Koreksi</button></div></div></div></div>
 
     <!-- MODAL EDIT USER -->
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Hak Akses User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditUser"><input type="hidden" id="editUserEmail">
     <div class="mb-3"><label class="small text-white-50">Nama Lengkap</label><input type="text" class="form-control" id="editUserName" required></div>
-    <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div><div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna (User Management)</label></div></div>
-    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Akses Download Backup Data (Excel)</label></div></div>
+    <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div><div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna</label></div></div>
+    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Download Backup Data</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="correction_admin" id="perm_correct"><label class="form-check-label text-danger fw-bold" for="perm_correct"><i class="fas fa-exclamation-triangle me-1"></i>Akses Koreksi Disposisi</label></div></div>
     </div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan Perubahan</button></div></div></div></div>
     
     <!-- MODAL MANAGE SUBORDINATES -->
@@ -810,6 +815,8 @@
 
         function renderTableMasukRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
+            const permissions = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
+            const canCorrect = userRole === 'Super Admin' || permissions.includes('correction_admin');
             
             dataRows.forEach(row => {
                 DATA_CACHE.masuk.set(String(row[1]), row);
@@ -827,8 +834,15 @@
                 if (userRole === 'Admin' || userRole === 'Super Admin') {
                     btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick="openEditMasukFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`;
                 }
+                
+                // --- NEW CORRECTION BUTTON ---
+                let btnCorrect = '';
+                if (canCorrect) {
+                    btnCorrect = `<button class="btn btn-sm btn-outline-danger ms-1" onclick="openCorrectionModalFromCache('${safeRowId}')" title="Koreksi Salah Tujuan"><i class="fas fa-route"></i></button>`;
+                }
+
                 let btnPrint = `<button class="btn btn-sm btn-dark text-warning border ms-1" onclick="printDisposisi('${row[1]}')"><i class="fas fa-print"></i></button>`;
-                let actions = `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnPrint}</div>`;
+                let actions = `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnCorrect}${btnPrint}</div>`;
 
                 dtInstance.row.add([ dateTerima, row[1], row[5], perihalHtml, status, actions ]);
             });
@@ -862,6 +876,94 @@
             dtInstance.order([0, 'desc']);
         }
 
+        // --- CORRECTION MODAL LOGIC ---
+        function openCorrectionModalFromCache(id) {
+            const row = DATA_CACHE.masuk.get(decodeURIComponent(id));
+            if(!row) return Swal.fire('Error', 'Data tidak ditemukan', 'error');
+
+            $('#corrNoAgenda').val(row[1]);
+            
+            // Logic to determine last level
+            let level = "";
+            let currentTarget = "";
+            
+            // Check backwards (JF -> Kabid -> Wadir -> Direktur)
+            // Indices: Wadir(8), Bidang(11), JF(14), Staf(17) - *Array index starts at 0*
+            // But data from sheet usually matches column index - 1 if using getValues() without headers.
+            // Let's check existing indices usage in renderTableMasukRows: 
+            // row[8] is Target Wadir. row[11] is Target Bidang. row[14] is Target JF. row[17] is Target Staf.
+            
+            if (row[17]) { level = "jf"; currentTarget = row[17]; } // Staf
+            else if (row[14]) { level = "kabid"; currentTarget = row[14]; } // JF
+            else if (row[11]) { level = "wadir"; currentTarget = row[11]; } // Bidang
+            else if (row[8]) { level = "direktur"; currentTarget = row[8]; } // Wadir
+            else { return Swal.fire('Info', 'Surat belum didisposisi sama sekali.', 'info'); }
+
+            $('#corrLevel').val(level.toUpperCase());
+            $('#corrOldTarget').val(currentTarget);
+            $('#corrNewTarget').val('');
+            
+            // Populate Datalist based on Level
+            const datalist = $('#listCorrectionTargets');
+            datalist.empty();
+            
+            if (level === 'direktur') {
+                datalist.append('<option value="Wadir Pelayanan">');
+                datalist.append('<option value="Wadir Admin & Keuangan">');
+            } else if (level === 'wadir') {
+                // Flatten structureOrg values
+                Object.values(structureOrg).flat().forEach(v => datalist.append(`<option value="${v}">`));
+            } else if (level === 'kabid' || level === 'jf') {
+                // Populate from subordinates list (approximate)
+                // Ideally this should be a list of ALL staff, but we can use cached users + subordinates
+                let allSubs = [];
+                DATA_CACHE.users.forEach(u => {
+                    allSubs.push(u.name);
+                    try { JSON.parse(u.subordinates || "[]").forEach(s => allSubs.push(s)); } catch(e){}
+                });
+                [...new Set(allSubs)].sort().forEach(s => datalist.append(`<option value="${s}">`));
+            }
+
+            new bootstrap.Modal(document.getElementById('modalCorrection')).show();
+        }
+
+        function submitCorrection() {
+            const noAgenda = $('#corrNoAgenda').val();
+            const level = $('#corrLevel').val().toLowerCase();
+            const newTarget = $('#corrNewTarget').val();
+
+            if (!newTarget) return Swal.fire('Error', 'Target baru harus diisi', 'warning');
+
+            bootstrap.Modal.getInstance(document.getElementById('modalCorrection')).hide();
+            showLoading(true);
+
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'correct_disposisi_target',
+                    noAgenda: noAgenda,
+                    targetLevel: level,
+                    newTarget: newTarget,
+                    requestor: currentUserEmail
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    Swal.fire('Sukses', 'Tujuan disposisi berhasil dikoreksi.', 'success');
+                    loadDataMasuk();
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Koneksi gagal', 'error');
+            });
+        }
+
+        // --- TRAMPOLINE FUNCTIONS FOR CACHE (ROBUSTNESS) ---
         function openDisposisiModalFromCache(id) {
             const rowData = DATA_CACHE.disposisi.get(decodeURIComponent(id));
             if(rowData) openModalAction(rowData);
@@ -895,6 +997,7 @@
             if(user) openManageSubordinates(user);
         }
 
+        // --- LOAD DATA FUNCTIONS (MODIFIED) ---
         function loadDataMasuk() {
             $('#advM_Tgl1').val(''); $('#advM_Tgl2').val(''); $('#advM_Kode').val(''); $('#advM_Key').val('');
             showLoading(true); 
@@ -1004,10 +1107,71 @@
         function createTimelineItem(isDone, title, target, note, date) { let cls = isDone ? 'done' : ''; let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : ''; return `<div class="timeline-item ${cls}"><div class="fw-bold text-warning small d-flex justify-content-between"><span>${title}</span>${dateStr}</div><div class="timeline-content mt-1"><div class="fw-bold small mb-1">${target}</div><div class="text-white-50 small fst-italic">"${note || '-'}"</div></div></div>`; }
         function updateStatusSelesai(noSurat) { const d = new Date(); const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); Swal.fire({ title: 'Selesaikan Surat?', html: `<p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p><input type="date" id="swal-date-input" class="swal2-input" value="${today}">`, focusConfirm: false, showCancelButton: true, confirmButtonText: 'Selesai', preConfirm: () => { const dateVal = document.getElementById('swal-date-input').value; if (!dateVal) { Swal.showValidationMessage('Tanggal Surat Resmi harus diisi'); } return dateVal; } }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'update_status_keluar', noAgenda: noSurat, tglSurat: result.value }) }).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); loadDataKeluar(); } else { Swal.fire('Gagal', r.message, 'error'); }}); } }); }
         function loadLogs() { showLoading(true); fetch(`${GAS_URL}?action=read_log`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableLog').DataTable(); dt.clear(); if (r.data && r.data.length > 0) { r.data.forEach(row => { let timeStr = row[0]; try { const d = new Date(row[0]); if (!isNaN(d.getTime())) { timeStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); } } catch(e) {} dt.row.add([ timeStr, `<span class="text-primary fw-bold">${row[1]}</span>`, `<span class="badge bg-info text-dark">${row[2]}</span>`, row[3] ]); }); dt.order([0, 'desc']).draw(); } else { dt.draw(); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat log aktivitas', 'error'); }); }
-        function openEditMasuk(row) { $('#editMasukNoAgenda').val(row[1]); $('#editMasukAgendaDisplay').val(row[1]); $('#editMasukNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; } $('#editMasukPengirim').val(row[5]); $('#editMasukPerihal').val(row[6]); if(row[21]) { $('#editMasukKode').val(row[21]); } else { $('#editMasukKode').val(''); } new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }
-        function saveEditMasuk() { const payload = { type: 'edit_surat_masuk', email: currentUserEmail, noAgenda: $('#editMasukNoAgenda').val(), noSurat: $('#editMasukNoSurat').val(), tglSurat: $('#editMasukTglSurat').val(), tglTerima: $('#editMasukTglTerima').val(), pengirim: $('#editMasukPengirim').val(), perihal: $('#editMasukPerihal').val(), kodeKlarifikasi: $('#editMasukKode').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success'); loadDataMasuk(); }); }
-        function openEditKeluar(row) { $('#editKeluarNoAgenda').val(row[1]); $('#editKeluarNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } $('#editKeluarTujuan').val(row[5]); $('#editKeluarPerihal').val(row[6]); $('#editKeluarPembuat').val(row[8]); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }
-        function saveEditKeluar() { const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val(), pembuat: $('#editKeluarPembuat').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); }
+        
+        // --- UPDATED SAVE EDIT FUNCTION FOR SURAT MASUK (HANDLES FILE) ---
+        function openEditMasuk(row) { $('#editMasukNoAgenda').val(row[1]); $('#editMasukAgendaDisplay').val(row[1]); $('#editMasukNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; } $('#editMasukPengirim').val(row[5]); $('#editMasukPerihal').val(row[6]); if(row[21]) { $('#editMasukKode').val(row[21]); } else { $('#editMasukKode').val(''); } $('#editMasukFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }
+        
+        async function saveEditMasuk() { 
+            const fileInput = document.getElementById('editMasukFile');
+            let fileData = "", fileName = "";
+            if (fileInput.files.length > 0) {
+                try {
+                    fileData = await readFileToBase64(fileInput.files[0]);
+                    fileName = fileInput.files[0].name;
+                } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); }
+            }
+
+            const payload = { 
+                type: 'edit_surat_masuk', 
+                email: currentUserEmail, 
+                noAgenda: $('#editMasukNoAgenda').val(), 
+                noSurat: $('#editMasukNoSurat').val(), 
+                tglSurat: $('#editMasukTglSurat').val(), 
+                tglTerima: $('#editMasukTglTerima').val(), 
+                pengirim: $('#editMasukPengirim').val(), 
+                perihal: $('#editMasukPerihal').val(), 
+                kodeKlarifikasi: $('#editMasukKode').val(),
+                fileData: fileData,
+                fileName: fileName
+            }; 
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide(); 
+            showLoading(true); 
+            sendData(payload, () => { Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success'); loadDataMasuk(); }); 
+        }
+
+        // --- UPDATED SAVE EDIT FUNCTION FOR SURAT KELUAR (HANDLES FILE) ---
+        function openEditKeluar(row) { $('#editKeluarNoAgenda').val(row[1]); $('#editKeluarNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } $('#editKeluarTujuan').val(row[5]); $('#editKeluarPerihal').val(row[6]); $('#editKeluarPembuat').val(row[8]); $('#editKeluarFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }
+        
+        async function saveEditKeluar() { 
+            const fileInput = document.getElementById('editKeluarFile');
+            let fileData = "", fileName = "";
+            if (fileInput.files.length > 0) {
+                try {
+                    fileData = await readFileToBase64(fileInput.files[0]);
+                    fileName = fileInput.files[0].name;
+                } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); }
+            }
+
+            const payload = { 
+                type: 'edit_surat_keluar', 
+                email: currentUserEmail, 
+                noAgenda: $('#editKeluarNoAgenda').val(), 
+                noSurat: $('#editKeluarNoSurat').val(), 
+                tglDiterima: $('#editKeluarTglDiterima').val(), 
+                tglSurat: $('#editKeluarTglSurat').val(), 
+                tujuan: $('#editKeluarTujuan').val(), 
+                perihal: $('#editKeluarPerihal').val(), 
+                pembuat: $('#editKeluarPembuat').val(),
+                fileData: fileData,
+                fileName: fileName
+            }; 
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); 
+            showLoading(true); 
+            sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
+        }
+
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
         function showApp() { 
             $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
@@ -1060,7 +1224,7 @@
             fpsLimit: 60,
             fullScreen: { enable: false },
             interactivity: {
-                detect_on: "window", // CHANGE: Enable window-level detection
+                detect_on: "window", 
                 events: {
                     onhover: {
                         enable: true,
@@ -1075,7 +1239,7 @@
                 modes: {
                     bubble: {
                         distance: 250,
-                        size: 40, // Increased size on hover
+                        size: 40,
                         duration: 0.4,
                         opacity: 1
                     },
@@ -1107,7 +1271,7 @@
                     ]
                 },
                 opacity: {
-                    value: 0.8, // Slightly more opaque
+                    value: 0.8,
                     random: true,
                     anim: {
                         enable: true,
@@ -1117,7 +1281,7 @@
                     }
                 },
                 size: {
-                    value: 25, // Base size increased 100% (from 12 to 25)
+                    value: 25,
                     random: true,
                     anim: {
                         enable: false,

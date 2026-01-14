@@ -20,7 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <!-- TSParticles Library (New) -->
+    <!-- TSParticles Library -->
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     
     <style>
@@ -1052,14 +1052,15 @@
     <!-- TSPARTICLES SCRIPT (Updated) -->
     <script>
     (function() {
-        const mailIconSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZmZmZmZmIj48cGF0aCBkPSJNNDggNjRDMjEuNSA2NCAwIDg1LjUgMCAxMTJjMCAxNS4xIDcuMSAyOS4zIDE5LjIgMzguNEwyMzYuOCAzMTMuNmMxMS40IDguNSAyNyA4LjUgMzguNCAwTDQ5Mi44IDE1MC40YzEyLjEtOS4xIDE5LjItMjMuMyAxOS4yLTM4LjRjMC0yNi41LTIxLjUtNDgtNDgtNDhINDh6TTAgMTc2VjM4NGMwIDM1LjMgMjguNyA2NCA2NCA2NEg0NDhjMzUuMyAwIDY0LTI4LjcgNjQtNjRWMTc2TDI5NC40IDMzOS4yYy0yMi44IDE3LjEtNTQgMTcuMS03Ni44IDBMMCAxNzZ6Ii8+PC9zdmc+`;
+        // SVG Amplop Surat (Outline Putih, Fill Transparan)
+        const envelopeIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyA3YTIgMiAwIDAgMSAyLTJoMTRhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiPjwvcGF0aD48cG9seWxpbmUgcG9pbnRzPSIzIDcgMTIgMTMgMjEgNyI+PC9wb2x5bGluZT48L3N2Zz4=";
 
         tsParticles.load("tsparticles", {
             fpsLimit: 60,
-            fullScreen: { enable: false }, // Kita pakai container khusus agar tidak menimpa scroll
+            fullScreen: { enable: false },
             particles: {
                 number: {
-                    value: 60,
+                    value: 40, // Jumlah partikel dikurangi agar tidak terlalu ramai
                     density: {
                         enable: true,
                         value_area: 800
@@ -1069,27 +1070,32 @@
                     value: "#ffffff"
                 },
                 shape: {
-                    type: ["circle", "image"], // Campuran titik dan icon
+                    type: "image", // Fokus hanya pada image
                     image: [
                         {
-                            src: mailIconSvg,
-                            width: 100,
-                            height: 100,
-                            replaceColor: false
+                            src: envelopeIcon,
+                            width: 32, // Dimensi dasar
+                            height: 32
                         }
                     ]
                 },
                 opacity: {
-                    value: 0.5,
-                    random: true
+                    value: 0.7,
+                    random: true, // Opacity bervariasi agar terlihat natural
+                    anim: {
+                        enable: true,
+                        speed: 0.5,
+                        opacity_min: 0.3,
+                        sync: false
+                    }
                 },
                 size: {
-                    value: 3,
-                    random: true,
+                    value: 12, // Ukuran diperbesar agar icon terlihat jelas
+                    random: true, // Ukuran bervariasi
                     anim: {
                         enable: false,
                         speed: 40,
-                        size_min: 0.1,
+                        size_min: 5,
                         sync: false
                     }
                 },
@@ -1097,12 +1103,12 @@
                     enable: true,
                     distance: 150,
                     color: "#ffffff",
-                    opacity: 0.2,
+                    opacity: 0.15,
                     width: 1
                 },
                 move: {
                     enable: true,
-                    speed: 1.5,
+                    speed: 1, // Gerakan lambat dan tenang
                     direction: "none",
                     random: true,
                     straight: false,
@@ -1112,6 +1118,16 @@
                         rotateX: 600,
                         rotateY: 1200
                     }
+                },
+                rotate: {
+                    value: 0,
+                    random: true,
+                    direction: "clockwise",
+                    animation: {
+                        enable: true,
+                        speed: 3, // Rotasi perlahan
+                        sync: false
+                    }
                 }
             },
             interactivity: {
@@ -1119,7 +1135,7 @@
                 events: {
                     onhover: {
                         enable: true,
-                        mode: "grab"
+                        mode: "bubble" // Efek bubble saat hover
                     },
                     onclick: {
                         enable: true,
@@ -1128,14 +1144,14 @@
                     resize: true
                 },
                 modes: {
-                    grab: {
+                    bubble: {
                         distance: 200,
-                        line_linked: {
-                            opacity: 1
-                        }
+                        size: 20, // Membesar saat di-hover
+                        duration: 2,
+                        opacity: 1
                     },
                     push: {
-                        particles_nb: 4
+                        particles_nb: 2
                     }
                 }
             },

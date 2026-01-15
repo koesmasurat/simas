@@ -45,6 +45,8 @@
         .perm-category { grid-column: span 2; font-weight: bold; margin-top: 15px; margin-bottom: 5px; color: var(--emerald-accent); border-bottom: 1px solid #eee; }
         .tab-pane { display: none; } .tab-pane.active { display: block; animation: fadeIn 0.4s; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .restricted-feature { display: none !important; } #loadingOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .user-list-item { padding: 5px 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
+        .user-list-item:hover { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
@@ -79,7 +81,6 @@
                 </div>
                 
                 <div class="sidebar-scroll">
-                    <!-- MENU BERANDA -->
                     <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
@@ -142,8 +143,6 @@
             <div id="content">
                 <button type="button" id="sidebarCollapse" class="btn btn-outline-light mb-3"><i class="fas fa-bars"></i> Menu</button>
                 <div class="tab-content">
-                    
-                    <!-- BERANDA -->
                     <div class="tab-pane white-panel p-4" id="home-content">
                         <div class="text-center py-5">
                             <h2 class="fw-bold text-primary mb-3">Selamat Datang di SIMAS KOESMA</h2>
@@ -168,9 +167,7 @@
                                 <div class="col-md-4"><label class="form-label fw-bold">Tgl Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
                                 <div class="col-md-6"><label class="form-label fw-bold">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
                                 <div class="col-md-6"><label class="form-label fw-bold">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div>
-                                
                                 <div class="col-12"><label class="form-label fw-bold">Kode Klarifikasi</label><input type="text" class="form-control" name="kodeKlarifikasi" list="listKodeKlarifikasi" placeholder="Ketik kode atau keterangan..."></div>
-                                
                                 <div class="col-12"><label class="form-label fw-bold">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
                                 <div class="col-12"><label class="form-label fw-bold">Upload File</label><input type="file" class="form-control" id="fileSuratMasuk"></div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-2">Simpan</button></div>
@@ -212,7 +209,7 @@
                         <div class="table-responsive"><table id="tableArsipKeluar" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Agenda</th><th>Tgl Surat</th><th>Tujuan</th><th>Perihal</th><th>Status</th><th>File</th><th width="5%">Aksi</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- SETTINGS & STORAGE PANEL -->
+                    <!-- SETTINGS -->
                     <div class="tab-pane white-panel p-4" id="settings-content">
                         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2"><h3 class="fw-bold m-0 text-danger">Pengaturan</h3><div><button class="btn btn-primary btn-sm me-2" onclick="loadUsers()">Reload User</button><button class="btn btn-warning btn-sm" onclick="loadStorageStats()">Cek Storage</button></div></div>
                         <div class="card mb-4 border-warning shadow-sm">
@@ -238,14 +235,15 @@
     </div>
 
     <!-- MODAL EDIT USER -->
-    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses & Bawahan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses & Bawahan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div>
     
-    <!-- SETTING BAWAHAN -->
+    <!-- SETTING BAWAHAN (CHECKBOX LIST) -->
     <div class="mb-3 p-3 bg-white border rounded shadow-sm">
-        <label class="fw-bold text-success"><i class="fas fa-sitemap me-2"></i>Daftar Tujuan Disposisi (Bawahan/Rekan)</label>
-        <p class="small text-muted mb-1">Tulis nama bawahan/tujuan, pisahkan dengan koma. (Contoh: Budi Santoso, Kepala Ruangan Melati, Staf Administrasi)</p>
-        <textarea class="form-control" id="editUserSubs" rows="3"></textarea>
+        <label class="fw-bold text-success"><i class="fas fa-sitemap me-2"></i>Pilih Bawahan (Tujuan Disposisi)</label>
+        <p class="small text-muted mb-2">Pilih akun pengguna yang akan menjadi bawahan atau tujuan disposisi untuk user ini.</p>
+        <div class="input-group mb-2"><span class="input-group-text"><i class="fas fa-search"></i></span><input type="text" class="form-control form-control-sm" id="searchSubs" placeholder="Cari nama..." onkeyup="filterSubs()"></div>
+        <div id="listCandidates" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background:#f9f9f9;"></div>
     </div>
 
     <div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;">
@@ -269,18 +267,11 @@
         <div class="perm-category">D. EDIT DATA</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_masuk"><label class="form-check-label text-warning fw-bold">Edit Surat Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_keluar"><label class="form-check-label text-warning fw-bold">Edit Surat Keluar</label></div></div>
         
         <div class="perm-category">E. ADMIN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user"><label class="form-check-label text-danger">Setting User</label></div></div>
-    
     </div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan</button></div></div></div></div>
 
-    <!-- MODAL EDIT SURAT MASUK (UPDATED) -->
-    <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditSuratMasuk"><input type="hidden" id="em_noAgenda"><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Agenda</label><input type="text" class="form-control" id="em_displayAgenda" disabled></div><div class="col-md-6"><label class="small fw-bold">No Surat</label><input type="text" class="form-control" id="em_noSurat"></div></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Tgl Surat</label><input type="date" class="form-control" id="em_tglSurat"></div><div class="col-md-6"><label class="small fw-bold">Tgl Terima</label><input type="date" class="form-control" id="em_tglTerima"></div></div><div class="mb-3"><label class="small fw-bold">Pengirim</label><input type="text" class="form-control" id="em_pengirim"></div>
-    <div class="mb-3"><label class="small fw-bold">Kode Klarifikasi</label><input type="text" class="form-control" id="em_kodeKlarifikasi" list="listKodeKlarifikasi"></div>
-    <div class="mb-3"><label class="small fw-bold">Perihal</label><textarea class="form-control" id="em_perihal" rows="3"></textarea></div><div class="mb-3"><label class="small fw-bold">Ganti File (Opsional)</label><input type="file" class="form-control" id="em_file"></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveEditMasuk()">Simpan Perubahan</button></form></div></div></div></div>
-
-    <!-- MODAL EDIT SURAT KELUAR -->
+    <!-- MODAL EDIT SURAT MASUK & KELUAR & DISPOSISI (Standard) -->
+    <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditSuratMasuk"><input type="hidden" id="em_noAgenda"><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Agenda</label><input type="text" class="form-control" id="em_displayAgenda" disabled></div><div class="col-md-6"><label class="small fw-bold">No Surat</label><input type="text" class="form-control" id="em_noSurat"></div></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Tgl Surat</label><input type="date" class="form-control" id="em_tglSurat"></div><div class="col-md-6"><label class="small fw-bold">Tgl Terima</label><input type="date" class="form-control" id="em_tglTerima"></div></div><div class="mb-3"><label class="small fw-bold">Pengirim</label><input type="text" class="form-control" id="em_pengirim"></div><div class="mb-3"><label class="small fw-bold">Kode Klarifikasi</label><input type="text" class="form-control" id="em_kodeKlarifikasi" list="listKodeKlarifikasi"></div><div class="mb-3"><label class="small fw-bold">Perihal</label><textarea class="form-control" id="em_perihal" rows="3"></textarea></div><div class="mb-3"><label class="small fw-bold">Ganti File (Opsional)</label><input type="file" class="form-control" id="em_file"></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveEditMasuk()">Simpan Perubahan</button></form></div></div></div></div>
     <div class="modal fade" id="modalEditSuratKeluar" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Edit Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditSuratKeluar"><input type="hidden" id="ek_noAgenda"><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Agenda</label><input type="text" class="form-control" id="ek_displayAgenda" disabled></div><div class="col-md-6"><label class="small fw-bold">No Surat</label><input type="text" class="form-control" id="ek_noSurat"></div></div><div class="mb-3"><label class="small fw-bold">Tgl Surat</label><input type="date" class="form-control" id="ek_tglSurat"></div><div class="mb-3"><label class="small fw-bold">Tujuan</label><input type="text" class="form-control" id="ek_tujuan"></div><div class="mb-3"><label class="small fw-bold">Perihal</label><textarea class="form-control" id="ek_perihal" rows="3"></textarea></div><div class="mb-3"><label class="small fw-bold">Ganti File (Opsional)</label><input type="file" class="form-control" id="ek_file"></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveEditKeluar()">Simpan Perubahan</button></form></div></div></div></div>
-
-    <!-- MODAL DISPOSISI -->
     <div class="modal fade" id="modalDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Kirim Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formDisposisi"><input type="hidden" id="dispIdSurat"><div class="alert alert-light border shadow-sm mb-3"><small class="text-muted d-block fw-bold">Perihal:</small><span id="dispPerihal" class="fs-6">...</span></div><div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><select class="form-select" id="dispTarget" required><option value="" disabled selected>-- Pilih --</option></select></div><div class="mb-3"><label class="fw-bold small mb-1">Instruksi:</label><textarea class="form-control" id="dispInstruksi" rows="4"></textarea></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -291,6 +282,7 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentUserEmail = "", currentInboxLevel = "", currentArsipScope = "";
+        let allUsersList = []; // Store list for subordinate selection
         
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ currentUserEmail=sessionStorage.getItem('userEmail'); showApp(); renderSidebarPermissions(); loadRefCodes(); } 
@@ -354,7 +346,6 @@
             });
         }
 
-        // --- NEW: LOAD REF CODES (FIXED) ---
         function loadRefCodes() {
             fetch(`${GAS_URL}?action=get_ref_codes`)
             .then(r => r.json())
@@ -363,7 +354,6 @@
                     const list = $('#listKodeKlarifikasi');
                     list.empty();
                     r.data.forEach(item => {
-                        // FIX: Value hanya Kode, Deskripsi sebagai label teks opsi
                         list.append(`<option value="${item.code}">${item.desc}</option>`);
                     });
                 }
@@ -389,9 +379,18 @@
         }
         function formatDateInput(dStr){ if(!dStr || dStr==='-') return ''; const parts=dStr.split('/'); if(parts.length===3) return `${parts[2]}-${parts[1]}-${parts[0]}`; return ''; }
 
-        function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()})}
+        function loadUsers(){
+            showLoading(true);
+            fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})})
+            .then(r=>r.json()).then(r=>{
+                showLoading(false);
+                allUsersList = r.data || []; // Store for modal
+                const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();
+                if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()
+            });
+        }
         
-        // --- NEW: EDIT USER WITH SUBORDINATES ---
+        // --- NEW: EDIT USER WITH CHECKBOX SUBORDINATES ---
         function openEditUser(u){
             $('#editUserEmail').val(u.email);
             $('#editUserName').val(u.name);
@@ -400,21 +399,42 @@
             $('.perm-check').prop('checked',false);
             try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) } catch(e){}
             
-            // Populate Subordinates Textarea
-            try {
-                const subs = JSON.parse(u.subordinates || "[]");
-                $('#editUserSubs').val(subs.join(", "));
-            } catch(e) { $('#editUserSubs').val(""); }
+            // Populate Candidates List
+            const listDiv = $('#listCandidates'); listDiv.empty();
+            const currentSubs = JSON.parse(u.subordinates || "[]");
+            
+            allUsersList.forEach(user => {
+                if(user.email !== u.email) { // Don't list self
+                    const isChecked = currentSubs.includes(user.name) ? 'checked' : '';
+                    listDiv.append(`
+                        <div class="user-list-item">
+                            <input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${isChecked}>
+                            <div>
+                                <div class="fw-bold small">${user.name}</div>
+                                <div class="text-muted" style="font-size:0.75rem">${user.email}</div>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
             
             new bootstrap.Modal(document.getElementById('modalEditUser')).show();
+        }
+
+        function filterSubs() {
+            const term = $('#searchSubs').val().toLowerCase();
+            $('.user-list-item').each(function() {
+                const text = $(this).text().toLowerCase();
+                $(this).toggle(text.includes(term));
+            });
         }
 
         function saveUserPermissions(){
             const p=[];$('.perm-check:checked').each(function(){p.push($(this).val())});
             
-            // Get Subordinates List
-            const rawSubs = $('#editUserSubs').val();
-            const subsList = rawSubs.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            // Get Checked Subordinates
+            const subsList = [];
+            $('.sub-check:checked').each(function(){ subsList.push($(this).val()); });
             
             const d={
                 type:'update_user_permissions',
@@ -423,7 +443,7 @@
                 role:$('#editUserRole').val(),
                 status:$('#editUserStatus').val(),
                 permissions:JSON.stringify(p),
-                subordinates: JSON.stringify(subsList) // Send to backend
+                subordinates: JSON.stringify(subsList)
             };
             
             bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();

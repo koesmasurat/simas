@@ -52,7 +52,6 @@
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
 
-    <!-- DATALIST KODE KLARIFIKASI -->
     <datalist id="listKodeKlarifikasi"></datalist>
 
     <div id="loginSection">
@@ -239,12 +238,31 @@
     </div>
 
     <!-- MODAL EDIT USER -->
-    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div><div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;">
-        
+    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses & Bawahan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div>
+    
+    <!-- SETTING BAWAHAN -->
+    <div class="mb-3 p-3 bg-white border rounded shadow-sm">
+        <label class="fw-bold text-success"><i class="fas fa-sitemap me-2"></i>Daftar Tujuan Disposisi (Bawahan/Rekan)</label>
+        <p class="small text-muted mb-1">Tulis nama bawahan/tujuan, pisahkan dengan koma. (Contoh: Budi Santoso, Kepala Ruangan Melati, Staf Administrasi)</p>
+        <textarea class="form-control" id="editUserSubs" rows="3"></textarea>
+    </div>
+
+    <div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;">
         <div class="perm-category">A. INPUT</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk"><label class="form-check-label">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar"><label class="form-check-label">Input Keluar</label></div></div>
         
-        <div class="perm-category">B. INBOX</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_staf"><label class="form-check-label text-primary">Inboxku (Staf)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur"><label class="form-check-label">Inbox Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm"><label class="form-check-label">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel"><label class="form-check-label">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum"><label class="form-check-label">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu"><label class="form-check-label">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed"><label class="form-check-label">Kabid Yanmed</label></div></div>
+        <div class="perm-category">B. INBOX</div><div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_staf"><label class="form-check-label text-primary">Inboxku (Staf)</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur"><label class="form-check-label">Inbox Direktur</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm"><label class="form-check-label">Wadir Adm</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel"><label class="form-check-label">Wadir Pel</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum"><label class="form-check-label">Kabag Umum</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu"><label class="form-check-label">Kabag Keu</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_prog"><label class="form-check-label">Kabag Program</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed"><label class="form-check-label">Kabid Yanmed</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_penunjang"><label class="form-check-label">Kabid Penunjang</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_kep"><label class="form-check-label">Kabid Kep</label></div>
+        </div>
         
         <div class="perm-category">C. ARSIP</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_all"><label class="form-check-label fw-bold text-success">SEMUA MASUK</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_direktur"><label class="form-check-label">Masuk Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_all"><label class="form-check-label fw-bold text-success">SEMUA KELUAR</label></div></div>
         
@@ -372,8 +390,51 @@
         function formatDateInput(dStr){ if(!dStr || dStr==='-') return ''; const parts=dStr.split('/'); if(parts.length===3) return `${parts[2]}-${parts[1]}-${parts[0]}`; return ''; }
 
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()})}
-        function openEditUser(u){$('#editUserEmail').val(u.email);$('#editUserName').val(u.name);$('#editUserRole').val(u.role);$('#editUserStatus').val(u.status);$('.perm-check').prop('checked',false);try{JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true))}catch(e){}new bootstrap.Modal(document.getElementById('modalEditUser')).show()}
-        function saveUserPermissions(){const p=[];$('.perm-check:checked').each(function(){p.push($(this).val())});const d={type:'update_user_permissions',requestor:currentUserEmail,targetEmail:$('#editUserEmail').val(),role:$('#editUserRole').val(),status:$('#editUserStatus').val(),permissions:JSON.stringify(p)};bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Tersimpan','success');loadUsers()}else Swal.fire('Err',r.message,'error')})}
+        
+        // --- NEW: EDIT USER WITH SUBORDINATES ---
+        function openEditUser(u){
+            $('#editUserEmail').val(u.email);
+            $('#editUserName').val(u.name);
+            $('#editUserRole').val(u.role);
+            $('#editUserStatus').val(u.status);
+            $('.perm-check').prop('checked',false);
+            try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) } catch(e){}
+            
+            // Populate Subordinates Textarea
+            try {
+                const subs = JSON.parse(u.subordinates || "[]");
+                $('#editUserSubs').val(subs.join(", "));
+            } catch(e) { $('#editUserSubs').val(""); }
+            
+            new bootstrap.Modal(document.getElementById('modalEditUser')).show();
+        }
+
+        function saveUserPermissions(){
+            const p=[];$('.perm-check:checked').each(function(){p.push($(this).val())});
+            
+            // Get Subordinates List
+            const rawSubs = $('#editUserSubs').val();
+            const subsList = rawSubs.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            
+            const d={
+                type:'update_user_permissions',
+                requestor:currentUserEmail,
+                targetEmail:$('#editUserEmail').val(),
+                role:$('#editUserRole').val(),
+                status:$('#editUserStatus').val(),
+                permissions:JSON.stringify(p),
+                subordinates: JSON.stringify(subsList) // Send to backend
+            };
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();
+            showLoading(true);
+            fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
+                showLoading(false);
+                if(r.status==='success'){Swal.fire('OK','Tersimpan','success');loadUsers()}
+                else Swal.fire('Err',r.message,'error')
+            });
+        }
+        
         function loadStorageStats(){showLoading(true);fetch(`${GAS_URL}?action=get_storage_stats&requestor=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){const d=r.data;$('#disp-quota-A').text(d.nodeA.percentage+'%');$('#prog-A').css('width',d.nodeA.percentage+'%');$('#disp-quota-B').text(d.nodeB.percentage+'%');$('#prog-B').css('width',d.nodeB.percentage+'%');$('#disp-quota-C').text(d.nodeC.percentage+'%');$('#prog-C').css('width',d.nodeC.percentage+'%');$('#switchFailover').prop('checked',d.settings.failover);$('#selectActiveNode').val(d.settings.activeNode)}else Swal.fire('Akses Ditolak','Hanya Admin','warning')})}
         function saveStorageSettings(){const f=$('#switchFailover').is(':checked');const a=$('#selectActiveNode').val();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'update_storage_settings',failover:f,activeNode:a,requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success')Swal.fire('OK','Disimpan','success');else Swal.fire('Err',r.message,'error')})}
         function openSettingsPage(e){activateTab('settings-content',e,()=>{loadUsers();if(sessionStorage.getItem('userRole')!=='User')loadStorageStats()})}

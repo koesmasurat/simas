@@ -106,7 +106,7 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
         
-        /* --- TSParticles Container --- */
+        /* --- TSParticles Container (Updated for Z-Index Switching) --- */
         #tsparticles {
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
@@ -118,8 +118,8 @@
         /* Kelas untuk memindahkan partikel ke belakang setelah login */
         #tsparticles.in-background {
             z-index: 0 !important; /* Pindah ke paling belakang */
-            opacity: 0.6 !important; /* Dikurangi agar tidak mengganggu */
-            filter: blur(1px); 
+            opacity: 0.3 !important; /* Jadi transparan */
+            filter: blur(1px); /* Sedikit blur untuk efek depth of field */
         }
 
         /* --- Motivational Quote Styles --- */
@@ -343,26 +343,14 @@
                                     <form id="formSuratMasuk">
                                         <div class="row">
                                             <div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div>
-                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" id="inTglSurat" required></div>
+                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
                                             <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
                                         </div>
-                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" id="inNoSurat" required></div>
-                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" id="inPengirim" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div>
                                         <div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasi" name="kodeKlarifikasi" placeholder="Ketik kode atau keterangan..."><datalist id="listKodeKlarifikasi"></datalist></div>
-                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" id="inPerihal" rows="3" required></textarea></div>
-                                        
-                                        <!-- UPDATED: FILE INPUT WITH OCR BUTTON -->
-                                        <div class="mb-4">
-                                            <label class="small text-white-50 mb-1">File (PDF/Img) & OCR Scan</label>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control" id="fileSuratMasuk">
-                                                <button class="btn btn-warning fw-bold text-dark" type="button" id="btnScanOCR" onclick="scanSuratMasukWithGemini()">
-                                                    <i class="fas fa-magic me-2"></i>Scan AI
-                                                </button>
-                                            </div>
-                                            <small class="text-white-50 fst-italic" style="font-size: 0.75rem;">*Pilih file lalu klik 'Scan AI' untuk mengisi otomatis Tgl Surat, No Surat, Pengirim & Perihal.</small>
-                                        </div>
-                                        
+                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
+                                        <div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div>
                                         <div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div>
                                     </form>
                                 </div>
@@ -659,8 +647,8 @@
     <!-- MODAL EDIT USER -->
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Hak Akses User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditUser"><input type="hidden" id="editUserEmail">
     <div class="mb-3"><label class="small text-white-50">Nama Lengkap</label><input type="text" class="form-control" id="editUserName" required></div>
-    <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div><div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna (User Management)</label></div></div>
-    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Download Backup Data (Excel)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="correction_admin" id="perm_correct"><label class="form-check-label text-danger fw-bold" for="perm_correct"><i class="fas fa-exclamation-triangle me-1"></i>Akses Koreksi Disposisi</label></div></div>
+    <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div><div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna</label></div></div>
+    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Download Backup Data</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="correction_admin" id="perm_correct"><label class="form-check-label text-danger fw-bold" for="perm_correct"><i class="fas fa-exclamation-triangle me-1"></i>Akses Koreksi Disposisi</label></div></div>
     </div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan Perubahan</button></div></div></div></div>
     
     <!-- MODAL MANAGE SUBORDINATES -->
@@ -697,7 +685,17 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentLevel = ""; 
         let currentUserEmail = "";
-        let allUsersCache = [];
+        
+        // --- DATA CACHE PATTERN (Robustness Fix) ---
+        const DATA_CACHE = {
+            disposisi: new Map(),
+            masuk: new Map(),
+            keluar: new Map(),
+            users: new Map()
+        };
+        
+        function safeId(id) { return encodeURIComponent(String(id)); }
+        
         const structureOrg = {
             "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
             "Wadir Admin & Keuangan": ["Bagian Adm dan Umum", "Bagian Keuangan", "Bagian Progpel"]
@@ -1090,14 +1088,12 @@
                 DATA_CACHE.users.clear(); 
 
                 if (r.status === 'success' && r.data) { 
-                    allUsersCache = r.data; 
                     r.data.forEach(u => { 
-                        // PERBAIKAN: Escape single quotes untuk mencegah error rendering tombol
-                        const safeUser = JSON.stringify(u).replace(/'/g, "&apos;");
-                        
-                        let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick='openEditUser(${safeUser})' title="Edit Akses"><i class="fas fa-edit"></i></button>`; 
-                        let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick='openManageSubordinates(${safeUser})' title="Atur Bawahan"><i class="fas fa-users"></i></button>`; 
-                        
+                        DATA_CACHE.users.set(u.email, u);
+                        const safeEmail = safeId(u.email);
+
+                        let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick="openEditUserFromCache('${safeEmail}')" title="Edit Akses"><i class="fas fa-edit"></i></button>`; 
+                        let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick="openManageSubordinatesFromCache('${safeEmail}')" title="Atur Bawahan"><i class="fas fa-users"></i></button>`; 
                         table.row.add([ u.email, u.name, u.role, u.status, btnEdit + btnTeam ]); 
                     }); 
                     table.draw(); 
@@ -1108,7 +1104,7 @@
 
         function openEditUser(user) { $('#editUserEmail').val(user.email); $('#editUserName').val(user.name); $('#editUserRole').val(user.role); $('#editUserStatus').val(user.status); $('.perm-check').prop('checked', false); try { const perms = JSON.parse(user.permissions); perms.forEach(p => { $(`.perm-check[value="${p}"]`).prop('checked', true); }); } catch(e){} new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
         function saveUserPermissions() { const perms = []; $('.perm-check:checked').each(function() { perms.push($(this).val()); }); const payload = { type: 'update_user_permissions', requestor: currentUserEmail, targetEmail: $('#editUserEmail').val(), name: $('#editUserName').val(), role: $('#editUserRole').val(), status: $('#editUserStatus').val(), permissions: JSON.stringify(perms) }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Data user diupdate', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
-        function openManageSubordinates(user) { $('#subordTargetName').text(user.name); $('#subordTargetEmail').val(user.email); const container = $('#subordinatesList'); container.empty(); let currentSubs = []; try { currentSubs = JSON.parse(user.subordinates) || []; } catch(e){} allUsersCache.forEach(u => { if(u.email !== user.email) { const isChecked = currentSubs.includes(u.name) ? 'checked' : ''; const html = `<div class="col-md-6 sub-item"><div class="form-check bg-dark bg-opacity-25 rounded p-2"><input class="form-check-input subord-check ms-1" type="checkbox" value="${u.name}" id="sub_${u.email}" ${isChecked}><label class="form-check-label ms-2 text-white" for="sub_${u.email}">${u.name} <small class="text-info d-block" style="font-size:0.7em">${u.role}</small></label></div></div>`; container.append(html); } }); new bootstrap.Modal(document.getElementById('modalManageSubordinates')).show(); }
+        function openManageSubordinates(user) { $('#subordTargetName').text(user.name); $('#subordTargetEmail').val(user.email); const container = $('#subordinatesList'); container.empty(); let currentSubs = []; try { currentSubs = JSON.parse(user.subordinates) || []; } catch(e){} DATA_CACHE.users.forEach(u => { if(u.email !== user.email) { const isChecked = currentSubs.includes(u.name) ? 'checked' : ''; const html = `<div class="col-md-6 sub-item"><div class="form-check bg-dark bg-opacity-25 rounded p-2"><input class="form-check-input subord-check ms-1" type="checkbox" value="${u.name}" id="sub_${u.email}" ${isChecked}><label class="form-check-label ms-2 text-white" for="sub_${u.email}">${u.name} <small class="text-info d-block" style="font-size:0.7em">${u.role}</small></label></div></div>`; container.append(html); } }); new bootstrap.Modal(document.getElementById('modalManageSubordinates')).show(); }
         function filterSubordinates() { const val = $('#searchSubordinate').val().toLowerCase(); $('.sub-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.indexOf(val) > -1); }); }
         function saveSubordinates() { const subs = []; $('.subord-check:checked').each(function() { subs.push($(this).val()); }); const payload = { type: 'update_user_subordinates', requestor: currentUserEmail, targetEmail: $('#subordTargetEmail').val(), subordinates: JSON.stringify(subs) }; bootstrap.Modal.getInstance(document.getElementById('modalManageSubordinates')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Tim berhasil diatur', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
         
@@ -1225,7 +1221,29 @@
         function logout() { Swal.fire({ title: 'Konfirmasi Logout', text: "Anda yakin ingin keluar?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('lastActiveBtn'); $('#appContent').stop().hide(); $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300); setTimeout(() => { location.reload(); }, 500); } }); }
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
         function openDisposisiPage(level, element) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); }
-        function refreshCurrentDisposisi() { showLoading(true); fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`).then(r=>r.json()).then(r => { showLoading(false); const dt = $('#tableDisposisi').DataTable(); dt.clear(); if(r.data) r.data.forEach(row => { let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick='openModalAction(${JSON.stringify(row)})'>Proses</button>`; dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); }); dt.draw(); }); }
+        
+        function refreshCurrentDisposisi() { 
+            showLoading(true); 
+            fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`)
+            .then(r=>r.json())
+            .then(r => { 
+                showLoading(false); 
+                const dt = $('#tableDisposisi').DataTable(); 
+                dt.clear(); 
+                DATA_CACHE.disposisi.clear(); 
+
+                if(r.data) r.data.forEach(row => { 
+                    DATA_CACHE.disposisi.set(String(row[1]), row);
+                    const safeRowId = safeId(row[1]);
+
+                    let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; 
+                    let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick="openDisposisiModalFromCache('${safeRowId}')">Proses</button>`; 
+                    dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); 
+                }); 
+                dt.draw(); 
+            }); 
+        }
+
         function printDisposisi(noAgenda) { Swal.fire({ title: 'Sedang Memproses PDF...', text: 'Mohon tunggu, lembar disposisi sedang dibuat.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'cetak_disposisi', noAgenda: noAgenda }) }).then(r => r.json()).then(r => { if (r.status === 'success') { const byteCharacters = atob(r.data.pdfBase64); const byteNumbers = new Array(byteCharacters.length); for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); } const byteArray = new Uint8Array(byteNumbers); const blob = new Blob([byteArray], {type: "application/pdf"}); const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = r.data.fileName; link.click(); Swal.close(); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { Swal.fire('Error', 'Gagal membuat PDF', 'error'); }); }
         function viewHistory(row) { let html = createTimelineItem(true, "SURAT DITERIMA", `Agenda: ${row[1]}`, `Tgl Surat: ${new Date(row[3]).toLocaleDateString('id-ID')}`, row[0]); if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", ""); if(row[11]) html += createTimelineItem(true, "WADIR", `Ke: ${row[11]}`, row[12], row[13]); if(row[14]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[14]}`, row[15], row[16]); if(row[17]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[17]}`, row[18], row[19]); $('#timelineContent').html(html); new bootstrap.Modal(document.getElementById('modalHistory')).show(); }
         function formatDateTime(dateString) { if(!dateString) return ''; const d = new Date(dateString); if(isNaN(d.getTime())) return ''; return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); }
@@ -1291,11 +1309,41 @@
             sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
         }
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
+        
+        // --- NEW: SHOW APP ANIMATION ---
         function showApp() { 
-            // STOP ANIMATION IF LOGGED IN
-            if(window.particleAnimation) cancelAnimationFrame(window.particleAnimation);
-            $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
+            const lock = $('#door-lock-icon');
+            
+            // 1. Gembok Terbuka & Berubah Warna
+            lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
+            
+            // NEW: Segera pindahkan partikel ke background
+            $('#tsparticles').addClass('in-background');
+
+            setTimeout(() => {
+                // 2. Hilangkan Login Card
+                $('.login-card').fadeOut(500);
+                $('#quoteContainer').fadeOut(500);
+
+                // 3. Pintu Terbuka
+                $('#door-overlay').addClass('door-open');
+                
+                // 4. Sembunyikan Gembok setelah pintu mulai terbuka
+                setTimeout(() => {
+                    $('#door-lock-container').fadeOut(500);
+                }, 300);
+
+                // 5. Tampilkan App Content
+                $('#appContent').show(); // Sudah di z-index rendah, jadi akan terlihat saat pintu terbuka
+
+                // 6. Cleanup
+                setTimeout(() => {
+                    $('#loginSection').hide(); 
+                    $('#door-overlay').hide(); // Sembunyikan pintu sepenuhnya agar tidak menghalangi klik
+                }, 1600); // Sesuaikan dengan durasi transisi CSS (1.5s)
+            }, 800); // Delay agar user sempat melihat gembok terbuka
         }
+
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
@@ -1331,99 +1379,6 @@
                     });
                 }
             });
-        }
-        
-        // --- NEW: GEMINI OCR INTEGRATION (CLIENT-SIDE) ---
-        // Note: Client-side keys are visible in source. Use restricted keys in production.
-        const GEMINI_API_KEY = "AIzaSyDwdAoQEpaekqyBxbZ4jwvWux5Kei5ITsA"; // Your provided key
-
-        async function scanSuratMasukWithGemini() {
-            const fileInput = document.getElementById('fileSuratMasuk');
-            if (!fileInput.files.length) {
-                return Swal.fire('Info', 'Pilih file gambar/surat terlebih dahulu.', 'info');
-            }
-
-            const file = fileInput.files[0];
-            // Basic validation - Gemini Flash Multimodal supports images and PDFs
-            // For simple implementation we treat everything as potential image input for the API
-            // or rely on browser FileReader. For PDFs, we'd need more complex handling or just let user try.
-            // Let's stick to images primarily as per your React script logic.
-            
-            showLoading(true);
-            
-            try {
-                // 1. Convert to Base64 (strip header for API)
-                const base64Data = await readFileToBase64(file);
-                const cleanBase64 = base64Data.split(',')[1];
-                const mimeType = file.type || "image/jpeg"; // Default fallback
-
-                // 2. Construct Prompt (Force JSON)
-                const promptText = `
-                    Analisis dokumen surat ini. Ekstrak data berikut dalam format JSON valid (tanpa markdown code blocks):
-                    {
-                      "no_surat": "Nomor surat (jika ada)",
-                      "tgl_surat": "Tanggal surat dalam format YYYY-MM-DD (jika ada, konversi dari format Indonesia)",
-                      "pengirim": "Nama instansi/pengirim",
-                      "perihal": "Perihal atau Hal surat"
-                    }
-                    Jika tidak ada, kosongkan string. Pastikan output hanya JSON murni.
-                `;
-
-                // 3. Call Gemini API
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    { text: promptText },
-                                    { inlineData: { mimeType: mimeType, data: cleanBase64 } }
-                                ]
-                            }],
-                            generationConfig: { responseMimeType: "application/json" }
-                        })
-                    }
-                );
-
-                if (!response.ok) throw new Error("Gagal menghubungi AI Server");
-
-                const data = await response.json();
-                const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (!generatedText) throw new Error("Tidak ada hasil dari AI");
-
-                // 4. Parse JSON & Autofill
-                let result;
-                try {
-                    // Remove markdown fences if Gemini adds them despite instruction
-                    const cleanJson = generatedText.replace(/```json|```/g, '').trim();
-                    result = JSON.parse(cleanJson);
-                } catch (e) {
-                    console.error("JSON Parse Error:", generatedText);
-                    throw new Error("Gagal membaca format data dari AI");
-                }
-
-                // 5. Fill Form
-                if (result.no_surat) $('#inNoSurat').val(result.no_surat);
-                if (result.tgl_surat) document.getElementById('inTglSurat').value = result.tgl_surat;
-                if (result.pengirim) $('#inPengirim').val(result.pengirim);
-                if (result.perihal) $('#inPerihal').val(result.perihal);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Scan Berhasil',
-                    text: 'Data surat telah diisi otomatis. Silakan periksa kembali sebelum menyimpan.',
-                    timer: 2000
-                });
-
-            } catch (err) {
-                console.error(err);
-                Swal.fire('Error Scan', 'Gagal memproses dokumen: ' + err.message, 'error');
-            } finally {
-                showLoading(false);
-            }
         }
     </script>
     
@@ -1546,11 +1501,8 @@
 
         // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
-            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
-            "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
-            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
             "Jadilah solusi, bukan polusi. Di setiap rapat dan diskusi, pastikan suaramu membawa pencerahan, bukan sekadar keluhan.",
             "Waktu tidak pernah menunggu. Lakukan yang terbaik sekarang, atau kau akan menyesal saat melihat orang lain mendahuluimu dengan ide yang sama.",
             "Loyalitas bukan tentang seberapa lama engkau bekerja, tapi seberapa tulus engkau memberikan kontribusi terbaik bagi tempatmu bernaung.",

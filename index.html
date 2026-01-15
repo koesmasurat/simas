@@ -116,10 +116,12 @@
                 
                 <div class="sidebar-scroll">
                     <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
+                    <!-- FIX: PROFILE BUTTON ENABLED -->
                     <button class="nav-link w-100 text-start" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> Profil Saya</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
-                    <button class="nav-link w-100 text-start" onclick="openAdvancedSearch()"><i class="fas fa-search"></i> Pencarian Lanjut (OCR)</button>
+                    <!-- FIX: PENCARIAN LANJUT DENGAN PERMISSION -->
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="search_advanced" onclick="openAdvancedSearch()"><i class="fas fa-search"></i> Pencarian Lanjut (OCR)</button>
                     <div class="my-2 border-top border-white-50"></div>
 
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
@@ -144,7 +146,8 @@
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
-                    <a class="nav-link w-100 text-start text-info" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    <!-- FIX: PARENT MENU VISIBILITY -->
+                    <a class="nav-link w-100 text-start text-info restricted-feature" id="btnArsipMasukParent" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipMasuk">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">All (Semua)</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_direktur" onclick="openArsipPage('masuk', 'direktur', this)">Direktur</button>
@@ -158,7 +161,8 @@
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_kep" onclick="openArsipPage('masuk', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
-                    <a class="nav-link w-100 text-start text-success" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    <!-- FIX: PARENT MENU VISIBILITY -->
+                    <a class="nav-link w-100 text-start text-success restricted-feature" id="btnArsipKeluarParent" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipKeluar">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">All (Semua)</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_direktur" onclick="openArsipPage('keluar', 'direktur', this)">Direktur</button>
@@ -282,7 +286,24 @@
 
                     <!-- SETTINGS -->
                     <div class="tab-pane white-panel p-4" id="settings-content">
-                        <!-- ... (Storage stats section unchanged) ... -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2"><h3 class="fw-bold m-0 text-danger">Pengaturan</h3><div><button class="btn btn-primary btn-sm me-2" onclick="loadUsers()">Reload User</button><button class="btn btn-warning btn-sm" onclick="loadStorageStats()">Cek Storage</button></div></div>
+                        <div class="card mb-4 border-warning shadow-sm">
+                            <div class="card-header bg-warning text-dark fw-bold">Infrastruktur Penyimpanan</div>
+                            <div class="card-body">
+                                <div class="row g-3 text-center mb-3">
+                                     <div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Server Utama (A)</h6><h5 id="disp-quota-A">...</h5><div class="progress" style="height:5px"><div id="prog-A" class="progress-bar bg-primary" style="width:0%"></div></div></div></div>
+                                     <div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Gudang 1 (B)</h6><h5 id="disp-quota-B">...</h5><div class="progress" style="height:5px"><div id="prog-B" class="progress-bar bg-success" style="width:0%"></div></div></div></div>
+                                     <div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Gudang 2 (C)</h6><h5 id="disp-quota-C">...</h5><div class="progress" style="height:5px"><div id="prog-C" class="progress-bar bg-warning" style="width:0%"></div></div></div></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="switchFailover" onchange="saveStorageSettings()"><label class="form-check-label fw-bold" for="switchFailover">Failover Otomatis</label></div>
+                                    <select class="form-select form-select-sm w-auto" id="selectActiveNode" onchange="saveStorageSettings()"><option value="0">Server Utama</option><option value="1">Gudang 1</option><option value="2">Gudang 2</option></select>
+                                </div>
+                                <div class="mt-2 text-end">
+                                    <button class="btn btn-dark btn-sm" onclick="backupDatabase()"><i class="fas fa-download me-1"></i>Backup Database (XLSX)</button>
+                                </div>
+                            </div>
+                        </div>
                         <h5 class="fw-bold mb-3">Daftar Pengguna</h5>
                         <div class="table-responsive"><table id="tableUsers" class="table table-striped w-100 align-middle"><thead class="table-dark"><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
                     </div>
@@ -291,7 +312,7 @@
         </div>
     </div>
 
-    <!-- MODAL WAJIB UPDATE PROFIL (NEW) -->
+    <!-- MODAL WAJIB UPDATE PROFIL -->
     <div class="modal fade" id="modalUpdateProfile" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content border-primary">
@@ -355,7 +376,11 @@
             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_keluar"><label class="form-check-label text-warning fw-bold">Edit Surat Keluar</label></div>
             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_tujuan_disposisi"><label class="form-check-label text-danger fw-bold">Edit Tujuan Disposisi</label></div>
             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_status_approval"><label class="form-check-label text-danger fw-bold">Edit Status Approval</label></div>
-            <!-- NEW PERMISSION -->
+        </div>
+        <!-- FITUR TAMBAHAN (NEW) -->
+        <div class="perm-category">F. FITUR TAMBAHAN</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="search_advanced"><label class="form-check-label text-primary fw-bold">Pencarian Lanjut</label></div>
             <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_profil"><label class="form-check-label text-danger fw-bold">Admin: Edit Profil User</label></div>
         </div>
         <div class="perm-category">E. ADMIN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user"><label class="form-check-label text-danger">Setting User</label></div></div>
@@ -396,7 +421,6 @@
             fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{
                 showLoading(false);
                 if(res.status==='success'){
-                    // Session Storage
                     sessionStorage.setItem('isLoggedIn','true');
                     sessionStorage.setItem('userEmail',res.data.email);
                     sessionStorage.setItem('userRole',res.data.role);
@@ -405,12 +429,10 @@
                     sessionStorage.setItem('userName',res.data.name);
                     sessionStorage.setItem('userBidang', res.data.bidang);
                     currentUserEmail=res.data.email;
-                    
                     showApp();
                     renderSidebarPermissions();
                     loadRefCodes();
-
-                    // CHECK PROFILE COMPLETENESS
+                    // CHECK PROFILE
                     if(res.data.profileIncomplete) {
                         openUpdateProfileModal(res.data.email, res.data.name, true);
                     }
@@ -480,8 +502,61 @@
             });
         });
 
-        // --- STANDARD FUNCTIONS ---
-        function renderSidebarPermissions(){const r=sessionStorage.getItem('userRole');const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]");$('.restricted-feature').addClass('restricted-feature');if(r==='Super Admin'){$('.restricted-feature').removeClass('restricted-feature')}else{p.forEach(x=>$(`[data-perm="${x}"]`).removeClass('restricted-feature'));if(r==='User')$(`[data-perm="inbox_staf"]`).removeClass('restricted-feature')}}
+        // --- BACKUP DATA ---
+        function backupDatabase(){
+            showLoading(true);
+            fetch(GAS_URL, {
+                method: 'POST', 
+                body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail })
+            }).then(r => r.json()).then(r => {
+                showLoading(false);
+                if(r.status === 'success'){
+                    const wb = XLSX.utils.book_new();
+                    // Create Worksheets
+                    const ws1 = XLSX.utils.aoa_to_sheet(r.data.suratMasuk);
+                    const ws2 = XLSX.utils.aoa_to_sheet(r.data.suratKeluar);
+                    XLSX.utils.book_append_sheet(wb, ws1, "SuratMasuk");
+                    XLSX.utils.book_append_sheet(wb, ws2, "SuratKeluar");
+                    const date = new Date().toISOString().slice(0,10);
+                    XLSX.writeFile(wb, `Backup_SIMAS_${date}.xlsx`);
+                } else {
+                    Swal.fire('Gagal', 'Anda tidak memiliki hak akses backup.', 'error');
+                }
+            });
+        }
+
+        // --- PERMISSIONS LOGIC UPDATED ---
+        function renderSidebarPermissions(){
+            const r=sessionStorage.getItem('userRole');
+            const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
+            
+            // Hide all restricted
+            $('.restricted-feature').addClass('restricted-feature'); 
+            
+            // HIDE PARENTS BY DEFAULT
+            $('#btnArsipMasukParent').addClass('restricted-feature');
+            $('#btnArsipKeluarParent').addClass('restricted-feature');
+            
+            let hasAnyArsipMasuk = false;
+            let hasAnyArsipKeluar = false;
+
+            if(r==='Super Admin'){
+                $('.restricted-feature').removeClass('restricted-feature');
+            } else {
+                p.forEach(x => {
+                    $(`[data-perm="${x}"]`).removeClass('restricted-feature');
+                    // Check logic for parents
+                    if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true;
+                    if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true;
+                });
+                if(r==='User')$(`[data-perm="inbox_staf"]`).removeClass('restricted-feature');
+                
+                // SHOW PARENTS IF HAS PERM
+                if(hasAnyArsipMasuk) $('#btnArsipMasukParent').removeClass('restricted-feature');
+                if(hasAnyArsipKeluar) $('#btnArsipKeluarParent').removeClass('restricted-feature');
+            }
+        }
+
         function openDisposisiPage(l,e){currentInboxLevel=l;$('#dispPageTitle').text(l.replace(/_/g,' ').toUpperCase());activateTab('disposisi-container',e,refreshCurrentDisposisi)}
         function refreshCurrentDisposisi(){showLoading(true);fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}});dt.clear();if(r.data)r.data.forEach(d=>dt.row.add([d.tgl,d.agenda,d.pengirim,d.perihal,`<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`]));dt.draw()})}
         function togglePembuatManual(sel) { const val = sel.value; if(val === 'Lainnya') { $('#inputPembuatManual').show().focus().prop('required', true); } else { $('#inputPembuatManual').hide().prop('required', false); } }

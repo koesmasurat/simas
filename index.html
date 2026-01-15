@@ -75,7 +75,12 @@
                     </div>
                     <div class="bg-white bg-opacity-10 rounded p-2 mt-2"><div class="fw-bold text-truncate" id="userDisplayName">Pengguna</div><div class="badge bg-info text-dark" id="userRoleBadge">Role</div></div>
                 </div>
+                
                 <div class="sidebar-scroll">
+                    <!-- MENU BERANDA (TIDAK RESTRICTED) -->
+                    <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
+                    <div class="my-2 border-top border-white-50"></div>
+
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
@@ -122,6 +127,25 @@
             <div id="content">
                 <button type="button" id="sidebarCollapse" class="btn btn-outline-light mb-3"><i class="fas fa-bars"></i> Menu</button>
                 <div class="tab-content">
+                    
+                    <!-- BERANDA (TAB DEFAULT) -->
+                    <div class="tab-pane white-panel p-4" id="home-content">
+                        <div class="text-center py-5">
+                            <h2 class="fw-bold text-primary mb-3">Selamat Datang di SIMAS KOESMA</h2>
+                            <p class="lead mb-4">Sistem Informasi Manajemen Arsip Surat (Enterprise Edition)</p>
+                            <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" alt="Logo" style="width: 150px; opacity: 0.8;">
+                            <hr class="my-4">
+                            <div class="alert alert-info d-inline-block text-start">
+                                <strong><i class="fas fa-info-circle me-2"></i>Status Akun Anda:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Nama: <span id="homeDisplayName" class="fw-bold">...</span></li>
+                                    <li>Role: <span id="homeRoleBadge" class="badge bg-secondary">...</span></li>
+                                </ul>
+                                <p class="small mt-2 mb-0">Jika menu di sebelah kiri kosong, silakan hubungi Admin untuk meminta Hak Akses.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- INPUT MASUK -->
                     <div class="tab-pane white-panel p-4" id="input-masuk-content">
                         <h3 class="fw-bold mb-4 border-bottom pb-2">Catat Surat Masuk</h3>
@@ -235,9 +259,34 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentUserEmail = "", currentInboxLevel = "", currentArsipScope = "";
-        $(document).ready(function() { if(sessionStorage.getItem('isLoggedIn')==='true'){ currentUserEmail=sessionStorage.getItem('userEmail'); showApp(); renderSidebarPermissions(); } $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); tsParticles.load("tsparticles",{fpsLimit:60,particles:{number:{value:30},color:{value:"#ffffff"},opacity:{value:0.3},size:{value:3},move:{enable:true,speed:1}}}); });
+        
+        $(document).ready(function() { 
+            if(sessionStorage.getItem('isLoggedIn')==='true'){ 
+                currentUserEmail=sessionStorage.getItem('userEmail'); 
+                showApp(); 
+                renderSidebarPermissions(); 
+            } 
+            $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
+            tsParticles.load("tsparticles",{fpsLimit:60,particles:{number:{value:30},color:{value:"#ffffff"},opacity:{value:0.3},size:{value:3},move:{enable:true,speed:1}}}); 
+        });
+
         function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
-        function showApp(){$('#loginSection').fadeOut(500);$('#appContent').fadeIn(500);$('#userDisplayName').text(sessionStorage.getItem('userName'));$('#userRoleBadge').text(sessionStorage.getItem('userRole'));}
+        
+        // --- KEY FIX: AUTO CLICK 'BERANDA' ON LOGIN ---
+        function showApp(){
+            $('#loginSection').fadeOut(500);
+            $('#appContent').fadeIn(500);
+            $('#userDisplayName').text(sessionStorage.getItem('userName'));
+            $('#userRoleBadge').text(sessionStorage.getItem('userRole'));
+            
+            // Populate Home Info
+            $('#homeDisplayName').text(sessionStorage.getItem('userName'));
+            $('#homeRoleBadge').text(sessionStorage.getItem('userRole'));
+            
+            // AUTO CLICK HOME BUTTON
+            setTimeout(() => { $('#btn-home').click(); }, 600);
+        }
+        
         function activateTab(t,e,cb){$('.nav-link').removeClass('active');if(e)$(e).addClass('active');$('.tab-pane').removeClass('active');$('#'+t).addClass('active');if(cb)cb()}
         function logout(){sessionStorage.clear();location.reload()}
         function handleCredentialResponse(r){showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{showLoading(false);if(res.status==='success'){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userEmail',res.data.email);sessionStorage.setItem('userRole',res.data.role);sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions));sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates));sessionStorage.setItem('userName',res.data.name);currentUserEmail=res.data.email;showApp();renderSidebarPermissions();}else{Swal.fire('Login Gagal',res.message,'error')}}).catch(e=>{showLoading(false);Swal.fire('Error','Koneksi','error')})}

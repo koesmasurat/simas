@@ -63,9 +63,9 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            position: fixed; /* Fixed agar tidak scroll saat animasi */
+            position: fixed; 
             top: 0; left: 0; width: 100%;
-            z-index: 200; /* Paling atas */
+            z-index: 200; 
             overflow: hidden; 
         }
         .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; position: relative; z-index: 201; }
@@ -74,7 +74,7 @@
         #door-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100; /* Di bawah login card, di atas App */
+            z-index: 100;
             display: flex;
             pointer-events: none;
         }
@@ -82,9 +82,9 @@
         .door-panel {
             width: 50%;
             height: 100%;
-            background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%); /* Samakan dengan body */
+            background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%);
             position: relative;
-            transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1); /* Efek easing yang smooth */
+            transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             z-index: 101;
         }
@@ -92,11 +92,9 @@
         #door-left { border-right: 1px solid rgba(255,255,255,0.1); transform-origin: left; }
         #door-right { border-left: 1px solid rgba(255,255,255,0.1); transform-origin: right; }
 
-        /* Class untuk membuka pintu */
         .door-open #door-left { transform: translateX(-100%); }
         .door-open #door-right { transform: translateX(100%); }
 
-        /* Lock Icon di tengah pintu */
         #door-lock-container {
             position: absolute;
             top: 50%; left: 50%;
@@ -108,12 +106,20 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
         
-        /* --- TSParticles Container --- */
+        /* --- TSParticles Container (Updated for Z-Index Switching) --- */
         #tsparticles {
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 150; /* Di atas pintu agar partikel terlihat saat login */
-            pointer-events: none; 
+            z-index: 150; /* Awal: Di atas pintu (Login Mode) */
+            pointer-events: none;
+            transition: opacity 1.5s ease, filter 1.5s ease;
+        }
+
+        /* Kelas untuk memindahkan partikel ke belakang setelah login */
+        #tsparticles.in-background {
+            z-index: 0 !important; /* Pindah ke paling belakang */
+            opacity: 0.3 !important; /* Jadi transparan */
+            filter: blur(1px); /* Sedikit blur untuk efek depth of field */
         }
 
         /* --- Motivational Quote Styles --- */
@@ -1311,6 +1317,9 @@
             // 1. Gembok Terbuka & Berubah Warna
             lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
             
+            // NEW: Segera pindahkan partikel ke background
+            $('#tsparticles').addClass('in-background');
+
             setTimeout(() => {
                 // 2. Hilangkan Login Card
                 $('.login-card').fadeOut(500);
@@ -1430,17 +1439,17 @@
                     ]
                 },
                 opacity: {
-                    value: 0.8,
+                    value: 0.6, // Dikurangi dari 0.8
                     random: true,
                     anim: {
                         enable: true,
                         speed: 0.5,
-                        opacity_min: 0.4,
+                        opacity_min: 0.3,
                         sync: false
                     }
                 },
                 size: {
-                    value: 25,
+                    value: 20, // Dikurangi dari 25 agar tidak terlalu mendominasi
                     random: true,
                     anim: {
                         enable: false,
@@ -1492,11 +1501,8 @@
 
         // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
-            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
-            "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
-            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
             "Jadilah solusi, bukan polusi. Di setiap rapat dan diskusi, pastikan suaramu membawa pencerahan, bukan sekadar keluhan.",
             "Waktu tidak pernah menunggu. Lakukan yang terbaik sekarang, atau kau akan menyesal saat melihat orang lain mendahuluimu dengan ide yang sama.",
             "Loyalitas bukan tentang seberapa lama engkau bekerja, tapi seberapa tulus engkau memberikan kontribusi terbaik bagi tempatmu bernaung.",

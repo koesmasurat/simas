@@ -52,6 +52,7 @@
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
 
+    <!-- DATALIST KODE KLARIFIKASI -->
     <datalist id="listKodeKlarifikasi"></datalist>
 
     <div id="loginSection">
@@ -335,7 +336,7 @@
             });
         }
 
-        // --- NEW: LOAD REF CODES ---
+        // --- NEW: LOAD REF CODES (FIXED) ---
         function loadRefCodes() {
             fetch(`${GAS_URL}?action=get_ref_codes`)
             .then(r => r.json())
@@ -344,7 +345,8 @@
                     const list = $('#listKodeKlarifikasi');
                     list.empty();
                     r.data.forEach(item => {
-                        list.append(`<option value="${item.code} - ${item.desc}">`);
+                        // FIX: Value hanya Kode, Deskripsi sebagai label teks opsi
+                        list.append(`<option value="${item.code}">${item.desc}</option>`);
                     });
                 }
             });

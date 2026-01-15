@@ -106,7 +106,7 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
         
-        /* --- TSParticles Container (Updated for Z-Index Switching) --- */
+        /* --- TSParticles Container --- */
         #tsparticles {
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
@@ -118,8 +118,8 @@
         /* Kelas untuk memindahkan partikel ke belakang setelah login */
         #tsparticles.in-background {
             z-index: 0 !important; /* Pindah ke paling belakang */
-            opacity: 0.3 !important; /* Jadi transparan */
-            filter: blur(1px); /* Sedikit blur untuk efek depth of field */
+            opacity: 0.6 !important; /* Dikurangi agar tidak mengganggu */
+            filter: blur(1px); 
         }
 
         /* --- Motivational Quote Styles --- */
@@ -343,14 +343,26 @@
                                     <form id="formSuratMasuk">
                                         <div class="row">
                                             <div class="col-md-4 mb-3"><label class="small text-white-50">No. Agenda (Auto)</label><input type="text" class="form-control" name="noAgenda" required></div>
-                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
+                                            <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Surat</label><input type="date" class="form-control" name="tglSurat" id="inTglSurat" required></div>
                                             <div class="col-md-4 mb-3"><label class="small text-white-50">Tanggal Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
                                         </div>
-                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
-                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">No. Surat</label><input type="text" class="form-control" name="noSurat" id="inNoSurat" required></div>
+                                        <div class="mb-3"><label class="small text-white-50">Pengirim</label><input type="text" class="form-control" name="pengirim" id="inPengirim" required></div>
                                         <div class="mb-3"><label class="small text-white-50">Kode Klarifikasi</label><input class="form-control" list="listKodeKlarifikasi" name="kodeKlarifikasi" placeholder="Ketik kode atau keterangan..."><datalist id="listKodeKlarifikasi"></datalist></div>
-                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
-                                        <div class="mb-4"><label class="small text-white-50">File (PDF/Img)</label><input type="file" class="form-control" id="fileSuratMasuk"></div>
+                                        <div class="mb-3"><label class="small text-white-50">Perihal</label><textarea class="form-control" name="perihal" id="inPerihal" rows="3" required></textarea></div>
+                                        
+                                        <!-- UPDATED: FILE INPUT WITH OCR BUTTON -->
+                                        <div class="mb-4">
+                                            <label class="small text-white-50 mb-1">File (PDF/Img) & OCR Scan</label>
+                                            <div class="input-group">
+                                                <input type="file" class="form-control" id="fileSuratMasuk">
+                                                <button class="btn btn-warning fw-bold text-dark" type="button" id="btnScanOCR" onclick="scanSuratMasukWithGemini()">
+                                                    <i class="fas fa-magic me-2"></i>Scan AI
+                                                </button>
+                                            </div>
+                                            <small class="text-white-50 fst-italic" style="font-size: 0.75rem;">*Pilih file lalu klik 'Scan AI' untuk mengisi otomatis Tgl Surat, No Surat, Pengirim & Perihal.</small>
+                                        </div>
+                                        
                                         <div class="d-grid"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button></div>
                                     </form>
                                 </div>
@@ -685,17 +697,7 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentLevel = ""; 
         let currentUserEmail = "";
-        
-        // --- DATA CACHE PATTERN (Robustness Fix) ---
-        const DATA_CACHE = {
-            disposisi: new Map(),
-            masuk: new Map(),
-            keluar: new Map(),
-            users: new Map()
-        };
-        
-        function safeId(id) { return encodeURIComponent(String(id)); }
-        
+        let allUsersCache = [];
         const structureOrg = {
             "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
             "Wadir Admin & Keuangan": ["Bagian Adm dan Umum", "Bagian Keuangan", "Bagian Progpel"]
@@ -1088,12 +1090,14 @@
                 DATA_CACHE.users.clear(); 
 
                 if (r.status === 'success' && r.data) { 
+                    allUsersCache = r.data; 
                     r.data.forEach(u => { 
-                        DATA_CACHE.users.set(u.email, u);
-                        const safeEmail = safeId(u.email);
-
-                        let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick="openEditUserFromCache('${safeEmail}')" title="Edit Akses"><i class="fas fa-edit"></i></button>`; 
-                        let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick="openManageSubordinatesFromCache('${safeEmail}')" title="Atur Bawahan"><i class="fas fa-users"></i></button>`; 
+                        // PERBAIKAN: Escape single quotes untuk mencegah error rendering tombol
+                        const safeUser = JSON.stringify(u).replace(/'/g, "&apos;");
+                        
+                        let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick='openEditUser(${safeUser})' title="Edit Akses"><i class="fas fa-edit"></i></button>`; 
+                        let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick='openManageSubordinates(${safeUser})' title="Atur Bawahan"><i class="fas fa-users"></i></button>`; 
+                        
                         table.row.add([ u.email, u.name, u.role, u.status, btnEdit + btnTeam ]); 
                     }); 
                     table.draw(); 
@@ -1104,116 +1108,12 @@
 
         function openEditUser(user) { $('#editUserEmail').val(user.email); $('#editUserName').val(user.name); $('#editUserRole').val(user.role); $('#editUserStatus').val(user.status); $('.perm-check').prop('checked', false); try { const perms = JSON.parse(user.permissions); perms.forEach(p => { $(`.perm-check[value="${p}"]`).prop('checked', true); }); } catch(e){} new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
         function saveUserPermissions() { const perms = []; $('.perm-check:checked').each(function() { perms.push($(this).val()); }); const payload = { type: 'update_user_permissions', requestor: currentUserEmail, targetEmail: $('#editUserEmail').val(), name: $('#editUserName').val(), role: $('#editUserRole').val(), status: $('#editUserStatus').val(), permissions: JSON.stringify(perms) }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Data user diupdate', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
-        function openManageSubordinates(user) { $('#subordTargetName').text(user.name); $('#subordTargetEmail').val(user.email); const container = $('#subordinatesList'); container.empty(); let currentSubs = []; try { currentSubs = JSON.parse(user.subordinates) || []; } catch(e){} DATA_CACHE.users.forEach(u => { if(u.email !== user.email) { const isChecked = currentSubs.includes(u.name) ? 'checked' : ''; const html = `<div class="col-md-6 sub-item"><div class="form-check bg-dark bg-opacity-25 rounded p-2"><input class="form-check-input subord-check ms-1" type="checkbox" value="${u.name}" id="sub_${u.email}" ${isChecked}><label class="form-check-label ms-2 text-white" for="sub_${u.email}">${u.name} <small class="text-info d-block" style="font-size:0.7em">${u.role}</small></label></div></div>`; container.append(html); } }); new bootstrap.Modal(document.getElementById('modalManageSubordinates')).show(); }
+        function openManageSubordinates(user) { $('#subordTargetName').text(user.name); $('#subordTargetEmail').val(user.email); const container = $('#subordinatesList'); container.empty(); let currentSubs = []; try { currentSubs = JSON.parse(user.subordinates) || []; } catch(e){} allUsersCache.forEach(u => { if(u.email !== user.email) { const isChecked = currentSubs.includes(u.name) ? 'checked' : ''; const html = `<div class="col-md-6 sub-item"><div class="form-check bg-dark bg-opacity-25 rounded p-2"><input class="form-check-input subord-check ms-1" type="checkbox" value="${u.name}" id="sub_${u.email}" ${isChecked}><label class="form-check-label ms-2 text-white" for="sub_${u.email}">${u.name} <small class="text-info d-block" style="font-size:0.7em">${u.role}</small></label></div></div>`; container.append(html); } }); new bootstrap.Modal(document.getElementById('modalManageSubordinates')).show(); }
         function filterSubordinates() { const val = $('#searchSubordinate').val().toLowerCase(); $('.sub-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.indexOf(val) > -1); }); }
         function saveSubordinates() { const subs = []; $('.subord-check:checked').each(function() { subs.push($(this).val()); }); const payload = { type: 'update_user_subordinates', requestor: currentUserEmail, targetEmail: $('#subordTargetEmail').val(), subordinates: JSON.stringify(subs) }; bootstrap.Modal.getInstance(document.getElementById('modalManageSubordinates')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Tim berhasil diatur', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
-        
-        // --- UPDATED: DYNAMIC MULTI-SELECT CHECKBOXES FOR DISPOSISI ---
-        function openModalAction(rowData) { 
-            $('#actNoAgenda').val(rowData[1]); 
-            $('#actPerihal').text(rowData[6]); 
-            document.querySelector('#actTgl').valueAsDate = new Date(); 
-            $('#actInstruksi').val(''); 
-            $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); 
-            $('#prevDispInfo').addClass('d-none'); 
-            
-            // Logic Instruksi Sebelumnya (Preview)
-            let prevLabel = ""; let prevText = ""; 
-            if (currentLevel.includes('wadir')) { prevLabel = "Instruksi Direktur:"; prevText = rowData[9]; } 
-            else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { prevLabel = "Instruksi Wadir:"; prevText = rowData[12]; } 
-            else if (currentLevel === 'jf') { prevLabel = "Instruksi Kabag/Kabid:"; prevText = rowData[15]; } 
-            if (prevLabel && prevText && prevText !== "") { $('#prevDispLabel').text(prevLabel); $('#prevDispText').text('"' + prevText + '"'); $('#prevDispInfo').removeClass('d-none'); } 
-            
-            // Populate Dynamic Checkboxes
-            const container = $('#actTargetContainer');
-            container.empty();
-            let options = [];
-
-            if (currentLevel === 'direktur') {
-                options = ["Wadir Pelayanan", "Wadir Admin & Keuangan"];
-            } else if (currentLevel.includes('wadir')) {
-                // Determine which Wadir is active based on permission or simple assumption
-                // Better: Show options based on logged-in user role if possible, or ALL options since Wadir sees all structure
-                if (currentLevel === 'wadir_pelayanan') options = structureOrg["Wadir Pelayanan"];
-                else if (currentLevel === 'wadir_admin') options = structureOrg["Wadir Admin & Keuangan"];
-                else {
-                    // Fallback or show all if ambiguous
-                    options = [...structureOrg["Wadir Pelayanan"], ...structureOrg["Wadir Admin & Keuangan"]];
-                }
-            } else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag') || currentLevel === 'jf') {
-                // Populate from Subordinates (Cached)
-                let subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]");
-                if (subs && subs.length > 0) options = subs;
-                else options = ["(Belum ada bawahan diset)"];
-            }
-
-            // Render Checkboxes
-            if(options.length > 0) {
-                options.forEach(opt => {
-                    const idSafe = opt.replace(/\s+/g, '_');
-                    const html = `
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="${opt}" id="chk_${idSafe}">
-                            <label class="form-check-label text-white" for="chk_${idSafe}">
-                                ${opt}
-                            </label>
-                        </div>
-                    `;
-                    container.append(html);
-                });
-            } else {
-                container.append('<div class="text-warning small fst-italic">Tidak ada target tersedia.</div>');
-            }
-
-            new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
-        }
-
-        function submitDisposisiLevel() { 
-            // Gather selected targets
-            const targets = [];
-            $('#actTargetContainer input:checked').each(function() {
-                targets.push($(this).val());
-            });
-
-            if (targets.length === 0) {
-                return Swal.fire('Peringatan', 'Pilih minimal satu tujuan disposisi.', 'warning');
-            }
-
-            const targetString = targets.join(", "); // Combine with comma
-
-            const formData = { 
-                type: 'update_disposisi_level', 
-                email: currentUserEmail, 
-                level: currentLevel, 
-                noAgenda: $('#actNoAgenda').val(), 
-                tglDisposisi: $('#actTgl').val(), 
-                instruksi: $('#actInstruksi').val() 
-            }; 
-            
-            if(currentLevel === 'direktur') formData.targetWadir = targetString; 
-            if(currentLevel.includes('wadir')) formData.targetBidang = targetString; 
-            if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { 
-                formData.targetJF = targetString; 
-                // Auto add to subordinates list if new names (logic handled in backend usually, but here we just pass string)
-            } 
-            if(currentLevel === 'jf') { 
-                formData.targetStaf = targetString; 
-            } 
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); 
-            showLoading(true); 
-            
-            // Note: AutoAddSubordinate logic in backend might need adjustment if it receives comma string. 
-            // Current backend logic handles string. Split there if needed, but for now simple storage is fine.
-            
-            sendData(formData, () => { 
-                refreshCurrentDisposisi(); 
-                loadCounters(); 
-                Swal.fire('Sukses', 'Disposisi Terkirim ke: ' + targetString, 'success'); 
-            }); 
-        }
-
-        // --- EXISTING FUNCTIONS (Unchanged logic, just re-listing for completeness) ---
+        function openModalAction(rowData) { $('#actNoAgenda').val(rowData[1]); $('#actPerihal').text(rowData[6]); document.querySelector('#actTgl').valueAsDate = new Date(); $('#actInstruksi').val(''); $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); $('.disp-field').addClass('d-none'); $('#prevDispInfo').addClass('d-none'); let prevLabel = ""; let prevText = ""; if (currentLevel.includes('wadir')) { prevLabel = "Instruksi Direktur:"; prevText = rowData[9]; } else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { prevLabel = "Instruksi Wadir:"; prevText = rowData[12]; } else if (currentLevel === 'jf') { prevLabel = "Instruksi Kabag/Kabid:"; prevText = rowData[15]; } if (prevLabel && prevText && prevText !== "") { $('#prevDispLabel').text(prevLabel); $('#prevDispText').text('"' + prevText + '"'); $('#prevDispInfo').removeClass('d-none'); } if(currentLevel === 'direktur') $('#fieldDirektur').removeClass('d-none'); else if (currentLevel.includes('wadir')) { $('#fieldWadir').removeClass('d-none'); let html = (structureOrg[rowData[8]] || []).map(o => `<option value="${o}">${o}</option>`).join(''); $('#actTargetBidang').html(html); } else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { $('#fieldKabid').removeClass('d-none'); populateSubordinateDropdown('#datalistTargetJF'); $('#actTargetJF').val(''); } else if (currentLevel === 'jf') { $('#fieldJF').removeClass('d-none'); populateSubordinateDropdown('#datalistTargetStaf'); $('#actTargetStaf').val(''); } new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); }
+        function populateSubordinateDropdown(selector) { const subsJson = sessionStorage.getItem('userSubordinates'); const dataList = $(selector); dataList.empty(); let subs = []; try { subs = JSON.parse(subsJson); } catch(e){} if(subs && subs.length > 0) { subs.forEach(name => { dataList.append(`<option value="${name}"></option>`); }); } }
+        function submitDisposisiLevel() { const formData = { type: 'update_disposisi_level', email: currentUserEmail, level: currentLevel, noAgenda: $('#actNoAgenda').val(), tglDisposisi: $('#actTgl').val(), instruksi: $('#actInstruksi').val() }; if(currentLevel === 'direktur') formData.targetWadir = $('#actTargetWadir').val(); if(currentLevel.includes('wadir')) formData.targetBidang = $('#actTargetBidang').val(); if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { formData.targetJF = $('#actTargetJF').val(); } if(currentLevel === 'jf') { formData.targetStaf = $('#actTargetStaf').val(); } if((currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) && !formData.targetJF) { return Swal.fire('Error', 'Nama JF tujuan harus diisi', 'warning'); } if(currentLevel === 'jf' && !formData.targetStaf) { return Swal.fire('Error', 'Nama Staf tujuan harus diisi', 'warning'); } bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); sendData(formData, () => { let newName = ""; if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) newName = formData.targetJF; if(currentLevel === 'jf') newName = formData.targetStaf; if (newName) { let subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); const exists = subs.some(s => s.trim().toLowerCase() === newName.trim().toLowerCase()); if (!exists) { subs.push(newName.trim()); sessionStorage.setItem('userSubordinates', JSON.stringify(subs)); } } refreshCurrentDisposisi(); loadCounters(); Swal.fire('Sukses', 'Disposisi Terkirim', 'success'); }); }
         function restoreState() { const lastBtnId = sessionStorage.getItem('lastActiveBtn'); if(lastBtnId && $('#'+lastBtnId).length) { if($('#'+lastBtnId).closest('.submenu').length) { $('#submenuDisposisi').addClass('show'); $('a[href="#submenuDisposisi"]').removeClass('collapsed').attr('aria-expanded', 'true'); } $('#'+lastBtnId).click(); } }
         function loadCounters() { fetch(`${GAS_URL}?action=get_counts`).then(r=>r.json()).then(r => { if(r.status === 'success') { setCount('direktur', r.data.direktur); setCount('wadir_admin', r.data.wadir_admin); setCount('wadir_pelayanan', r.data.wadir_pelayanan); setCount('kabag_umum', r.data.kabag_umum); setCount('kabag_keuangan', r.data.kabag_keuangan); setCount('kabag_progpel', r.data.kabag_progpel); setCount('kabid_yanmed', r.data.kabid_yanmed); setCount('kabid_keperawatan', r.data.kabid_keperawatan); setCount('kabid_penunjang', r.data.kabid_penunjang); setCount('jf', r.data.jf); } }); fetch(`${GAS_URL}?action=get_auto_numbers`).then(r=>r.json()).then(r => { if(r.status === 'success') { $('input[name="noAgenda"]').val(r.data.masuk); $('#outNoAgenda').val(r.data.keluar); } }); }
         function openBookingModal() { Swal.fire({ title: 'Booking Nomor Agenda', text: 'Jumlah nomor:', input: 'number', showCancelButton: true, confirmButtonText: 'Booking', showLoaderOnConfirm: true, preConfirm: (amount) => { return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_keluar', amount: amount, email: currentUserEmail }) }).then(response => response.json()); } }).then((result) => { if (result.isConfirmed) { $('#outNoAgenda').val(result.value.data.nextAvailable); Swal.fire('Berhasil', `Nomor berikutnya: ${result.value.data.nextAvailable}`, 'success'); } }); }
@@ -1221,29 +1121,7 @@
         function logout() { Swal.fire({ title: 'Konfirmasi Logout', text: "Anda yakin ingin keluar?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('lastActiveBtn'); $('#appContent').stop().hide(); $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300); setTimeout(() => { location.reload(); }, 500); } }); }
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
         function openDisposisiPage(level, element) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); }
-        
-        function refreshCurrentDisposisi() { 
-            showLoading(true); 
-            fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`)
-            .then(r=>r.json())
-            .then(r => { 
-                showLoading(false); 
-                const dt = $('#tableDisposisi').DataTable(); 
-                dt.clear(); 
-                DATA_CACHE.disposisi.clear(); 
-
-                if(r.data) r.data.forEach(row => { 
-                    DATA_CACHE.disposisi.set(String(row[1]), row);
-                    const safeRowId = safeId(row[1]);
-
-                    let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; 
-                    let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick="openDisposisiModalFromCache('${safeRowId}')">Proses</button>`; 
-                    dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); 
-                }); 
-                dt.draw(); 
-            }); 
-        }
-
+        function refreshCurrentDisposisi() { showLoading(true); fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`).then(r=>r.json()).then(r => { showLoading(false); const dt = $('#tableDisposisi').DataTable(); dt.clear(); if(r.data) r.data.forEach(row => { let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick='openModalAction(${JSON.stringify(row)})'>Proses</button>`; dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); }); dt.draw(); }); }
         function printDisposisi(noAgenda) { Swal.fire({ title: 'Sedang Memproses PDF...', text: 'Mohon tunggu, lembar disposisi sedang dibuat.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'cetak_disposisi', noAgenda: noAgenda }) }).then(r => r.json()).then(r => { if (r.status === 'success') { const byteCharacters = atob(r.data.pdfBase64); const byteNumbers = new Array(byteCharacters.length); for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); } const byteArray = new Uint8Array(byteNumbers); const blob = new Blob([byteArray], {type: "application/pdf"}); const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = r.data.fileName; link.click(); Swal.close(); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { Swal.fire('Error', 'Gagal membuat PDF', 'error'); }); }
         function viewHistory(row) { let html = createTimelineItem(true, "SURAT DITERIMA", `Agenda: ${row[1]}`, `Tgl Surat: ${new Date(row[3]).toLocaleDateString('id-ID')}`, row[0]); if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", ""); if(row[11]) html += createTimelineItem(true, "WADIR", `Ke: ${row[11]}`, row[12], row[13]); if(row[14]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[14]}`, row[15], row[16]); if(row[17]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[17]}`, row[18], row[19]); $('#timelineContent').html(html); new bootstrap.Modal(document.getElementById('modalHistory')).show(); }
         function formatDateTime(dateString) { if(!dateString) return ''; const d = new Date(dateString); if(isNaN(d.getTime())) return ''; return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); }
@@ -1380,6 +1258,99 @@
                 }
             });
         }
+        
+        // --- NEW: GEMINI OCR INTEGRATION (CLIENT-SIDE) ---
+        // Note: Client-side keys are visible in source. Use restricted keys in production.
+        const GEMINI_API_KEY = "AIzaSyDwdAoQEpaekqyBxbZ4jwvWux5Kei5ITsA"; // Your provided key
+
+        async function scanSuratMasukWithGemini() {
+            const fileInput = document.getElementById('fileSuratMasuk');
+            if (!fileInput.files.length) {
+                return Swal.fire('Info', 'Pilih file gambar/surat terlebih dahulu.', 'info');
+            }
+
+            const file = fileInput.files[0];
+            // Basic validation - Gemini Flash Multimodal supports images and PDFs
+            // For simple implementation we treat everything as potential image input for the API
+            // or rely on browser FileReader. For PDFs, we'd need more complex handling or just let user try.
+            // Let's stick to images primarily as per your React script logic.
+            
+            showLoading(true);
+            
+            try {
+                // 1. Convert to Base64 (strip header for API)
+                const base64Data = await readFileToBase64(file);
+                const cleanBase64 = base64Data.split(',')[1];
+                const mimeType = file.type || "image/jpeg"; // Default fallback
+
+                // 2. Construct Prompt (Force JSON)
+                const promptText = `
+                    Analisis dokumen surat ini. Ekstrak data berikut dalam format JSON valid (tanpa markdown code blocks):
+                    {
+                      "no_surat": "Nomor surat (jika ada)",
+                      "tgl_surat": "Tanggal surat dalam format YYYY-MM-DD (jika ada, konversi dari format Indonesia)",
+                      "pengirim": "Nama instansi/pengirim",
+                      "perihal": "Perihal atau Hal surat"
+                    }
+                    Jika tidak ada, kosongkan string. Pastikan output hanya JSON murni.
+                `;
+
+                // 3. Call Gemini API
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: promptText },
+                                    { inlineData: { mimeType: mimeType, data: cleanBase64 } }
+                                ]
+                            }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    }
+                );
+
+                if (!response.ok) throw new Error("Gagal menghubungi AI Server");
+
+                const data = await response.json();
+                const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!generatedText) throw new Error("Tidak ada hasil dari AI");
+
+                // 4. Parse JSON & Autofill
+                let result;
+                try {
+                    // Remove markdown fences if Gemini adds them despite instruction
+                    const cleanJson = generatedText.replace(/```json|```/g, '').trim();
+                    result = JSON.parse(cleanJson);
+                } catch (e) {
+                    console.error("JSON Parse Error:", generatedText);
+                    throw new Error("Gagal membaca format data dari AI");
+                }
+
+                // 5. Fill Form
+                if (result.no_surat) $('#inNoSurat').val(result.no_surat);
+                if (result.tgl_surat) document.getElementById('inTglSurat').value = result.tgl_surat;
+                if (result.pengirim) $('#inPengirim').val(result.pengirim);
+                if (result.perihal) $('#inPerihal').val(result.perihal);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Scan Berhasil',
+                    text: 'Data surat telah diisi otomatis. Silakan periksa kembali sebelum menyimpan.',
+                    timer: 2000
+                });
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error Scan', 'Gagal memproses dokumen: ' + err.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
     </script>
     
     <!-- TSPARTICLES SCRIPT (Updated) -->
@@ -1501,8 +1472,11 @@
 
         // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
+            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
+            "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
+            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
             "Jadilah solusi, bukan polusi. Di setiap rapat dan diskusi, pastikan suaramu membawa pencerahan, bukan sekadar keluhan.",
             "Waktu tidak pernah menunggu. Lakukan yang terbaik sekarang, atau kau akan menyesal saat melihat orang lain mendahuluimu dengan ide yang sama.",
             "Loyalitas bukan tentang seberapa lama engkau bekerja, tapi seberapa tulus engkau memberikan kontribusi terbaik bagi tempatmu bernaung.",

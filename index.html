@@ -806,7 +806,7 @@
             activateTab('settings-content', element, () => {
                 loadUsers();
                 const role = sessionStorage.getItem('userRole');
-                if (role === 'Super Admin' || role === 'Admin') { loadStorageStats(); }
+                if (role && role.toLowerCase().includes('admin')) { loadStorageStats(); }
             }); 
         }
 
@@ -859,7 +859,7 @@
         function renderTableMasukRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
             const permissions = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
-            const canCorrect = userRole === 'Super Admin' || permissions.includes('correction_admin');
+            const canCorrect = (userRole && userRole.toLowerCase().includes('admin')) || permissions.includes('correction_admin');
             dataRows.forEach(row => {
                 DATA_CACHE.masuk.set(String(row[1]), row);
                 const safeRowId = safeId(row[1]);
@@ -867,7 +867,7 @@
                 let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
                 let status = `<span class="badge bg-secondary">${row[20]}</span>`; if(row[20] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
                 let btnHistory = `<button class="btn btn-sm btn-light text-primary border" onclick="viewHistoryFromCache('${safeRowId}')"><i class="fas fa-eye"></i></button>`;
-                let btnEdit = ''; if (userRole === 'Admin' || userRole === 'Super Admin') { btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick="openEditMasukFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
+                let btnEdit = ''; if (userRole && userRole.toLowerCase().includes('admin')) { btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick="openEditMasukFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
                 let btnCorrect = ''; if (canCorrect) { btnCorrect = `<button class="btn btn-sm btn-outline-danger ms-1" onclick="openCorrectionModalFromCache('${safeRowId}')" title="Koreksi Salah Tujuan"><i class="fas fa-route"></i></button>`; }
                 let btnPrint = `<button class="btn btn-sm btn-dark text-warning border ms-1" onclick="printDisposisi('${row[1]}')"><i class="fas fa-print"></i></button>`;
                 dtInstance.row.add([ dateTerima, row[1], row[5], perihalHtml, status, `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnCorrect}${btnPrint}</div>` ]);
@@ -883,7 +883,7 @@
                 let dateDiterima = '-'; if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
                 let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
                 let statusText = row[9] || "Proses"; let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
-                let btnEdit = ''; if (userRole === 'Admin' || userRole === 'Super Admin') { btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick="openEditKeluarFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
+                let btnEdit = ''; if (userRole && userRole.toLowerCase().includes('admin')) { btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick="openEditKeluarFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
                 dtInstance.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, `<div class="d-flex gap-1">${status}${btnEdit}</div>` ]);
             });
             dtInstance.order([0, 'desc']);
@@ -1035,7 +1035,7 @@
         
         // --- NEW: RENDER PERMISSIONS LOGIC (HIDE INPUT FOR STAF VIEW-ONLY) ---
         function renderSidebarPermissions() { 
-            const role = sessionStorage.getItem('userRole'); 
+            let role = sessionStorage.getItem('userRole') || ""; 
             const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]"); 
             const name = sessionStorage.getItem('userName'); 
             $('#userDisplayName').text(name); 
@@ -1045,10 +1045,14 @@
             $('.restricted-feature').addClass('restricted-feature'); 
             $('#input-menu-container').addClass('input-menu-hidden');
 
-            // 2. Super Admin Access
-            if (role === 'Super Admin') { 
+            // 2. Super Admin Access (Robust check: case insensitive & trim)
+            const roleClean = role.trim().toLowerCase();
+            if (roleClean === 'super admin' || roleClean === 'superadmin' || roleClean === 'admin') { 
                 $('.restricted-feature').removeClass('restricted-feature'); 
                 $('#input-menu-container').removeClass('input-menu-hidden');
+                
+                // FORCE SHOW SETTINGS BUTTON IF IT WAS ACCIDENTALLY HIDDEN
+                $('#btn-settings').removeClass('restricted-feature');
                 return; 
             } 
             

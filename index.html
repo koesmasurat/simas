@@ -88,11 +88,14 @@
                     <div class="my-2 border-top border-white-50"></div>
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Inbox & Disposisi</small>
                     
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)">Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_adm', this)">Inbox Wadir Adm & Keu <span class="badge-count" id="count-wadir_adm">0</span></button>
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pel', this)">Inbox Wadir Pelayanan <span class="badge-count" id="count-wadir_pel">0</span></button>
-                    
-                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subKabag" role="button">Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    <button class="nav-link w-100 text-start restricted-feature text-warning" data-perm="inbox_staf" onclick="openDisposisiPage('staf', this)"><i class="fas fa-inbox"></i> Inboxku <span class="badge-count" id="count-staf">0</span></button>
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)"><i class="fas fa-user-tie"></i> Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
+                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subWadir" role="button"><i class="fas fa-user-shield"></i> Inbox Wadir <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    <div class="collapse submenu" id="subWadir">
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_adm', this)">Wadir Adm & Keu <span class="badge-count" id="count-wadir_adm">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pel', this)">Wadir Pelayanan <span class="badge-count" id="count-wadir_pel">0</span></button>
+                    </div>
+                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subKabag" role="button"><i class="fas fa-user-tag"></i> Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="subKabag">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)">Kabag Umum <span class="badge-count" id="count-kabag_umum">0</span></button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_keu" onclick="openDisposisiPage('kabag_keuangan', this)">Kabag Keu <span class="badge-count" id="count-kabag_keuangan">0</span></button>
@@ -109,11 +112,26 @@
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_direktur" onclick="openArsipPage('masuk', 'direktur', this)">Direktur</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_adm" onclick="openArsipPage('masuk', 'wadir_adm', this)">Wadir Adm</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_pel" onclick="openArsipPage('masuk', 'wadir_pel', this)">Wadir Pel</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_umum" onclick="openArsipPage('masuk', 'kabag_umum', this)">Kabag Umum</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_keu" onclick="openArsipPage('masuk', 'kabag_keu', this)">Kabag Keuangan</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_prog" onclick="openArsipPage('masuk', 'kabag_prog', this)">Kabag Program</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_yanmed" onclick="openArsipPage('masuk', 'kabid_yanmed', this)">Kabid Medik</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_penunjang" onclick="openArsipPage('masuk', 'kabid_penunjang', this)">Kabid Penunjang</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_kep" onclick="openArsipPage('masuk', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
                     <a class="nav-link w-100 text-start text-success" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipKeluar">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">All (Semua)</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_direktur" onclick="openArsipPage('keluar', 'direktur', this)">Direktur</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_wadir_adm" onclick="openArsipPage('keluar', 'wadir_adm', this)">Wadir Adm</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_wadir_pel" onclick="openArsipPage('keluar', 'wadir_pel', this)">Wadir Pel</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_umum" onclick="openArsipPage('keluar', 'kabag_umum', this)">Kabag Umum</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_keu" onclick="openArsipPage('keluar', 'kabag_keu', this)">Kabag Keuangan</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_prog" onclick="openArsipPage('keluar', 'kabag_prog', this)">Kabag Program</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_yanmed" onclick="openArsipPage('keluar', 'kabid_yanmed', this)">Kabid Medik</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_penunjang" onclick="openArsipPage('keluar', 'kabid_penunjang', this)">Kabid Penunjang</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_kep" onclick="openArsipPage('keluar', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
@@ -265,8 +283,12 @@
                 $('#door-overlay').addClass('door-open');
                 setTimeout(() => {
                     $('#appContent').fadeIn(500);
+                    // Force update dashboard text on load
                     $('#userDisplayName').text(sessionStorage.getItem('userName'));
                     $('#userRoleBadge').text(sessionStorage.getItem('userRole'));
+                    $('#homeDisplayName').text(sessionStorage.getItem('userName'));
+                    $('#homeRoleBadge').text(sessionStorage.getItem('userRole'));
+                    
                     if($('#btn-home').length) { $('#btn-home').click(); }
                 }, 300);
             });
@@ -287,7 +309,9 @@
             showLoading(true);
             fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
                 showLoading(false);
-                const dt=$('#tableArsipMasuk').DataTable({destroy:true}); dt.clear();
+                // order: [[1, 'desc']] -> Sort by Column 1 (Agenda) Descending
+                const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); 
+                dt.clear();
                 const canEdit = sessionStorage.getItem('userRole')==='Super Admin' || JSON.parse(sessionStorage.getItem('userPermissions')||"[]").includes('edit_surat_masuk');
                 if(r.data) r.data.forEach(d=>{
                     let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';
@@ -300,7 +324,9 @@
             showLoading(true);
             fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
                 showLoading(false);
-                const dt=$('#tableArsipKeluar').DataTable({destroy:true}); dt.clear();
+                // order: [[0, 'desc']] -> Sort by Column 0 (Agenda) Descending
+                const dt=$('#tableArsipKeluar').DataTable({destroy:true, order:[[0,'desc']]}); 
+                dt.clear();
                 const canEdit = sessionStorage.getItem('userRole')==='Super Admin' || JSON.parse(sessionStorage.getItem('userPermissions')||"[]").includes('edit_surat_keluar');
                 if(r.data) r.data.forEach(d=>{
                     let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';

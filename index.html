@@ -106,20 +106,18 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
         
-        /* --- TSParticles Container (Updated for Z-Index Switching) --- */
+        /* --- TSParticles Container --- */
         #tsparticles {
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 150; /* Awal: Di atas pintu (Login Mode) */
+            z-index: 150; 
             pointer-events: none;
             transition: opacity 1.5s ease, filter 1.5s ease;
         }
-
-        /* Kelas untuk memindahkan partikel ke belakang setelah login */
         #tsparticles.in-background {
-            z-index: 0 !important; /* Pindah ke paling belakang */
-            opacity: 0.3 !important; /* Jadi transparan */
-            filter: blur(1px); /* Sedikit blur untuk efek depth of field */
+            z-index: 0 !important; 
+            opacity: 0.3 !important; 
+            filter: blur(1px); 
         }
 
         /* --- Motivational Quote Styles --- */
@@ -228,6 +226,7 @@
 
         #loadingOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); }
         .restricted-feature { display: none !important; }
+        .input-menu-hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -285,33 +284,48 @@
                 
                 <div class="sidebar-menu-scroll">
                     <div class="nav flex-column nav-pills">
-                        <button class="nav-link active restricted-feature" data-perm="input_masuk" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-plus-circle"></i> Surat Masuk</button>
-                        <button class="nav-link restricted-feature" data-perm="input_keluar" id="btn-input-keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
-
+                        
+                        <!-- 1. MENU INBOX & ARSIP (View Only) - Muncul untuk SEMUA User -->
                         <div class="sidebar-divider"></div>
+                        <small class="text-white-50 px-3 mt-2 mb-1">Inbox & Arsip</small>
+                        
+                        <button class="nav-link w-100 d-flex justify-content-between mb-2 text-warning border border-warning" id="btn-my-inbox" onclick="loadMyHistory()">
+                            <span><i class="fas fa-inbox me-2"></i> <b>Inbox Saya</b></span> 
+                            <span class="badge-count" id="count-my-inbox">0</span>
+                        </button>
+                        
+                        <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)"><i class="fas fa-inbox"></i> Arsip Masuk (All)</button>
+                        <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)"><i class="fas fa-archive"></i> Arsip Keluar (All)</button>
 
-                        <a class="nav-link text-warning" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
-                            <i class="fas fa-tasks"></i> Menu Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
-                        </a>
-                        <div class="collapse submenu" id="submenuDisposisi">
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_direktur" id="btn-disp-direktur" onclick="openDisposisiPage('direktur', this)"><span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_admin" id="btn-disp-wadir-admin" onclick="openDisposisiPage('wadir_admin', this)"><span style="font-size:0.85em">2a. Wadir Adm</span> <span class="badge-count" id="count-wadir_admin">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_pelayanan" id="btn-disp-wadir-pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)"><span style="font-size:0.85em">2b. Wadir Pel</span> <span class="badge-count" id="count-wadir_pelayanan">0</span></button>
-                            
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_umum" id="btn-disp-kabag-umum" onclick="openDisposisiPage('kabag_umum', this)"><span style="font-size:0.85em">3a. Kabag Umum</span> <span class="badge-count" id="count-kabag_umum">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_keuangan" id="btn-disp-kabag-keuangan" onclick="openDisposisiPage('kabag_keuangan', this)"><span style="font-size:0.85em">3b. Kabag Keu</span> <span class="badge-count" id="count-kabag_keuangan">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_progpel" id="btn-disp-kabag-progpel" onclick="openDisposisiPage('kabag_progpel', this)"><span style="font-size:0.85em">3c. Kabag Prog</span> <span class="badge-count" id="count-kabag_progpel">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_yanmed" id="btn-disp-kabid-yanmed" onclick="openDisposisiPage('kabid_yanmed', this)"><span style="font-size:0.85em">3d. Kabid Yanmed</span> <span class="badge-count" id="count-kabid_yanmed">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_keperawatan" id="btn-disp-kabid-kep" onclick="openDisposisiPage('kabid_keperawatan', this)"><span style="font-size:0.85em">3e. Kabid Kep</span> <span class="badge-count" id="count-kabid_keperawatan">0</span></button>
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_penunjang" id="btn-disp-kabid-penunjang" onclick="openDisposisiPage('kabid_penunjang', this)"><span style="font-size:0.85em">3f. Kabid Penunj</span> <span class="badge-count" id="count-kabid_penunjang">0</span></button>
-                            
-                            <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_jf" id="btn-disp-jf" onclick="openDisposisiPage('jf', this)"><span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span></button>
+                        <!-- 2. MENU INPUT / OPERATOR (Action Only) - Muncul jika punya izin -->
+                        <div id="input-menu-container" class="input-menu-hidden">
+                            <div class="sidebar-divider"></div>
+                            <small class="text-white-50 px-3 mt-2 mb-1">Tugas Input Disposisi</small>
+
+                            <button class="nav-link restricted-feature" data-perm="input_masuk" id="btn-input-masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-plus-circle"></i> Catat Surat Masuk</button>
+                            <button class="nav-link restricted-feature" data-perm="input_keluar" id="btn-input-keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Catat Surat Keluar</button>
+
+                            <a class="nav-link text-white mt-1" data-bs-toggle="collapse" href="#submenuDisposisi" role="button" aria-expanded="false">
+                                <i class="fas fa-pen-nib"></i> Form Disposisi <i class="fas fa-chevron-down ms-auto small"></i>
+                            </a>
+                            <div class="collapse submenu" id="submenuDisposisi">
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_direktur" onclick="openDisposisiPage('direktur', this)"><span>1. Direktur</span> <span class="badge-count" id="count-direktur">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_admin" onclick="openDisposisiPage('wadir_admin', this)"><span style="font-size:0.85em">2a. Wadir Adm</span> <span class="badge-count" id="count-wadir_admin">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_wadir_pelayanan" onclick="openDisposisiPage('wadir_pelayanan', this)"><span style="font-size:0.85em">2b. Wadir Pel</span> <span class="badge-count" id="count-wadir_pelayanan">0</span></button>
+                                
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)"><span style="font-size:0.85em">3a. Kabag Umum</span> <span class="badge-count" id="count-kabag_umum">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_keuangan" onclick="openDisposisiPage('kabag_keuangan', this)"><span style="font-size:0.85em">3b. Kabag Keu</span> <span class="badge-count" id="count-kabag_keuangan">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabag_progpel" onclick="openDisposisiPage('kabag_progpel', this)"><span style="font-size:0.85em">3c. Kabag Prog</span> <span class="badge-count" id="count-kabag_progpel">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_yanmed" onclick="openDisposisiPage('kabid_yanmed', this)"><span style="font-size:0.85em">3d. Kabid Yanmed</span> <span class="badge-count" id="count-kabid_yanmed">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_keperawatan" onclick="openDisposisiPage('kabid_keperawatan', this)"><span style="font-size:0.85em">3e. Kabid Kep</span> <span class="badge-count" id="count-kabid_keperawatan">0</span></button>
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_kabid_penunjang" onclick="openDisposisiPage('kabid_penunjang', this)"><span style="font-size:0.85em">3f. Kabid Penunj</span> <span class="badge-count" id="count-kabid_penunjang">0</span></button>
+                                
+                                <button class="nav-link w-100 d-flex justify-content-between restricted-feature" data-perm="disp_jf" onclick="openDisposisiPage('jf', this)"><span>4. JF (Final)</span> <span class="badge-count" id="count-jf">0</span></button>
+                            </div>
                         </div>
 
+                        <!-- 3. MENU SYSTEM -->
                         <div class="sidebar-divider"></div>
-                        <button class="nav-link restricted-feature" data-perm="arsip_masuk" id="btn-arsip-masuk" onclick="activateTab('arsip-masuk-content', this, loadDataMasuk)"><i class="fas fa-inbox"></i> Arsip Masuk</button>
-                        <button class="nav-link restricted-feature" data-perm="arsip_keluar" id="btn-arsip-keluar" onclick="activateTab('arsip-keluar-content', this, loadDataKeluar)"><i class="fas fa-archive"></i> Arsip Keluar</button>
-                        
                         <!-- BACKUP BUTTONS -->
                         <button class="nav-link restricted-feature text-warning mt-2" data-perm="backup_data" id="btn-backup" onclick="downloadBackup()"><i class="fas fa-download"></i> Backup Data</button>
                         <button class="nav-link restricted-feature text-info btn-sm" style="font-size:0.8rem; margin-left:15px; margin-top:-5px;" data-perm="backup_data" id="btn-auto-backup" onclick="activateAutoBackup()"><i class="fas fa-robot"></i> Aktifkan Email Harian</button>
@@ -335,7 +349,7 @@
                 <div class="tab-content">
                     
                     <!-- INPUT MASUK -->
-                    <div class="tab-pane active show" id="input-masuk-content">
+                    <div class="tab-pane" id="input-masuk-content">
                         <div class="form-container-limit">
                             <h2 class="mb-4 fw-light text-white">Catat <b class="text-info">Surat Masuk</b></h2>
                             <div class="card">
@@ -381,13 +395,13 @@
                         </div>
                     </div>
 
-                    <!-- DISPOSISI -->
-                    <div class="tab-pane" id="disposisi-container">
-                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Inbox Disposisi: <b class="text-warning" id="dispPageTitle">Direktur</b></h2><button class="btn btn-outline-light" onclick="refreshCurrentDisposisi()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                    <!-- DISPOSISI & INBOX SAYA (Container di-share) -->
+                    <div class="tab-pane active show" id="disposisi-container">
+                        <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Inbox: <b class="text-warning" id="dispPageTitle">Inbox Saya</b></h2><button class="btn btn-outline-light" onclick="refreshCurrentView()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                         <div class="card shadow-lg">
-                            <div class="card-header border-bottom"><i class="fas fa-tasks me-2"></i> Daftar Tunggu</div>
+                            <div class="card-header border-bottom"><i class="fas fa-tasks me-2"></i> Daftar Surat</div>
                             <div class="card-body">
-                                <div class="table-responsive"><table id="tableDisposisi" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>File</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
+                                <div class="table-responsive"><table id="tableDisposisi" class="table table-striped table-hover table-sm w-100 align-middle"><thead><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>File</th><th>Status / Aksi</th></tr></thead><tbody></tbody></table></div>
                             </div>
                         </div>
                     </div>
@@ -495,22 +509,7 @@
                             </div>
                         </div>
 
-                        <div class="card shadow-lg">
-                            <div class="card-header bg-light border-bottom"><i class="fas fa-table me-2"></i> Data Surat Keluar</div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="tableKeluar" class="table table-striped table-hover table-sm w-100 align-middle">
-                                        <thead>
-                                            <tr><th>Agenda</th><th>Tgl Diterima</th><th>No. Surat</th><th>Tujuan</th><th>Perihal</th><th>Pembuat</th><th>Status</th><th>Aksi</th></tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SETTINGS PAGE (Super Admin) - MODIFIED FOR STORAGE MANAGEMENT -->
+                        <!-- SETTINGS PAGE (Super Admin) - MODIFIED FOR STORAGE MANAGEMENT -->
                     <div class="tab-pane" id="settings-content">
                         <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna & Sistem</b></h2><button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                         
@@ -685,6 +684,7 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentLevel = ""; 
         let currentUserEmail = "";
+        let currentViewMode = ""; // 'action' or 'history'
         
         // --- DATA CACHE PATTERN (Robustness Fix) ---
         const DATA_CACHE = {
@@ -708,7 +708,10 @@
                 loadCounters();
                 loadRefCodes();
                 renderSidebarPermissions();
-                restoreState(); 
+                
+                // RESTORE STATE MODIFIED
+                // restoreState(); // Disabled for now to force load inbox/history on login for better UX
+                loadMyHistory(); // Default view on login
             }
             
             const today = new Date();
@@ -733,6 +736,14 @@
             
             $('button[onclick^="activateTab"]').on('click', function (e) { $('.submenu .nav-link').removeClass('active'); });
         });
+
+        function refreshCurrentView() {
+            if (currentViewMode === 'history') {
+                loadMyHistory();
+            } else if (currentViewMode === 'action') {
+                refreshCurrentDisposisi();
+            }
+        }
 
         // --- NEW: STORAGE MANAGEMENT LOGIC ---
         function loadStorageStats() {
@@ -799,283 +810,264 @@
             }); 
         }
 
-        // --- SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT MASUK ---
+        // --- SERVER SIDE SEARCH FUNCTIONS ---
         function performServerSideSearch() {
             const tgl1 = $('#advM_Tgl1').val();
             const tgl2 = $('#advM_Tgl2').val();
             const kode = $('#advM_Kode').val();
             const keyword = $('#advM_Key').val();
-
             if (!tgl1 && !tgl2 && !kode && !keyword) { return Swal.fire('Info', 'Isi minimal satu kriteria pencarian.', 'info'); }
-
             showLoading(true);
             $('#masukDataStatus').text('Mencari di Server...').removeClass('bg-secondary bg-success').addClass('bg-warning text-dark');
             DATA_CACHE.masuk.clear(); 
-
             fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({ type: 'search_masuk_server', startDate: tgl1, endDate: tgl2, kode: kode, keyword: keyword })
-            })
-            .then(r => r.json())
-            .then(r => {
+            }).then(r => r.json()).then(r => {
                 showLoading(false);
                 if (r.status === 'success') {
-                    const dt = $('#tableMasuk').DataTable();
-                    dt.clear();
-                    renderTableMasukRows(dt, r.data); 
-                    dt.draw();
+                    const dt = $('#tableMasuk').DataTable(); dt.clear(); renderTableMasukRows(dt, r.data); dt.draw();
                     const count = r.data.length;
                     $('#masukDataStatus').text(`Hasil Pencarian: ${count} Data`).removeClass('bg-warning bg-secondary text-dark').addClass('bg-primary');
                     if (count === 0) Swal.fire('Info', 'Tidak ditemukan data yang cocok.', 'info');
                 } else { Swal.fire('Error', r.message, 'error'); }
-            })
-            .catch(e => { showLoading(false); Swal.fire('Error', 'Gagal melakukan pencarian server', 'error'); });
+            }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal melakukan pencarian server', 'error'); });
         }
 
-        // --- SERVER SIDE SEARCH FUNCTION (HYBRID) FOR SURAT KELUAR ---
         function performServerSideSearchKeluar() {
             const tgl1 = $('#advK_Tgl1').val();
             const tgl2 = $('#advK_Tgl2').val();
             const keyword = $('#advK_Key').val();
-
             if (!tgl1 && !tgl2 && !keyword) { return Swal.fire('Info', 'Isi minimal satu kriteria pencarian.', 'info'); }
-
             showLoading(true);
             $('#keluarDataStatus').text('Mencari di Server...').removeClass('bg-secondary bg-success').addClass('bg-warning text-dark');
             DATA_CACHE.keluar.clear(); 
-
             fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({ type: 'search_keluar_server', startDate: tgl1, endDate: tgl2, keyword: keyword })
-            })
-            .then(r => r.json())
-            .then(r => {
+            }).then(r => r.json()).then(r => {
                 showLoading(false);
                 if (r.status === 'success') {
-                    const dt = $('#tableKeluar').DataTable();
-                    dt.clear();
-                    renderTableKeluarRows(dt, r.data); 
-                    dt.draw();
+                    const dt = $('#tableKeluar').DataTable(); dt.clear(); renderTableKeluarRows(dt, r.data); dt.draw();
                     const count = r.data.length;
                     $('#keluarDataStatus').text(`Hasil Pencarian: ${count} Data`).removeClass('bg-warning bg-secondary text-dark').addClass('bg-primary');
                     if (count === 0) Swal.fire('Info', 'Tidak ditemukan data yang cocok.', 'info');
                 } else { Swal.fire('Error', r.message, 'error'); }
-            })
-            .catch(e => { showLoading(false); Swal.fire('Error', 'Gagal melakukan pencarian server', 'error'); });
+            }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal melakukan pencarian server', 'error'); });
         }
 
         function renderTableMasukRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
             const permissions = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
             const canCorrect = userRole === 'Super Admin' || permissions.includes('correction_admin');
-            
             dataRows.forEach(row => {
                 DATA_CACHE.masuk.set(String(row[1]), row);
                 const safeRowId = safeId(row[1]);
-
-                let dateTerima = '-';
-                if (row[4]) { const d = new Date(row[4]); if (!isNaN(d.getTime())) dateTerima = d.toLocaleDateString('id-ID'); }
-                
+                let dateTerima = '-'; if (row[4]) { const d = new Date(row[4]); if (!isNaN(d.getTime())) dateTerima = d.toLocaleDateString('id-ID'); }
                 let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
-                let status = `<span class="badge bg-secondary">${row[20]}</span>`;
-                if(row[20] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
-                
+                let status = `<span class="badge bg-secondary">${row[20]}</span>`; if(row[20] === 'Selesai') status = `<span class="badge bg-success">Selesai</span>`;
                 let btnHistory = `<button class="btn btn-sm btn-light text-primary border" onclick="viewHistoryFromCache('${safeRowId}')"><i class="fas fa-eye"></i></button>`;
-                let btnEdit = '';
-                if (userRole === 'Admin' || userRole === 'Super Admin') {
-                    btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick="openEditMasukFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`;
-                }
-                
-                let btnCorrect = '';
-                if (canCorrect) {
-                    btnCorrect = `<button class="btn btn-sm btn-outline-danger ms-1" onclick="openCorrectionModalFromCache('${safeRowId}')" title="Koreksi Salah Tujuan"><i class="fas fa-route"></i></button>`;
-                }
-
+                let btnEdit = ''; if (userRole === 'Admin' || userRole === 'Super Admin') { btnEdit = `<button class="btn btn-sm btn-light text-warning border ms-1" onclick="openEditMasukFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
+                let btnCorrect = ''; if (canCorrect) { btnCorrect = `<button class="btn btn-sm btn-outline-danger ms-1" onclick="openCorrectionModalFromCache('${safeRowId}')" title="Koreksi Salah Tujuan"><i class="fas fa-route"></i></button>`; }
                 let btnPrint = `<button class="btn btn-sm btn-dark text-warning border ms-1" onclick="printDisposisi('${row[1]}')"><i class="fas fa-print"></i></button>`;
-                let actions = `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnCorrect}${btnPrint}</div>`;
-
-                dtInstance.row.add([ dateTerima, row[1], row[5], perihalHtml, status, actions ]);
+                dtInstance.row.add([ dateTerima, row[1], row[5], perihalHtml, status, `<div class="d-flex gap-1 justify-content-center">${btnHistory}${btnEdit}${btnCorrect}${btnPrint}</div>` ]);
             });
             dtInstance.order([1, 'desc']); 
         }
 
         function renderTableKeluarRows(dtInstance, dataRows) {
             const userRole = sessionStorage.getItem('userRole');
-            
             dataRows.forEach(row => {
                 DATA_CACHE.keluar.set(String(row[1]), row);
                 const safeRowId = safeId(row[1]);
-
-                let dateDiterima = '-';
-                if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
-                
+                let dateDiterima = '-'; if (row[3]) { const d = new Date(row[3]); if (!isNaN(d.getTime())) dateDiterima = d.toLocaleDateString('id-ID'); }
                 let perihalHtml = row[7] ? `<a href="${row[7]}" target="_blank" class="fw-bold text-decoration-none text-primary">${row[6]} <i class="fas fa-external-link-alt small"></i></a>` : row[6];
-                
-                let statusText = row[9] || "Proses";
-                let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
-                
-                let btnEdit = '';
-                if (userRole === 'Admin' || userRole === 'Super Admin') {
-                    btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick="openEditKeluarFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`;
-                }
-
-                let actions = `<div class="d-flex gap-1">${status}${btnEdit}</div>`;
-                
-                dtInstance.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, actions ]);
+                let statusText = row[9] || "Proses"; let status = statusText === 'Selesai' ? `<span class="badge bg-success">Selesai</span>` : `<span class="badge bg-warning text-dark">Proses</span> <button class="btn btn-sm btn-outline-success ms-2 py-0" onclick="updateStatusSelesai('${row[1]}')"><i class="fas fa-check"></i></button>`;
+                let btnEdit = ''; if (userRole === 'Admin' || userRole === 'Super Admin') { btnEdit = `<button class="btn btn-sm btn-light text-primary border py-0" onclick="openEditKeluarFromCache('${safeRowId}')"><i class="fas fa-pencil"></i></button>`; }
+                dtInstance.row.add([ row[1], dateDiterima, row[2], row[5], perihalHtml, (row[8] || ""), statusText, `<div class="d-flex gap-1">${status}${btnEdit}</div>` ]);
             });
             dtInstance.order([0, 'desc']);
+        }
+
+        // --- NEW: INBOX / HISTORY FUNCTION ---
+        function loadMyHistory() {
+            currentViewMode = 'history';
+            
+            // UI Handling
+            $('.nav-link').removeClass('active');
+            $('#btn-my-inbox').addClass('active');
+            $('.tab-pane').removeClass('show active');
+            $('#disposisi-container').addClass('active show'); 
+            
+            $('#dispPageTitle').html('INBOX SAYA <small class="fs-6">(Riwayat)</small>');
+            
+            showLoading(true);
+            
+            // Note: action 'read_my_history' belum ada di backend (Tahap 2),
+            // jadi saat ini mungkin akan return empty atau error, tapi logic frontend sudah siap.
+            fetch(`${GAS_URL}?action=read_my_history&email=${encodeURIComponent(currentUserEmail)}`)
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                const dt = $('#tableDisposisi').DataTable();
+                dt.clear();
+                
+                // Clear Disposisi cache to avoid conflicts
+                DATA_CACHE.disposisi.clear();
+
+                if (r.status === 'success' && r.data) {
+                    r.data.forEach(row => {
+                        DATA_CACHE.disposisi.set(String(row[1]), row);
+                        const safeRowId = safeId(row[1]);
+
+                        let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-';
+                        let statusBadge = `<span class="badge bg-secondary">${row[20]}</span>`;
+                        if(row[20] && row[20].includes("Selesai")) statusBadge = `<span class="badge bg-success">Selesai</span>`;
+                        
+                        // Button View History only (Action is separated)
+                        let btnAction = `<button class="btn btn-sm btn-light border fw-bold" onclick="viewHistoryFromCache('${safeRowId}')"><i class="fas fa-eye me-1"></i> Lacak</button>`;
+                        
+                        dt.row.add([ 
+                            new Date(row[4]).toLocaleDateString('id-ID'), 
+                            row[1], // Agenda
+                            row[5], // Pengirim
+                            row[6], // Perihal
+                            btnFile, 
+                            `${statusBadge} <div class="mt-1">${btnAction}</div>`
+                        ]);
+                    });
+                    dt.draw();
+                    $('#count-my-inbox').text(r.data.length).show();
+                    $('#count-my-inbox').addClass('has-data');
+                } else {
+                    // Fallback jika backend belum siap (Tahap 1)
+                    if(r.message && r.message.includes('Action not found')) {
+                         // Silent fail or default empty
+                    }
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                console.error(e);
+            });
         }
 
         // --- CORRECTION MODAL LOGIC ---
         function openCorrectionModalFromCache(id) {
             const row = DATA_CACHE.masuk.get(decodeURIComponent(id));
             if(!row) return Swal.fire('Error', 'Data tidak ditemukan', 'error');
-
             $('#corrNoAgenda').val(row[1]);
-            
-            let level = "";
-            let currentTarget = "";
-            
+            let level = ""; let currentTarget = "";
             if (row[17]) { level = "jf"; currentTarget = row[17]; } 
             else if (row[14]) { level = "kabid"; currentTarget = row[14]; } 
             else if (row[11]) { level = "wadir"; currentTarget = row[11]; } 
             else if (row[8]) { level = "direktur"; currentTarget = row[8]; } 
             else { return Swal.fire('Info', 'Surat belum didisposisi sama sekali.', 'info'); }
-
             $('#corrLevel').val(level.toUpperCase());
             $('#corrOldTarget').val(currentTarget);
             $('#corrNewTarget').val('');
-            
-            const datalist = $('#listCorrectionTargets');
-            datalist.empty();
-            
-            if (level === 'direktur') {
-                datalist.append('<option value="Wadir Pelayanan">');
-                datalist.append('<option value="Wadir Admin & Keuangan">');
-            } else if (level === 'wadir') {
-                Object.values(structureOrg).flat().forEach(v => datalist.append(`<option value="${v}">`));
-            } else if (level === 'kabid' || level === 'jf') {
-                let allSubs = [];
-                DATA_CACHE.users.forEach(u => {
-                    allSubs.push(u.name);
-                    try { JSON.parse(u.subordinates || "[]").forEach(s => allSubs.push(s)); } catch(e){}
-                });
-                [...new Set(allSubs)].sort().forEach(s => datalist.append(`<option value="${s}">`));
-            }
-
+            const datalist = $('#listCorrectionTargets'); datalist.empty();
+            if (level === 'direktur') { datalist.append('<option value="Wadir Pelayanan">'); datalist.append('<option value="Wadir Admin & Keuangan">'); } 
+            else if (level === 'wadir') { Object.values(structureOrg).flat().forEach(v => datalist.append(`<option value="${v}">`)); } 
+            else if (level === 'kabid' || level === 'jf') { let allSubs = []; DATA_CACHE.users.forEach(u => { allSubs.push(u.name); try { JSON.parse(u.subordinates || "[]").forEach(s => allSubs.push(s)); } catch(e){} }); [...new Set(allSubs)].sort().forEach(s => datalist.append(`<option value="${s}">`)); }
             new bootstrap.Modal(document.getElementById('modalCorrection')).show();
         }
 
         function submitCorrection() {
-            const noAgenda = $('#corrNoAgenda').val();
-            const level = $('#corrLevel').val().toLowerCase();
-            const newTarget = $('#corrNewTarget').val();
-
+            const noAgenda = $('#corrNoAgenda').val(); const level = $('#corrLevel').val().toLowerCase(); const newTarget = $('#corrNewTarget').val();
             if (!newTarget) return Swal.fire('Error', 'Target baru harus diisi', 'warning');
-
-            bootstrap.Modal.getInstance(document.getElementById('modalCorrection')).hide();
-            showLoading(true);
-
-            fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    type: 'correct_disposisi_target',
-                    noAgenda: noAgenda,
-                    targetLevel: level,
-                    newTarget: newTarget,
-                    requestor: currentUserEmail
-                })
-            })
-            .then(r => r.json())
-            .then(r => {
-                showLoading(false);
-                if (r.status === 'success') {
-                    Swal.fire('Sukses', 'Tujuan disposisi berhasil dikoreksi.', 'success');
-                    loadDataMasuk();
-                } else {
-                    Swal.fire('Gagal', r.message, 'error');
-                }
-            })
-            .catch(e => {
-                showLoading(false);
-                Swal.fire('Error', 'Koneksi gagal', 'error');
-            });
+            bootstrap.Modal.getInstance(document.getElementById('modalCorrection')).hide(); showLoading(true);
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'correct_disposisi_target', noAgenda: noAgenda, targetLevel: level, newTarget: newTarget, requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { Swal.fire('Sukses', 'Tujuan disposisi berhasil dikoreksi.', 'success'); loadDataMasuk(); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi gagal', 'error'); });
         }
 
-        // --- TRAMPOLINE FUNCTIONS FOR CACHE (ROBUSTNESS) ---
-        function openDisposisiModalFromCache(id) {
-            const rowData = DATA_CACHE.disposisi.get(decodeURIComponent(id));
-            if(rowData) openModalAction(rowData);
-            else Swal.fire('Error', 'Data cache tidak ditemukan (refresh halaman).', 'error');
-        }
+        // --- TRAMPOLINE FUNCTIONS FOR CACHE ---
+        function openDisposisiModalFromCache(id) { const rowData = DATA_CACHE.disposisi.get(decodeURIComponent(id)); if(rowData) openModalAction(rowData); else Swal.fire('Error', 'Data cache tidak ditemukan (refresh halaman).', 'error'); }
+        function viewHistoryFromCache(id) { const rowData = DATA_CACHE.masuk.get(decodeURIComponent(id)) || DATA_CACHE.disposisi.get(decodeURIComponent(id)); if(rowData) viewHistory(rowData); }
+        function openEditMasukFromCache(id) { const rowData = DATA_CACHE.masuk.get(decodeURIComponent(id)); if(rowData) openEditMasuk(rowData); }
+        function openEditKeluarFromCache(id) { const rowData = DATA_CACHE.keluar.get(decodeURIComponent(id)); if(rowData) openEditKeluar(rowData); }
+        function openEditUserFromCache(encodedEmail) { const email = decodeURIComponent(encodedEmail); const user = DATA_CACHE.users.get(email); if(user) openEditUser(user); }
+        function openManageSubordinatesFromCache(encodedEmail) { const email = decodeURIComponent(encodedEmail); const user = DATA_CACHE.users.get(email); if(user) openManageSubordinates(user); }
 
-        function viewHistoryFromCache(id) {
-            const rowData = DATA_CACHE.masuk.get(decodeURIComponent(id));
-            if(rowData) viewHistory(rowData);
-        }
-
-        function openEditMasukFromCache(id) {
-            const rowData = DATA_CACHE.masuk.get(decodeURIComponent(id));
-            if(rowData) openEditMasuk(rowData);
-        }
-
-        function openEditKeluarFromCache(id) {
-            const rowData = DATA_CACHE.keluar.get(decodeURIComponent(id));
-            if(rowData) openEditKeluar(rowData);
-        }
-
-        function openEditUserFromCache(encodedEmail) {
-            const email = decodeURIComponent(encodedEmail);
-            const user = DATA_CACHE.users.get(email);
-            if(user) openEditUser(user);
-        }
-
-        function openManageSubordinatesFromCache(encodedEmail) {
-            const email = decodeURIComponent(encodedEmail);
-            const user = DATA_CACHE.users.get(email);
-            if(user) openManageSubordinates(user);
-        }
-
-        // --- LOAD DATA FUNCTIONS (MODIFIED) ---
+        // --- LOAD DATA FUNCTIONS ---
         function loadDataMasuk() {
             $('#advM_Tgl1').val(''); $('#advM_Tgl2').val(''); $('#advM_Kode').val(''); $('#advM_Key').val('');
-            showLoading(true); 
-            $('#masukDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
+            showLoading(true); $('#masukDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
             DATA_CACHE.masuk.clear(); 
-
             fetch(`${GAS_URL}?action=read_masuk`).then(r=>r.json()).then(r=>{
-                showLoading(false);
-                const dt = $('#tableMasuk').DataTable(); 
-                dt.clear();
-                if(r.data) {
-                    renderTableMasukRows(dt, r.data);
-                    dt.draw();
-                    $('#masukDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success');
-                }
+                showLoading(false); const dt = $('#tableMasuk').DataTable(); dt.clear();
+                if(r.data) { renderTableMasukRows(dt, r.data); dt.draw(); $('#masukDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success'); }
             });
         }
 
         function loadDataKeluar() {
             $('#advK_Tgl1').val(''); $('#advK_Tgl2').val(''); $('#advK_Key').val('');
-            showLoading(true);
-            $('#keluarDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
+            showLoading(true); $('#keluarDataStatus').text('Memuat...').removeClass('bg-success bg-primary').addClass('bg-secondary');
             DATA_CACHE.keluar.clear(); 
-
             fetch(`${GAS_URL}?action=read_keluar`).then(r=>r.json()).then(r=>{
-                showLoading(false);
-                const dt = $('#tableKeluar').DataTable(); 
-                dt.clear();
-                if(r.data) {
-                    renderTableKeluarRows(dt, r.data);
-                    dt.draw();
-                    $('#keluarDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success');
-                }
+                showLoading(false); const dt = $('#tableKeluar').DataTable(); dt.clear();
+                if(r.data) { renderTableKeluarRows(dt, r.data); dt.draw(); $('#keluarDataStatus').text('Data Terbaru (Maks. 1000)').removeClass('bg-secondary').addClass('bg-success'); }
             });
         }
 
         function loadRefCodes() { fetch(`${GAS_URL}?action=get_ref_codes`).then(r => r.json()).then(r => { if (r.status === 'success' && r.data) { const list = $('#listKodeKlarifikasi'); const listEdit = $('#listKodeKlarifikasiEdit'); list.empty(); listEdit.empty(); r.data.forEach(item => { const option = `<option value="${item.code}">${item.desc}</option>`; list.append(option); listEdit.append(option); }); } }); }
-        function handleCredentialResponse(response) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'google_login', credential: response.credential }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { sessionStorage.setItem('isLoggedIn', 'true'); sessionStorage.setItem('userEmail', r.data.email); sessionStorage.setItem('userRole', r.data.role); sessionStorage.setItem('userPermissions', JSON.stringify(r.data.permissions)); sessionStorage.setItem('userSubordinates', JSON.stringify(r.data.subordinates)); sessionStorage.setItem('userName', r.data.name); currentUserEmail = r.data.email; showApp(); loadCounters(); loadRefCodes(); renderSidebarPermissions(); } else { Swal.fire({ icon: 'error', title: 'Login Gagal', text: r.message }); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi Gagal', 'error'); }); }
-        function renderSidebarPermissions() { const role = sessionStorage.getItem('userRole'); const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]"); const name = sessionStorage.getItem('userName'); $('#userDisplayName').text(name); $('#userRoleBadge').text(role); $('.restricted-feature').addClass('restricted-feature'); if (role === 'Super Admin') { $('.restricted-feature').removeClass('restricted-feature'); return; } if (perms && Array.isArray(perms)) { perms.forEach(p => { $(`[data-perm="${p}"]`).removeClass('restricted-feature'); }); } }
+        
+        function handleCredentialResponse(response) { 
+            showLoading(true); 
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'google_login', credential: response.credential }) }).then(r => r.json()).then(r => { 
+                showLoading(false); 
+                if (r.status === 'success') { 
+                    sessionStorage.setItem('isLoggedIn', 'true'); 
+                    sessionStorage.setItem('userEmail', r.data.email); 
+                    sessionStorage.setItem('userRole', r.data.role); 
+                    sessionStorage.setItem('userPermissions', JSON.stringify(r.data.permissions)); 
+                    sessionStorage.setItem('userSubordinates', JSON.stringify(r.data.subordinates)); 
+                    sessionStorage.setItem('userName', r.data.name); 
+                    currentUserEmail = r.data.email; 
+                    showApp(); 
+                    loadCounters(); 
+                    loadRefCodes(); 
+                    renderSidebarPermissions(); 
+                    // Direct to Inbox
+                    loadMyHistory();
+                } else { Swal.fire({ icon: 'error', title: 'Login Gagal', text: r.message }); } 
+            }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi Gagal', 'error'); }); 
+        }
+        
+        // --- NEW: RENDER PERMISSIONS LOGIC (HIDE INPUT FOR STAF VIEW-ONLY) ---
+        function renderSidebarPermissions() { 
+            const role = sessionStorage.getItem('userRole'); 
+            const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]"); 
+            const name = sessionStorage.getItem('userName'); 
+            $('#userDisplayName').text(name); 
+            $('#userRoleBadge').text(role); 
+            
+            // 1. Reset all restricted
+            $('.restricted-feature').addClass('restricted-feature'); 
+            $('#input-menu-container').addClass('input-menu-hidden');
+
+            // 2. Super Admin Access
+            if (role === 'Super Admin') { 
+                $('.restricted-feature').removeClass('restricted-feature'); 
+                $('#input-menu-container').removeClass('input-menu-hidden');
+                return; 
+            } 
+            
+            // 3. Check for specific permissions
+            if (perms && Array.isArray(perms)) { 
+                let hasInputAccess = false;
+                perms.forEach(p => { 
+                    $(`[data-perm="${p}"]`).removeClass('restricted-feature'); 
+                    // Jika punya permission terkait disposisi atau input, tampilkan menu input
+                    if(p.startsWith('disp_') || p.startsWith('input_')) {
+                        hasInputAccess = true;
+                    }
+                }); 
+                
+                if(hasInputAccess) {
+                    $('#input-menu-container').removeClass('input-menu-hidden');
+                }
+            } 
+        }
         
         function loadUsers() { 
             showLoading(true); 
@@ -1086,20 +1078,17 @@
                 if ($.fn.DataTable.isDataTable('#tableUsers')) { $('#tableUsers').DataTable().clear().destroy(); } 
                 const table = $('#tableUsers').DataTable({ language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" }, autoWidth: false }); 
                 DATA_CACHE.users.clear(); 
-
                 if (r.status === 'success' && r.data) { 
                     r.data.forEach(u => { 
                         DATA_CACHE.users.set(u.email, u);
                         const safeEmail = safeId(u.email);
-
                         let btnEdit = `<button class="btn btn-sm btn-info text-white me-1" onclick="openEditUserFromCache('${safeEmail}')" title="Edit Akses"><i class="fas fa-edit"></i></button>`; 
                         let btnTeam = `<button class="btn btn-sm btn-warning text-dark" onclick="openManageSubordinatesFromCache('${safeEmail}')" title="Atur Bawahan"><i class="fas fa-users"></i></button>`; 
                         table.row.add([ u.email, u.name, u.role, u.status, btnEdit + btnTeam ]); 
                     }); 
                     table.draw(); 
                 }
-            })
-            .catch(e => { showLoading(false); console.error("Network error loadUsers:", e); });
+            }).catch(e => { showLoading(false); console.error("Network error loadUsers:", e); });
         }
 
         function openEditUser(user) { $('#editUserEmail').val(user.email); $('#editUserName').val(user.name); $('#editUserRole').val(user.role); $('#editUserStatus').val(user.status); $('.perm-check').prop('checked', false); try { const perms = JSON.parse(user.permissions); perms.forEach(p => { $(`.perm-check[value="${p}"]`).prop('checked', true); }); } catch(e){} new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
@@ -1108,134 +1097,58 @@
         function filterSubordinates() { const val = $('#searchSubordinate').val().toLowerCase(); $('.sub-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.indexOf(val) > -1); }); }
         function saveSubordinates() { const subs = []; $('.subord-check:checked').each(function() { subs.push($(this).val()); }); const payload = { type: 'update_user_subordinates', requestor: currentUserEmail, targetEmail: $('#subordTargetEmail').val(), subordinates: JSON.stringify(subs) }; bootstrap.Modal.getInstance(document.getElementById('modalManageSubordinates')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Tim berhasil diatur', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
         
-        // --- UPDATED: DYNAMIC MULTI-SELECT CHECKBOXES FOR DISPOSISI ---
+        // --- DYNAMIC MULTI-SELECT CHECKBOXES FOR DISPOSISI ---
         function openModalAction(rowData) { 
-            $('#actNoAgenda').val(rowData[1]); 
-            $('#actPerihal').text(rowData[6]); 
-            document.querySelector('#actTgl').valueAsDate = new Date(); 
-            $('#actInstruksi').val(''); 
-            $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); 
-            $('#prevDispInfo').addClass('d-none'); 
-            
-            // Logic Instruksi Sebelumnya (Preview)
+            $('#actNoAgenda').val(rowData[1]); $('#actPerihal').text(rowData[6]); document.querySelector('#actTgl').valueAsDate = new Date(); $('#actInstruksi').val(''); 
+            $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); $('#prevDispInfo').addClass('d-none'); 
             let prevLabel = ""; let prevText = ""; 
             if (currentLevel.includes('wadir')) { prevLabel = "Instruksi Direktur:"; prevText = rowData[9]; } 
             else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { prevLabel = "Instruksi Wadir:"; prevText = rowData[12]; } 
             else if (currentLevel === 'jf') { prevLabel = "Instruksi Kabag/Kabid:"; prevText = rowData[15]; } 
             if (prevLabel && prevText && prevText !== "") { $('#prevDispLabel').text(prevLabel); $('#prevDispText').text('"' + prevText + '"'); $('#prevDispInfo').removeClass('d-none'); } 
-            
-            // Populate Dynamic Checkboxes
-            const container = $('#actTargetContainer');
-            container.empty();
-            let options = [];
-
-            if (currentLevel === 'direktur') {
-                options = ["Wadir Pelayanan", "Wadir Admin & Keuangan"];
-            } else if (currentLevel.includes('wadir')) {
-                // Determine which Wadir is active based on permission or simple assumption
-                // Better: Show options based on logged-in user role if possible, or ALL options since Wadir sees all structure
-                if (currentLevel === 'wadir_pelayanan') options = structureOrg["Wadir Pelayanan"];
-                else if (currentLevel === 'wadir_admin') options = structureOrg["Wadir Admin & Keuangan"];
-                else {
-                    // Fallback or show all if ambiguous
-                    options = [...structureOrg["Wadir Pelayanan"], ...structureOrg["Wadir Admin & Keuangan"]];
-                }
-            } else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag') || currentLevel === 'jf') {
-                // Populate from Subordinates (Cached)
-                let subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]");
-                if (subs && subs.length > 0) options = subs;
-                else options = ["(Belum ada bawahan diset)"];
-            }
-
-            // Render Checkboxes
-            if(options.length > 0) {
-                options.forEach(opt => {
-                    const idSafe = opt.replace(/\s+/g, '_');
-                    const html = `
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="${opt}" id="chk_${idSafe}">
-                            <label class="form-check-label text-white" for="chk_${idSafe}">
-                                ${opt}
-                            </label>
-                        </div>
-                    `;
-                    container.append(html);
-                });
-            } else {
-                container.append('<div class="text-warning small fst-italic">Tidak ada target tersedia.</div>');
-            }
-
+            const container = $('#actTargetContainer'); container.empty(); let options = [];
+            if (currentLevel === 'direktur') { options = ["Wadir Pelayanan", "Wadir Admin & Keuangan"]; } 
+            else if (currentLevel.includes('wadir')) { if (currentLevel === 'wadir_pelayanan') options = structureOrg["Wadir Pelayanan"]; else if (currentLevel === 'wadir_admin') options = structureOrg["Wadir Admin & Keuangan"]; else { options = [...structureOrg["Wadir Pelayanan"], ...structureOrg["Wadir Admin & Keuangan"]]; } } 
+            else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag') || currentLevel === 'jf') { let subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); if (subs && subs.length > 0) options = subs; else options = ["(Belum ada bawahan diset)"]; }
+            if(options.length > 0) { options.forEach(opt => { const idSafe = opt.replace(/\s+/g, '_'); const html = `<div class="form-check"><input class="form-check-input" type="checkbox" value="${opt}" id="chk_${idSafe}"><label class="form-check-label text-white" for="chk_${idSafe}">${opt}</label></div>`; container.append(html); }); } else { container.append('<div class="text-warning small fst-italic">Tidak ada target tersedia.</div>'); }
             new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
         }
 
         function submitDisposisiLevel() { 
-            // Gather selected targets
-            const targets = [];
-            $('#actTargetContainer input:checked').each(function() {
-                targets.push($(this).val());
-            });
-
-            if (targets.length === 0) {
-                return Swal.fire('Peringatan', 'Pilih minimal satu tujuan disposisi.', 'warning');
-            }
-
-            const targetString = targets.join(", "); // Combine with comma
-
-            const formData = { 
-                type: 'update_disposisi_level', 
-                email: currentUserEmail, 
-                level: currentLevel, 
-                noAgenda: $('#actNoAgenda').val(), 
-                tglDisposisi: $('#actTgl').val(), 
-                instruksi: $('#actInstruksi').val() 
-            }; 
-            
-            if(currentLevel === 'direktur') formData.targetWadir = targetString; 
-            if(currentLevel.includes('wadir')) formData.targetBidang = targetString; 
-            if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { 
-                formData.targetJF = targetString; 
-                // Auto add to subordinates list if new names (logic handled in backend usually, but here we just pass string)
-            } 
-            if(currentLevel === 'jf') { 
-                formData.targetStaf = targetString; 
-            } 
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); 
-            showLoading(true); 
-            
-            // Note: AutoAddSubordinate logic in backend might need adjustment if it receives comma string. 
-            // Current backend logic handles string. Split there if needed, but for now simple storage is fine.
-            
-            sendData(formData, () => { 
-                refreshCurrentDisposisi(); 
-                loadCounters(); 
-                Swal.fire('Sukses', 'Disposisi Terkirim ke: ' + targetString, 'success'); 
-            }); 
+            const targets = []; $('#actTargetContainer input:checked').each(function() { targets.push($(this).val()); });
+            if (targets.length === 0) { return Swal.fire('Peringatan', 'Pilih minimal satu tujuan disposisi.', 'warning'); }
+            const targetString = targets.join(", "); 
+            const formData = { type: 'update_disposisi_level', email: currentUserEmail, level: currentLevel, noAgenda: $('#actNoAgenda').val(), tglDisposisi: $('#actTgl').val(), instruksi: $('#actInstruksi').val() }; 
+            if(currentLevel === 'direktur') formData.targetWadir = targetString; if(currentLevel.includes('wadir')) formData.targetBidang = targetString; 
+            if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { formData.targetJF = targetString; } if(currentLevel === 'jf') { formData.targetStaf = targetString; } 
+            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); 
+            sendData(formData, () => { refreshCurrentDisposisi(); loadCounters(); Swal.fire('Sukses', 'Disposisi Terkirim ke: ' + targetString, 'success'); }); 
         }
 
-        // --- EXISTING FUNCTIONS (Unchanged logic, just re-listing for completeness) ---
+        // --- EXISTING FUNCTIONS ---
         function restoreState() { const lastBtnId = sessionStorage.getItem('lastActiveBtn'); if(lastBtnId && $('#'+lastBtnId).length) { if($('#'+lastBtnId).closest('.submenu').length) { $('#submenuDisposisi').addClass('show'); $('a[href="#submenuDisposisi"]').removeClass('collapsed').attr('aria-expanded', 'true'); } $('#'+lastBtnId).click(); } }
         function loadCounters() { fetch(`${GAS_URL}?action=get_counts`).then(r=>r.json()).then(r => { if(r.status === 'success') { setCount('direktur', r.data.direktur); setCount('wadir_admin', r.data.wadir_admin); setCount('wadir_pelayanan', r.data.wadir_pelayanan); setCount('kabag_umum', r.data.kabag_umum); setCount('kabag_keuangan', r.data.kabag_keuangan); setCount('kabag_progpel', r.data.kabag_progpel); setCount('kabid_yanmed', r.data.kabid_yanmed); setCount('kabid_keperawatan', r.data.kabid_keperawatan); setCount('kabid_penunjang', r.data.kabid_penunjang); setCount('jf', r.data.jf); } }); fetch(`${GAS_URL}?action=get_auto_numbers`).then(r=>r.json()).then(r => { if(r.status === 'success') { $('input[name="noAgenda"]').val(r.data.masuk); $('#outNoAgenda').val(r.data.keluar); } }); }
         function openBookingModal() { Swal.fire({ title: 'Booking Nomor Agenda', text: 'Jumlah nomor:', input: 'number', showCancelButton: true, confirmButtonText: 'Booking', showLoaderOnConfirm: true, preConfirm: (amount) => { return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_keluar', amount: amount, email: currentUserEmail }) }).then(response => response.json()); } }).then((result) => { if (result.isConfirmed) { $('#outNoAgenda').val(result.value.data.nextAvailable); Swal.fire('Berhasil', `Nomor berikutnya: ${result.value.data.nextAvailable}`, 'success'); } }); }
         function setupSimpleForm(selector, type, msg) { $(selector).on('submit', async function(e) { e.preventDefault(); showLoading(true); let fileData = "", fileName = ""; const fileInput = $(this).find('input[type="file"]')[0]; if (fileInput.files.length > 0) { try { fileData = await readFileToBase64(fileInput.files[0]); fileName = fileInput.files[0].name; } catch(e) { showLoading(false); return Swal.fire('Error File', '', 'error'); } } const formData = { type: type, fileData: fileData, fileName: fileName, email: currentUserEmail }; $(this).serializeArray().forEach(item => formData[item.name] = item.value); sendData(formData, () => { $(selector)[0].reset(); document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date()); loadCounters(); Swal.fire('Sukses', msg, 'success'); }); }); }
         function logout() { Swal.fire({ title: 'Konfirmasi Logout', text: "Anda yakin ingin keluar?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('lastActiveBtn'); $('#appContent').stop().hide(); $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300); setTimeout(() => { location.reload(); }, 500); } }); }
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
-        function openDisposisiPage(level, element) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); }
+        
+        function openDisposisiPage(level, element) { 
+            currentViewMode = 'action';
+            if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); 
+            currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); 
+            let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); 
+        }
         
         function refreshCurrentDisposisi() { 
             showLoading(true); 
             fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`)
             .then(r=>r.json())
             .then(r => { 
-                showLoading(false); 
-                const dt = $('#tableDisposisi').DataTable(); 
-                dt.clear(); 
-                DATA_CACHE.disposisi.clear(); 
-
+                showLoading(false); const dt = $('#tableDisposisi').DataTable(); dt.clear(); DATA_CACHE.disposisi.clear(); 
                 if(r.data) r.data.forEach(row => { 
                     DATA_CACHE.disposisi.set(String(row[1]), row);
                     const safeRowId = safeId(row[1]);
-
                     let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; 
                     let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick="openDisposisiModalFromCache('${safeRowId}')">Proses</button>`; 
                     dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); 
@@ -1252,96 +1165,28 @@
         function loadLogs() { showLoading(true); fetch(`${GAS_URL}?action=read_log`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableLog').DataTable(); dt.clear(); if (r.data && r.data.length > 0) { r.data.forEach(row => { let timeStr = row[0]; try { const d = new Date(row[0]); if (!isNaN(d.getTime())) { timeStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); } } catch(e) {} dt.row.add([ timeStr, `<span class="text-primary fw-bold">${row[1]}</span>`, `<span class="badge bg-info text-dark">${row[2]}</span>`, row[3] ]); }); dt.order([0, 'desc']).draw(); } else { dt.draw(); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat log aktivitas', 'error'); }); }
         function openEditMasuk(row) { $('#editMasukNoAgenda').val(row[1]); $('#editMasukAgendaDisplay').val(row[1]); $('#editMasukNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; } $('#editMasukPengirim').val(row[5]); $('#editMasukPerihal').val(row[6]); if(row[21]) { $('#editMasukKode').val(row[21]); } else { $('#editMasukKode').val(''); } $('#editMasukFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }
         async function saveEditMasuk() { 
-            const fileInput = document.getElementById('editMasukFile');
-            let fileData = "", fileName = "";
-            if (fileInput.files.length > 0) {
-                try {
-                    fileData = await readFileToBase64(fileInput.files[0]);
-                    fileName = fileInput.files[0].name;
-                } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); }
-            }
-
-            const payload = { 
-                type: 'edit_surat_masuk', 
-                email: currentUserEmail, 
-                noAgenda: $('#editMasukNoAgenda').val(), 
-                noSurat: $('#editMasukNoSurat').val(), 
-                tglSurat: $('#editMasukTglSurat').val(), 
-                tglTerima: $('#editMasukTglTerima').val(), 
-                pengirim: $('#editMasukPengirim').val(), 
-                perihal: $('#editMasukPerihal').val(), 
-                kodeKlarifikasi: $('#editMasukKode').val(),
-                fileData: fileData,
-                fileName: fileName
-            }; 
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide(); 
-            showLoading(true); 
-            sendData(payload, () => { Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success'); loadDataMasuk(); }); 
+            const fileInput = document.getElementById('editMasukFile'); let fileData = "", fileName = "";
+            if (fileInput.files.length > 0) { try { fileData = await readFileToBase64(fileInput.files[0]); fileName = fileInput.files[0].name; } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); } }
+            const payload = { type: 'edit_surat_masuk', email: currentUserEmail, noAgenda: $('#editMasukNoAgenda').val(), noSurat: $('#editMasukNoSurat').val(), tglSurat: $('#editMasukTglSurat').val(), tglTerima: $('#editMasukTglTerima').val(), pengirim: $('#editMasukPengirim').val(), perihal: $('#editMasukPerihal').val(), kodeKlarifikasi: $('#editMasukKode').val(), fileData: fileData, fileName: fileName }; 
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success'); loadDataMasuk(); }); 
         }
         function openEditKeluar(row) { $('#editKeluarNoAgenda').val(row[1]); $('#editKeluarNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } $('#editKeluarTujuan').val(row[5]); $('#editKeluarPerihal').val(row[6]); $('#editKeluarPembuat').val(row[8]); $('#editKeluarFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }
         async function saveEditKeluar() { 
-            const fileInput = document.getElementById('editKeluarFile');
-            let fileData = "", fileName = "";
-            if (fileInput.files.length > 0) {
-                try {
-                    fileData = await readFileToBase64(fileInput.files[0]);
-                    fileName = fileInput.files[0].name;
-                } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); }
-            }
-
-            const payload = { 
-                type: 'edit_surat_keluar', 
-                email: currentUserEmail, 
-                noAgenda: $('#editKeluarNoAgenda').val(), 
-                noSurat: $('#editKeluarNoSurat').val(), 
-                tglDiterima: $('#editKeluarTglDiterima').val(), 
-                tglSurat: $('#editKeluarTglSurat').val(), 
-                tujuan: $('#editKeluarTujuan').val(), 
-                perihal: $('#editKeluarPerihal').val(), 
-                pembuat: $('#editKeluarPembuat').val(),
-                fileData: fileData,
-                fileName: fileName
-            }; 
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); 
-            showLoading(true); 
-            sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
+            const fileInput = document.getElementById('editKeluarFile'); let fileData = "", fileName = "";
+            if (fileInput.files.length > 0) { try { fileData = await readFileToBase64(fileInput.files[0]); fileName = fileInput.files[0].name; } catch(e) { return Swal.fire('Error File', 'Gagal membaca file', 'error'); } }
+            const payload = { type: 'edit_surat_keluar', email: currentUserEmail, noAgenda: $('#editKeluarNoAgenda').val(), noSurat: $('#editKeluarNoSurat').val(), tglDiterima: $('#editKeluarTglDiterima').val(), tglSurat: $('#editKeluarTglSurat').val(), tujuan: $('#editKeluarTujuan').val(), perihal: $('#editKeluarPerihal').val(), pembuat: $('#editKeluarPembuat').val(), fileData: fileData, fileName: fileName }; 
+            bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); showLoading(true); sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
         }
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
         
-        // --- NEW: SHOW APP ANIMATION ---
         function showApp() { 
-            const lock = $('#door-lock-icon');
-            
-            // 1. Gembok Terbuka & Berubah Warna
-            lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
-            
-            // NEW: Segera pindahkan partikel ke background
+            const lock = $('#door-lock-icon'); lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
             $('#tsparticles').addClass('in-background');
-
-            setTimeout(() => {
-                // 2. Hilangkan Login Card
-                $('.login-card').fadeOut(500);
-                $('#quoteContainer').fadeOut(500);
-
-                // 3. Pintu Terbuka
-                $('#door-overlay').addClass('door-open');
-                
-                // 4. Sembunyikan Gembok setelah pintu mulai terbuka
-                setTimeout(() => {
-                    $('#door-lock-container').fadeOut(500);
-                }, 300);
-
-                // 5. Tampilkan App Content
-                $('#appContent').show(); // Sudah di z-index rendah, jadi akan terlihat saat pintu terbuka
-
-                // 6. Cleanup
-                setTimeout(() => {
-                    $('#loginSection').hide(); 
-                    $('#door-overlay').hide(); // Sembunyikan pintu sepenuhnya agar tidak menghalangi klik
-                }, 1600); // Sesuaikan dengan durasi transisi CSS (1.5s)
-            }, 800); // Delay agar user sempat melihat gembok terbuka
+            setTimeout(() => { $('.login-card').fadeOut(500); $('#quoteContainer').fadeOut(500); $('#door-overlay').addClass('door-open'); 
+                setTimeout(() => { $('#door-lock-container').fadeOut(500); }, 300);
+                $('#appContent').show(); 
+                setTimeout(() => { $('#loginSection').hide(); $('#door-overlay').hide(); }, 1600); 
+            }, 800); 
         }
 
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
@@ -1350,156 +1195,20 @@
         function downloadBackup() { showLoading(true); fetch(`${GAS_URL}`, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { generateZipBackup(r.data.suratMasuk, r.data.suratKeluar); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal mengunduh data backup.', 'error'); }); }
         function generateZipBackup(dataMasuk, dataKeluar) { const wb = XLSX.utils.book_new(); const wsMasuk = XLSX.utils.aoa_to_sheet(dataMasuk); XLSX.utils.book_append_sheet(wb, wsMasuk, "SuratMasuk"); const wsKeluar = XLSX.utils.aoa_to_sheet(dataKeluar); XLSX.utils.book_append_sheet(wb, wsKeluar, "SuratKeluar"); const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }); const zip = new JSZip(); zip.file("Data_SIMAS.xlsx", wbout); const now = new Date(); const timeString = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0') + " " + String(now.getHours()).padStart(2, '0') + "-" + String(now.getMinutes()).padStart(2, '0'); const zipFilename = `backupsimas ${timeString}.zip`; zip.generateAsync({type:"blob"}).then(function(content) { saveAs(content, zipFilename); Swal.fire('Sukses', 'Backup data berhasil diunduh.', 'success'); }); }
         function activateAutoBackup() { Swal.fire({ title: 'Aktifkan Email Backup Harian?', text: "Sistem akan mengirimkan data backup otomatis ke email admin (rusita.aprilia30@gmail.com) setiap jam 23:00.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Aktifkan' }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'setup_auto_backup', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.message, 'success'); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi gagal', 'error'); }); } }); }
-        function activateOCR() {
-            Swal.fire({
-                title: 'Aktifkan OCR Scanner?',
-                text: "Sistem akan memindai lampiran surat baru setiap 10 menit untuk mengekstrak teks agar bisa dicari. Pastikan API Drive sudah aktif di Script Editor.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Aktifkan'
-            }).then((result) => {
-                if(result.isConfirmed) {
-                    showLoading(true);
-                    fetch(GAS_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ type: 'setup_ocr_trigger', requestor: currentUserEmail }) 
-                    })
-                    .then(r => r.json())
-                    .then(r => {
-                        showLoading(false);
-                        if(r.status === 'success') {
-                            Swal.fire('Sukses', r.message, 'success');
-                        } else {
-                            Swal.fire('Gagal', r.message, 'error');
-                        }
-                    })
-                    .catch(e => {
-                        showLoading(false);
-                        Swal.fire('Error', 'Koneksi gagal', 'error');
-                    });
-                }
-            });
-        }
+        function activateOCR() { Swal.fire({ title: 'Aktifkan OCR Scanner?', text: "Sistem akan memindai lampiran surat baru setiap 10 menit untuk mengekstrak teks agar bisa dicari. Pastikan API Drive sudah aktif di Script Editor.", icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Aktifkan' }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'setup_ocr_trigger', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.message, 'success'); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Koneksi gagal', 'error'); }); } }); }
     </script>
     
-    <!-- TSPARTICLES SCRIPT (Updated) -->
+    <!-- TSPARTICLES SCRIPT -->
     <script>
     (function() {
-        // SVG Amplop Surat (Warna Warni Emas & Putih)
         const envelopeIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZEMzAwIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyA3YTIgMiAwIDAgMSAyLTJoMTRhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiIHN0cm9rZT0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0zIDcgMTIgMTMgMjEgNyIgc3Ryb2tlPSIjRkZEMzAwIi8+PC9zdmc+";
-
         tsParticles.load("tsparticles", {
-            fpsLimit: 60,
-            fullScreen: { enable: false },
-            interactivity: {
-                detect_on: "window", 
-                events: {
-                    onhover: {
-                        enable: true,
-                        mode: "bubble"
-                    },
-                    onclick: {
-                        enable: true,
-                        mode: "repulse"
-                    },
-                    resize: true
-                },
-                modes: {
-                    bubble: {
-                        distance: 250,
-                        size: 40,
-                        duration: 0.4,
-                        opacity: 1
-                    },
-                    repulse: {
-                        distance: 300,
-                        duration: 0.4
-                    }
-                }
-            },
-            particles: {
-                number: {
-                    value: 40,
-                    density: {
-                        enable: true,
-                        value_area: 800
-                    }
-                },
-                color: {
-                    value: "#ffffff"
-                },
-                shape: {
-                    type: "image",
-                    image: [
-                        {
-                            src: envelopeIcon,
-                            width: 32,
-                            height: 32
-                        }
-                    ]
-                },
-                opacity: {
-                    value: 0.6, // Dikurangi dari 0.8
-                    random: true,
-                    anim: {
-                        enable: true,
-                        speed: 0.5,
-                        opacity_min: 0.3,
-                        sync: false
-                    }
-                },
-                size: {
-                    value: 20, // Dikurangi dari 25 agar tidak terlalu mendominasi
-                    random: true,
-                    anim: {
-                        enable: false,
-                        speed: 40,
-                        size_min: 10,
-                        sync: false
-                    }
-                },
-                links: {
-                    enable: true,
-                    distance: 150,
-                    color: "#ffffff",
-                    opacity: 0.15,
-                    width: 1
-                },
-                move: {
-                    enable: true,
-                    speed: 1,
-                    direction: "none",
-                    random: true,
-                    straight: false,
-                    out_mode: "out",
-                    attract: {
-                        enable: false,
-                        rotateX: 600,
-                        rotateY: 1200
-                    }
-                },
-                rotate: {
-                    value: 0,
-                    random: true,
-                    direction: "clockwise",
-                    animation: {
-                        enable: true,
-                        speed: 3,
-                        sync: false
-                    }
-                }
-            },
-            retina_detect: true,
-            background: {
-                color: "transparent",
-                image: "",
-                position: "50% 50%",
-                repeat: "no-repeat",
-                size: "cover"
-            }
+            fpsLimit: 60, fullScreen: { enable: false },
+            interactivity: { detect_on: "window", events: { onhover: { enable: true, mode: "bubble" }, onclick: { enable: true, mode: "repulse" }, resize: true }, modes: { bubble: { distance: 250, size: 40, duration: 0.4, opacity: 1 }, repulse: { distance: 300, duration: 0.4 } } },
+            particles: { number: { value: 40, density: { enable: true, value_area: 800 } }, color: { value: "#ffffff" }, shape: { type: "image", image: [ { src: envelopeIcon, width: 32, height: 32 } ] }, opacity: { value: 0.6, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.3, sync: false } }, size: { value: 20, random: true, anim: { enable: false, speed: 40, size_min: 10, sync: false } }, links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.15, width: 1 }, move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out", attract: { enable: false, rotateX: 600, rotateY: 1200 } }, rotate: { value: 0, random: true, direction: "clockwise", animation: { enable: true, speed: 3, sync: false } } },
+            retina_detect: true, background: { color: "transparent", image: "", position: "50% 50%", repeat: "no-repeat", size: "cover" }
         });
 
-        // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
@@ -1520,27 +1229,8 @@
             "Senyummu adalah sedekah termudah di kantor. Tebarkan energi positif, maka lingkungan kerjamu akan menjadi surga kecilmu."
         ];
 
-        let currentQuoteIndex = 0;
-        const quoteTextEl = document.getElementById('quoteText');
-
-        // Set quote awal
-        quoteTextEl.innerText = '"' + quotes[0] + '"';
-
-        setInterval(() => {
-            // Fade Out
-            quoteTextEl.classList.add('fade-out');
-
-            setTimeout(() => {
-                // Ganti Teks
-                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-                quoteTextEl.innerText = '"' + quotes[currentQuoteIndex] + '"';
-                
-                // Fade In
-                quoteTextEl.classList.remove('fade-out');
-            }, 1500); // Tunggu animasi fade-out selesai (sesuai transition CSS)
-
-        }, 30000); // Ganti tiap 30 detik
-
+        let currentQuoteIndex = 0; const quoteTextEl = document.getElementById('quoteText'); quoteTextEl.innerText = '"' + quotes[0] + '"';
+        setInterval(() => { quoteTextEl.classList.add('fade-out'); setTimeout(() => { currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length; quoteTextEl.innerText = '"' + quotes[currentQuoteIndex] + '"'; quoteTextEl.classList.remove('fade-out'); }, 1500); }, 30000); 
     })();
     </script>
 </body>

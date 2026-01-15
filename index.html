@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     
     <style>
-        :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
+        :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 320px; }
         body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%); background-attachment: fixed; color: var(--text-light); min-height: 100vh; overflow-x: hidden; }
         .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
         .white-panel { background: #ffffff !important; color: #333 !important; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); overflow: hidden; }
@@ -35,9 +35,9 @@
         #sidebar { min-width: var(--sidebar-width); max-width: var(--sidebar-width); background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); border-right: 1px solid var(--glass-border); position: fixed; height: 100vh; z-index: 1000; display: flex; flex-direction: column; transition: all 0.3s; }
         #sidebar.toggled { margin-left: calc(var(--sidebar-width) * -1); } .sidebar-scroll { flex-grow: 1; overflow-y: auto; padding: 1rem; scrollbar-width: thin; }
         #content { width: 100%; padding: 20px; margin-left: var(--sidebar-width); transition: all 0.3s; } #content.toggled { margin-left: 0; }
-        .nav-link { color: rgba(255,255,255,0.8); border-radius: 6px; padding: 10px 15px; margin-bottom: 4px; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; }
+        .nav-link { color: rgba(255,255,255,0.8); border-radius: 6px; padding: 10px 15px; margin-bottom: 4px; font-size: 0.85rem; transition: all 0.2s; display: flex; align-items: center; }
         .nav-link:hover { background: rgba(255,255,255,0.15); color: #fff; padding-left: 20px; } .nav-link.active { background: linear-gradient(90deg, var(--emerald-accent), transparent); color: #fff; border-left: 4px solid #fff; } .nav-link i { width: 25px; text-align: center; margin-right: 10px; }
-        .submenu { padding-left: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 5px; } .submenu .nav-link { font-size: 0.85em; padding: 8px 12px; }
+        .submenu { padding-left: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 5px; } .submenu .nav-link { font-size: 0.8em; padding: 8px 12px; }
         .badge-count { font-size: 0.7rem; padding: 2px 7px; border-radius: 10px; margin-left: auto; background: var(--blue-accent); display: none; } .badge-count.has-data { display: inline-block; background: #ef4444; animation: pulse 2s infinite; }
         .table { font-size: 0.85rem; } .table th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
         .modal-content { background: #fff; color: #333; }
@@ -49,7 +49,6 @@
 </head>
 <body>
     <div id="tsparticles"></div>
-    <!-- Overlay Pintu -->
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
 
@@ -78,49 +77,65 @@
                 </div>
                 
                 <div class="sidebar-scroll">
-                    <!-- MENU BERANDA (DEFAULT) -->
+                    <!-- MENU BERANDA -->
                     <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
+                    
                     <div class="my-2 border-top border-white-50"></div>
-
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Inbox & Disposisi</small>
-                    <button class="nav-link w-100 text-start restricted-feature text-warning" data-perm="inbox_staf" onclick="openDisposisiPage('staf', this)"><i class="fas fa-inbox"></i> Inboxku <span class="badge-count" id="count-staf">0</span></button>
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)"><i class="fas fa-user-tie"></i> Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
-                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subWadir" role="button"><i class="fas fa-user-shield"></i> Inbox Wadir <i class="fas fa-chevron-down ms-auto small"></i></a>
-                    <div class="collapse submenu" id="subWadir">
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_admin', this)">Wadir Adm & Keu <span class="badge-count" id="count-wadir_admin">0</span></button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pelayanan', this)">Wadir Pelayanan <span class="badge-count" id="count-wadir_pelayanan">0</span></button>
-                    </div>
-                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subKabag" role="button"><i class="fas fa-user-tag"></i> Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)">Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_adm', this)">Inbox Wadir Adm & Keu <span class="badge-count" id="count-wadir_adm">0</span></button>
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pel', this)">Inbox Wadir Pelayanan <span class="badge-count" id="count-wadir_pel">0</span></button>
+                    
+                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subKabag" role="button">Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="subKabag">
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)">Kabag Umum <span class="badge-count" id="count-kabag_umum">0</span></button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_keu" onclick="openDisposisiPage('kabag_keuangan', this)">Kabag Keu <span class="badge-count" id="count-kabag_keuangan">0</span></button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_prog" onclick="openDisposisiPage('kabag_progpel', this)">Kabag Progpel <span class="badge-count" id="count-kabag_progpel">0</span></button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabid_yanmed" onclick="openDisposisiPage('kabid_yanmed', this)">Kabid Yanmed <span class="badge-count" id="count-kabid_yanmed">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)">Kabag Adm & Umum <span class="badge-count" id="count-kabag_umum">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_keu" onclick="openDisposisiPage('kabag_keu', this)">Kabag Keuangan <span class="badge-count" id="count-kabag_keu">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_prog" onclick="openDisposisiPage('kabag_prog', this)">Kabag Program <span class="badge-count" id="count-kabag_prog">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabid_yanmed" onclick="openDisposisiPage('kabid_yanmed', this)">Kabid Pel. Medik <span class="badge-count" id="count-kabid_yanmed">0</span></button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabid_penunjang" onclick="openDisposisiPage('kabid_penunjang', this)">Kabid Penunjang <span class="badge-count" id="count-kabid_penunjang">0</span></button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabid_kep" onclick="openDisposisiPage('kabid_keperawatan', this)">Kabid Kep <span class="badge-count" id="count-kabid_keperawatan">0</span></button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabid_kep" onclick="openDisposisiPage('kabid_kep', this)">Kabid Keperawatan <span class="badge-count" id="count-kabid_kep">0</span></button>
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
                     <a class="nav-link w-100 text-start text-info" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipMasuk">
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">Semua Data</button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_direktur" onclick="openArsipPage('masuk', 'direktur', this)">Arsip Direktur</button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_adm" onclick="openArsipPage('masuk', 'wadir_admin', this)">Arsip Wadir Adm</button>
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_pel" onclick="openArsipPage('masuk', 'wadir_pelayanan', this)">Arsip Wadir Pel</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">All (Semua)</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_direktur" onclick="openArsipPage('masuk', 'direktur', this)">Direktur</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_adm" onclick="openArsipPage('masuk', 'wadir_adm', this)">Wadir Adm</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_wadir_pel" onclick="openArsipPage('masuk', 'wadir_pel', this)">Wadir Pel</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_umum" onclick="openArsipPage('masuk', 'kabag_umum', this)">Kabag Umum</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_keu" onclick="openArsipPage('masuk', 'kabag_keu', this)">Kabag Keuangan</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabag_prog" onclick="openArsipPage('masuk', 'kabag_prog', this)">Kabag Program</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_yanmed" onclick="openArsipPage('masuk', 'kabid_yanmed', this)">Kabid Medik</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_penunjang" onclick="openArsipPage('masuk', 'kabid_penunjang', this)">Kabid Penunjang</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_kep" onclick="openArsipPage('masuk', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
                     <a class="nav-link w-100 text-start text-success" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipKeluar">
-                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">Semua Data</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">All (Semua)</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_direktur" onclick="openArsipPage('keluar', 'direktur', this)">Direktur</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_wadir_adm" onclick="openArsipPage('keluar', 'wadir_adm', this)">Wadir Adm</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_wadir_pel" onclick="openArsipPage('keluar', 'wadir_pel', this)">Wadir Pel</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_umum" onclick="openArsipPage('keluar', 'kabag_umum', this)">Kabag Umum</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_keu" onclick="openArsipPage('keluar', 'kabag_keu', this)">Kabag Keuangan</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabag_prog" onclick="openArsipPage('keluar', 'kabag_prog', this)">Kabag Program</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_yanmed" onclick="openArsipPage('keluar', 'kabid_yanmed', this)">Kabid Medik</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_penunjang" onclick="openArsipPage('keluar', 'kabid_penunjang', this)">Kabid Penunjang</button>
+                        <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_kabid_kep" onclick="openArsipPage('keluar', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
-                    <button class="nav-link w-100 text-start text-danger restricted-feature" data-perm="setting_user" onclick="openSettingsPage(this)"><i class="fas fa-users-cog"></i> Pengaturan</button>
+                    <button class="nav-link w-100 text-start text-danger restricted-feature" data-perm="setting_user" onclick="openSettingsPage(this)"><i class="fas fa-users-cog"></i> Setting User</button>
+                    <button class="nav-link w-100 text-start text-danger restricted-feature" data-perm="setting_backup" onclick="downloadBackup()"><i class="fas fa-database"></i> Setting Backup</button>
+                    <button class="nav-link w-100 text-start text-danger restricted-feature" data-perm="setting_system" onclick="Swal.fire('Info','Menu Setting System (Placeholder)','info')"><i class="fas fa-cogs"></i> Setting System</button>
+                    <button class="nav-link w-100 text-start text-danger restricted-feature" data-perm="log_activity" onclick="activateTab('log-content', this, loadLogs)"><i class="fas fa-history"></i> Log Aktivitas</button>
                 </div>
                 <div class="p-3 bg-dark bg-opacity-25 border-top border-white-50"><button class="btn btn-danger w-100" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Keluar</button></div>
             </nav>
@@ -182,7 +197,7 @@
                     <!-- INBOX -->
                     <div class="tab-pane white-panel p-4" id="disposisi-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                            <h3 class="fw-bold m-0">Inbox: <span class="text-warning" id="dispPageTitle">Direktur</span></h3>
+                            <h3 class="fw-bold m-0">Inbox: <span class="text-warning" id="dispPageTitle">...</span></h3>
                             <button class="btn btn-outline-primary btn-sm" onclick="refreshCurrentDisposisi()">Refresh</button>
                         </div>
                         <div class="table-responsive"><table id="tableDisposisi" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th width="10%">Aksi</th></tr></thead><tbody></tbody></table></div>
@@ -190,17 +205,16 @@
 
                     <!-- ARSIP -->
                     <div class="tab-pane white-panel p-4" id="arsip-masuk-container">
-                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk</h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk <span id="arsipMasukTitle" class="text-muted small"></span></h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
                         <div class="table-responsive"><table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>Status</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
                     <div class="tab-pane white-panel p-4" id="arsip-keluar-container">
-                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Keluar</h3><button class="btn btn-outline-success btn-sm" onclick="loadArsipKeluar()">Refresh</button></div>
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Keluar <span id="arsipKeluarTitle" class="text-muted small"></span></h3><button class="btn btn-outline-success btn-sm" onclick="loadArsipKeluar()">Refresh</button></div>
                         <div class="table-responsive"><table id="tableArsipKeluar" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Agenda</th><th>Tgl</th><th>Tujuan</th><th>Perihal</th><th>Status</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <!-- SETTINGS & STORAGE PANEL -->
                     <div class="tab-pane white-panel p-4" id="settings-content">
-                        <!-- Panel User -->
                         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                             <h3 class="fw-bold m-0 text-danger">Pengaturan</h3>
                             <div>
@@ -209,7 +223,6 @@
                             </div>
                         </div>
                         
-                        <!-- Panel Storage (Restored) -->
                         <div class="card mb-4 border-warning shadow-sm">
                             <div class="card-header bg-warning text-dark fw-bold"><i class="fas fa-server me-2"></i>Infrastruktur Penyimpanan (Failover)</div>
                             <div class="card-body">
@@ -230,9 +243,17 @@
                             </div>
                         </div>
 
-                        <!-- Tabel User -->
                         <h5 class="fw-bold mb-3"><i class="fas fa-users me-2"></i>Daftar Pengguna</h5>
                         <div class="table-responsive"><table id="tableUsers" class="table table-striped w-100 align-middle"><thead class="table-dark"><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                    
+                    <!-- LOG ACTIVITY TAB -->
+                    <div class="tab-pane white-panel p-4" id="log-content">
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                            <h3 class="fw-bold m-0">Log Aktivitas</h3>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="loadLogs()">Refresh</button>
+                        </div>
+                        <div class="table-responsive"><table id="tableLog" class="table table-striped table-hover w-100 align-middle"><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
                     </div>
                 </div>
             </div>
@@ -240,13 +261,69 @@
     </div>
 
     <!-- MODAL EDIT USER -->
-    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div><div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;">
-        <label class="text-danger fw-bold d-block mb-2 border-bottom pb-1">CENTANG HAK AKSES:</label>
-        <div class="perm-category">A. INPUT</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="c1"><label class="form-check-label" for="c1">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="c2"><label class="form-check-label" for="c2">Input Keluar</label></div></div>
-        <div class="perm-category">B. INBOX</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_staf" id="c3"><label class="form-check-label text-primary" for="c3">Inboxku (Staf)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur" id="c4"><label class="form-check-label" for="c4">Inbox Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm" id="c5"><label class="form-check-label" for="c5">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel" id="c6"><label class="form-check-label" for="c6">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum" id="c7"><label class="form-check-label" for="c7">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu" id="c8"><label class="form-check-label" for="c8">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed" id="c9"><label class="form-check-label" for="c9">Kabid Yanmed</label></div></div>
-        <div class="perm-category">C. ARSIP</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_all" id="c10"><label class="form-check-label text-danger fw-bold" for="c10">SEMUA ARSIP</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_direktur" id="c11"><label class="form-check-label" for="c11">Arsip Direktur</label></div></div>
-        <div class="perm-category">D. ADMIN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user" id="c12"><label class="form-check-label text-danger" for="c12">Setting User</label></div></div>
+    <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div><div class="bg-white p-3 rounded shadow-sm border" style="max-height: 500px; overflow-y: auto;">
+        
+        <!-- INPUT -->
+        <div class="perm-category">A. INPUT DATA</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk"><label class="form-check-label">Input Surat Masuk</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar"><label class="form-check-label">Input Surat Keluar</label></div>
+        </div>
+
+        <!-- INBOX & DISPOSISI -->
+        <div class="perm-category">B. INBOX & DISPOSISI</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur"><label class="form-check-label text-danger fw-bold">Inbox Direktur</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm"><label class="form-check-label fw-bold">Inbox Wadir Adm & Keuangan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel"><label class="form-check-label fw-bold">Inbox Wadir Pelayanan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum"><label class="form-check-label">Inbox Kabag Adm & Umum</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu"><label class="form-check-label">Inbox Kabag Keuangan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_prog"><label class="form-check-label">Inbox Kabag Program & Pelaporan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed"><label class="form-check-label">Inbox Kabid Pelayanan Medik</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_penunjang"><label class="form-check-label">Inbox Kabid Pelayanan Penunjang</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_kep"><label class="form-check-label">Inbox Kabid Pelayanan Keperawatan</label></div>
+        </div>
+
+        <!-- ARSIP MASUK -->
+        <div class="perm-category">C. ARSIP MASUK</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_all"><label class="form-check-label fw-bold text-success">Arsip Masuk All (Semua)</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_direktur"><label class="form-check-label">Arsip Masuk Direktur</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_wadir_adm"><label class="form-check-label">Arsip Masuk Wadir Adm</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_wadir_pel"><label class="form-check-label">Arsip Masuk Wadir Pelayanan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabag_umum"><label class="form-check-label">Arsip Masuk Kabag Umum</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabag_keu"><label class="form-check-label">Arsip Masuk Kabag Keuangan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabag_prog"><label class="form-check-label">Arsip Masuk Kabag Program</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabid_yanmed"><label class="form-check-label">Arsip Masuk Kabid Medik</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabid_penunjang"><label class="form-check-label">Arsip Masuk Kabid Penunjang</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_kabid_kep"><label class="form-check-label">Arsip Masuk Kabid Keperawatan</label></div>
+        </div>
+
+        <!-- ARSIP KELUAR -->
+        <div class="perm-category">D. ARSIP KELUAR</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_all"><label class="form-check-label fw-bold text-success">Arsip Keluar All (Semua)</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_direktur"><label class="form-check-label">Arsip Keluar Direktur</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_wadir_adm"><label class="form-check-label">Arsip Keluar Wadir Adm</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_wadir_pel"><label class="form-check-label">Arsip Keluar Wadir Pelayanan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabag_umum"><label class="form-check-label">Arsip Keluar Kabag Umum</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabag_keu"><label class="form-check-label">Arsip Keluar Kabag Keuangan</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabag_prog"><label class="form-check-label">Arsip Keluar Kabag Program</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabid_yanmed"><label class="form-check-label">Arsip Keluar Kabid Medik</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabid_penunjang"><label class="form-check-label">Arsip Keluar Kabid Penunjang</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_kabid_kep"><label class="form-check-label">Arsip Keluar Kabid Keperawatan</label></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="perm-category">E. PENGATURAN SYSTEM (ADMIN)</div>
+        <div class="perm-grid">
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user"><label class="form-check-label text-danger">Setting Pengguna</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_backup"><label class="form-check-label text-danger">Setting Backup</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_system"><label class="form-check-label text-danger">Setting System</label></div>
+            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="log_activity"><label class="form-check-label text-danger">Log Aktivitas</label></div>
+        </div>
+
     </div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan</button></div></div></div></div>
 
     <!-- MODAL DISPOSISI -->
@@ -275,29 +352,17 @@
         
         // --- FIXED UI DISPLAY LOGIC ---
         function showApp(){
-            // 1. Pindahkan partikel ke belakang (blur & transparan)
             $('#tsparticles').addClass('in-background');
-
-            // 2. Hilangkan Login Card
             $('#loginSection').fadeOut(500, function() {
-                // 3. Callback setelah login hilang: Buka Pintu
                 $('#door-overlay').addClass('door-open');
-                
-                // 4. Tampilkan Konten Utama (setelah pintu mulai terbuka)
                 setTimeout(() => {
                     $('#appContent').fadeIn(500);
-                    
-                    // Isi Data User
                     $('#userDisplayName').text(sessionStorage.getItem('userName'));
                     $('#userRoleBadge').text(sessionStorage.getItem('userRole'));
                     $('#homeDisplayName').text(sessionStorage.getItem('userName'));
                     $('#homeRoleBadge').text(sessionStorage.getItem('userRole'));
-
-                    // 5. Klik otomatis tombol beranda untuk menampilkan tab
-                    if($('#btn-home').length) {
-                        $('#btn-home').click(); 
-                    }
-                }, 300); // Delay sedikit agar pintu terlihat terbuka dulu
+                    if($('#btn-home').length) { $('#btn-home').click(); }
+                }, 300);
             });
         }
         
@@ -305,19 +370,43 @@
         function logout(){sessionStorage.clear();location.reload()}
         function handleCredentialResponse(r){showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{showLoading(false);if(res.status==='success'){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userEmail',res.data.email);sessionStorage.setItem('userRole',res.data.role);sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions));sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates));sessionStorage.setItem('userName',res.data.name);currentUserEmail=res.data.email;showApp();renderSidebarPermissions();}else{Swal.fire('Login Gagal',res.message,'error')}}).catch(e=>{showLoading(false);Swal.fire('Error','Koneksi','error')})}
         function renderSidebarPermissions(){const r=sessionStorage.getItem('userRole');const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]");$('.restricted-feature').addClass('restricted-feature');if(r==='Super Admin'){$('.restricted-feature').removeClass('restricted-feature')}else{p.forEach(x=>$(`[data-perm="${x}"]`).removeClass('restricted-feature'));if(r==='User')$(`[data-perm="inbox_staf"]`).removeClass('restricted-feature')}}
+        
+        // --- INBOX LOGIC ---
         function openDisposisiPage(l,e){currentInboxLevel=l;$('#dispPageTitle').text(l.replace(/_/g,' ').toUpperCase());activateTab('disposisi-container',e,refreshCurrentDisposisi)}
         function refreshCurrentDisposisi(){showLoading(true);fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}});dt.clear();if(r.data)r.data.forEach(d=>dt.row.add([d.tgl,d.agenda,d.pengirim,d.perihal,`<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`]));dt.draw();$(`#count-${currentInboxLevel}`).text(r.data?r.data.length:0).toggleClass('has-data',r.data&&r.data.length>0)})}
-        function openDisposisiModal(id,p){$('#dispIdSurat').val(id);$('#dispPerihal').text(p);$('#dispInstruksi').val('');const s=$('#dispTarget');s.empty().append('<option disabled selected>-- Pilih --</option>');const subs=JSON.parse(sessionStorage.getItem('userSubordinates')||"[]");let t=[];if(currentInboxLevel==='direktur')t=['Wadir Admin & Keuangan','Wadir Pelayanan'];else t=subs;t.forEach(x=>s.append(`<option value="${x}">${x}</option>`));new bootstrap.Modal(document.getElementById('modalDisposisi')).show()}
+        function openDisposisiModal(id,p){$('#dispIdSurat').val(id);$('#dispPerihal').text(p);$('#dispInstruksi').val('');const s=$('#dispTarget');s.empty().append('<option disabled selected>-- Pilih --</option>');
+            // Logic Target berdasarkan level inbox
+            const subs=JSON.parse(sessionStorage.getItem('userSubordinates')||"[]");
+            let t=[];
+            
+            // MAPPING TARGET DISPOSISI
+            if(currentInboxLevel==='direktur') t=['Wadir Administrasi & Keuangan','Wadir Pelayanan'];
+            else if(currentInboxLevel==='wadir_adm') t=['Kabag Administrasi & Umum','Kabag Keuangan','Kabag Program & Pelaporan'];
+            else if(currentInboxLevel==='wadir_pel') t=['Kabid Pelayanan Medik','Kabid Pelayanan Penunjang','Kabid Pelayanan Keperawatan'];
+            else if(currentInboxLevel.includes('kabag') || currentInboxLevel.includes('kabid')) t=subs; // Bawahan
+            
+            if(t.length === 0 && subs.length > 0) t=subs; // Fallback to subs if mapping empty but subs exist
+            
+            t.forEach(x=>s.append(`<option value="${x}">${x}</option>`));
+            new bootstrap.Modal(document.getElementById('modalDisposisi')).show()
+        }
         function submitDisposisi(){const t=$('#dispTarget').val();if(!t)return Swal.fire('!','Pilih tujuan','warning');const p={type:'submit_disposisi',idSurat:$('#dispIdSurat').val(),levelAsal:currentInboxLevel,target:t,instruksi:$('#dispInstruksi').val(),sender:currentUserEmail};bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Terkirim','success');refreshCurrentDisposisi()}else Swal.fire('Err',r.message,'error')})}
-        function openArsipPage(t,s,e){currentArsipScope=s;if(t==='masuk')activateTab('arsip-masuk-container',e,loadArsipMasuk);else activateTab('arsip-keluar-container',e,loadArsipKeluar)}
+        
+        // --- ARSIP LOGIC ---
+        function openArsipPage(t,s,e){currentArsipScope=s;$('#arsip'+(t==='masuk'?'Masuk':'Keluar')+'Title').text(s.replace(/_/g,' ').toUpperCase());if(t==='masuk')activateTab('arsip-masuk-container',e,loadArsipMasuk);else activateTab('arsip-keluar-container',e,loadArsipKeluar)}
         function loadArsipMasuk(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipMasuk').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(d=>dt.row.add([d.tgl,d.agenda,d.pengirim,d.perihal,d.status,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-']));dt.draw()})}
         function loadArsipKeluar(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipKeluar').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(d=>dt.row.add([d.agenda,d.tgl,d.tujuan,d.perihal,d.status,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-']));dt.draw()})}
+        
+        // --- USER & ADMIN LOGIC ---
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()})}
         function openEditUser(u){$('#editUserEmail').val(u.email);$('#editUserName').val(u.name);$('#editUserRole').val(u.role);$('#editUserStatus').val(u.status);$('.perm-check').prop('checked',false);try{JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true))}catch(e){}new bootstrap.Modal(document.getElementById('modalEditUser')).show()}
         function saveUserPermissions(){const p=[];$('.perm-check:checked').each(function(){p.push($(this).val())});const d={type:'update_user_permissions',requestor:currentUserEmail,targetEmail:$('#editUserEmail').val(),role:$('#editUserRole').val(),status:$('#editUserStatus').val(),permissions:JSON.stringify(p)};bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Tersimpan','success');loadUsers()}else Swal.fire('Err',r.message,'error')})}
         function loadStorageStats(){showLoading(true);fetch(`${GAS_URL}?action=get_storage_stats&requestor=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){const d=r.data;$('#disp-quota-A').text(d.nodeA.percentage+'%');$('#prog-A').css('width',d.nodeA.percentage+'%');$('#disp-quota-B').text(d.nodeB.percentage+'%');$('#prog-B').css('width',d.nodeB.percentage+'%');$('#disp-quota-C').text(d.nodeC.percentage+'%');$('#prog-C').css('width',d.nodeC.percentage+'%');$('#switchFailover').prop('checked',d.settings.failover);$('#selectActiveNode').val(d.settings.activeNode)}else Swal.fire('Akses Ditolak','Hanya Admin','warning')})}
         function saveStorageSettings(){const f=$('#switchFailover').is(':checked');const a=$('#selectActiveNode').val();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'update_storage_settings',failover:f,activeNode:a,requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success')Swal.fire('OK','Disimpan','success');else Swal.fire('Err',r.message,'error')})}
         function openSettingsPage(e){activateTab('settings-content',e,()=>{loadUsers();if(sessionStorage.getItem('userRole')!=='User')loadStorageStats()})}
+        function loadLogs(){showLoading(true);fetch(`${GAS_URL}?action=get_log`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableLog').DataTable({destroy:true,order:[[0,'desc']]});dt.clear();if(r.data)r.data.forEach(d=>dt.row.add([new Date(d[0]).toLocaleString(),d[1],d[2],d[3]]));dt.draw()})}
+        function downloadBackup(){showLoading(true);fetch(`${GAS_URL}`,{method:'POST',body:JSON.stringify({type:'get_backup_data',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){const zip=new JSZip();const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r.data.suratMasuk),"Masuk");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r.data.suratKeluar),"Keluar");zip.file("Backup_SIMAS.xlsx",XLSX.write(wb,{bookType:'xlsx',type:'array'}));zip.generateAsync({type:"blob"}).then(c=>saveAs(c,"Backup_SIMAS.zip"));}else Swal.fire('Err',r.message,'error')})}
+
         $('#formSuratMasuk').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratMasuk')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_masuk',fileData:f,fileName:n,email:currentUserEmail};$(this).serializeArray().forEach(x=>d[x.name]=x.value);sendData(d,()=>Swal.fire('OK','Masuk Tersimpan','success'))});
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};$(this).serializeArray().forEach(x=>d[x.name]=x.value);sendData(d,()=>Swal.fire('OK','Keluar Tersimpan','success'))});
         function sendData(d,cb){fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){cb();$('form').trigger('reset')}else Swal.fire('Err',r.message,'error')})}

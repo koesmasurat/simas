@@ -25,7 +25,7 @@
         .white-panel .card { border: none; box-shadow: none; }
         .white-panel h2, .white-panel h3, .white-panel label { color: #333 !important; }
         
-        /* NEW: Dark Transparent Card for Input Forms */
+        /* Dark Transparent Card for Input Forms */
         .glass-form-card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
@@ -37,7 +37,6 @@
         }
         .glass-form-card h3 { color: white !important; }
         .glass-form-card label { color: #f8f9fa !important; }
-        /* Keep inputs white and readable */
         .glass-form-card .form-control, .glass-form-card .form-select {
             background-color: #ffffff;
             color: #333333;
@@ -49,8 +48,11 @@
         #door-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; pointer-events: none; }
         .door-panel { width: 50%; height: 100%; background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%); position: relative; transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1); box-shadow: 0 0 50px rgba(0,0,0,0.5); z-index: 101; }
         .door-open #door-left { transform: translateX(-100%); } .door-open #door-right { transform: translateX(100%); }
+        
+        /* Particles container (z-index adjusted to be behind login card but visible) */
         #tsparticles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; pointer-events: none; transition: opacity 1.5s, filter 1.5s; }
         #tsparticles.in-background { z-index: 0 !important; opacity: 0.2 !important; filter: blur(2px); }
+        
         #appContent { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 50; } .wrapper { display: flex; width: 100%; align-items: stretch; }
         #sidebar { min-width: var(--sidebar-width); max-width: var(--sidebar-width); background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); border-right: 1px solid var(--glass-border); position: fixed; height: 100vh; z-index: 1000; display: flex; flex-direction: column; transition: all 0.3s; }
         #sidebar.toggled { margin-left: calc(var(--sidebar-width) * -1); } .sidebar-scroll { flex-grow: 1; overflow-y: auto; padding: 1rem; scrollbar-width: thin; }
@@ -108,7 +110,6 @@
                     <div class="my-2 border-top border-white-50"></div>
 
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
-                    <!-- UPDATED: Added autoFill and setDefault calls -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this); autoFillAgendaKeluar();"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
@@ -356,7 +357,32 @@
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ currentUserEmail=sessionStorage.getItem('userEmail'); showApp(); renderSidebarPermissions(); loadRefCodes(); } 
             $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
-            tsParticles.load("tsparticles",{fpsLimit:60,particles:{number:{value:30},color:{value:"#ffffff"},opacity:{value:0.3},size:{value:3},move:{enable:true,speed:1}}}); 
+            
+            // --- UPDATED PARTICLES CONFIG (ICONS) ---
+            tsParticles.load("tsparticles", {
+                fpsLimit: 60,
+                particles: {
+                    number: { value: 30, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: {
+                        type: "image",
+                        image: [
+                            { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 },
+                            { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z'/%3E%3C/svg%3E", width: 32, height: 32 }
+                        ]
+                    },
+                    opacity: { value: 0.6, random: true },
+                    size: { value: 20, random: true },
+                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.3, width: 1 },
+                    move: { enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" }, resize: true },
+                    modes: { grab: { distance: 200, line_linked: { opacity: 0.5 } }, push: { particles_nb: 4 } }
+                },
+                retina_detect: true
+            });
         });
 
         function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}

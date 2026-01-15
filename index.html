@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMAS KOESMA - Enterprise</title>
     <link rel="icon" href="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" type="image/png">
+    
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+    
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
         body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%); background-attachment: fixed; color: var(--text-light); min-height: 100vh; overflow-x: hidden; }
@@ -85,7 +88,8 @@
                     <div class="my-2 border-top border-white-50"></div>
 
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this)"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
+                    <!-- UPDATED ONCLICK -->
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
@@ -168,7 +172,14 @@
                         <h3 class="fw-bold mb-4 border-bottom pb-2">Catat Surat Masuk</h3>
                         <form id="formSuratMasuk">
                             <div class="row g-3">
-                                <div class="col-md-4"><label class="form-label fw-bold">No. Agenda</label><input type="text" class="form-control bg-light" name="noAgenda" required placeholder="Otomatis"></div>
+                                <!-- UPDATED: Agenda Input Group -->
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">No. Agenda</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="noAgenda" id="inNoAgenda" required>
+                                        <button class="btn btn-secondary" type="button" onclick="autoFillAgendaMasuk()">Booking</button>
+                                    </div>
+                                </div>
                                 <div class="col-md-4"><label class="form-label fw-bold">Tgl Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
                                 <div class="col-md-4"><label class="form-label fw-bold">Tgl Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
                                 <div class="col-md-6"><label class="form-label fw-bold">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
@@ -440,6 +451,30 @@
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};$(this).serializeArray().forEach(x=>d[x.name]=x.value);sendData(d,()=>Swal.fire('OK','Keluar Tersimpan','success'))});
         function sendData(d,cb){fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){cb();$('form').trigger('reset')}else Swal.fire('Err',r.message,'error')})}
         function readFile(f){return new Promise((r,j)=>{const fr=new FileReader();fr.readAsDataURL(f);fr.onload=()=>r(fr.result);fr.onerror=e=>j(e)})}
+        
+        // --- AUTO FILL LOGIC FOR INPUT MASUK ---
+        function autoFillAgendaMasuk() {
+            $('#inNoAgenda').val('Loading...');
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ type: 'get_last_agenda_masuk' })
+            })
+            .then(r => r.json())
+            .then(r => {
+                if (r.status === 'success') {
+                    $('#inNoAgenda').val(r.data.nextAgenda);
+                } else {
+                    $('#inNoAgenda').val('');
+                    Swal.fire('Error', 'Gagal mengambil nomor agenda', 'error');
+                }
+            });
+        }
+
+        function setDefaultDatesMasuk() {
+            const today = new Date().toISOString().split('T')[0];
+            $('input[name="tglSurat"]').val(today);
+            $('input[name="tglTerima"]').val(today);
+        }
     </script>
 </body>
 </html>

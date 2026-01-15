@@ -660,7 +660,7 @@
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Hak Akses User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditUser"><input type="hidden" id="editUserEmail">
     <div class="mb-3"><label class="small text-white-50">Nama Lengkap</label><input type="text" class="form-control" id="editUserName" required></div>
     <div class="mb-3"><label class="small text-white-50">Role</label><select class="form-select" id="editUserRole"><option value="User">User Biasa</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="mb-3"><label class="small text-white-50">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option><option value="Pending">Pending</option></select></div><div class="mb-3"><label class="small text-white-50 d-block mb-2">Hak Akses Menu</label><div class="row"><div class="col-6"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk" id="perm_in_m"><label class="form-check-label text-white" for="perm_in_m">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar" id="perm_in_k"><label class="form-check-label text-white" for="perm_in_k">Input Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk" id="perm_ar_m"><label class="form-check-label text-white" for="perm_ar_m">Arsip Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar" id="perm_ar_k"><label class="form-check-label text-white" for="perm_ar_k">Arsip Keluar</label></div><div class="form-check mt-2"><input class="form-check-input perm-check" type="checkbox" value="disp_direktur" id="perm_dir"><label class="form-check-label text-white" for="perm_dir">Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_admin" id="perm_wad_a"><label class="form-check-label text-white" for="perm_wad_a">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_wadir_pelayanan" id="perm_wad_p"><label class="form-check-label text-white" for="perm_wad_p">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_jf" id="perm_jf"><label class="form-check-label text-white" for="perm_jf">Jabatan Fung.</label></div></div><div class="col-6"><small class="text-info d-block mb-1">Kabag/Kabid:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_umum" id="perm_k1"><label class="form-check-label text-white" for="perm_k1">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_keuangan" id="perm_k2"><label class="form-check-label text-white" for="perm_k2">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabag_progpel" id="perm_k3"><label class="form-check-label text-white" for="perm_k3">Kabag Prog</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_yanmed" id="perm_k4"><label class="form-check-label text-white" for="perm_k4">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_keperawatan" id="perm_k5"><label class="form-check-label text-white" for="perm_k5">Kabid Kep</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="disp_kabid_penunjang" id="perm_k6"><label class="form-check-label text-white" for="perm_k6">Kabid Penunj</label></div></div><div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Khusus Admin:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="settings_admin" id="perm_settings"><label class="form-check-label text-white" for="perm_settings">Akses Pengaturan Pengguna (User Management)</label></div></div>
-    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Akses Download Backup Data (Excel)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="correction_admin" id="perm_correct"><label class="form-check-label text-danger fw-bold" for="perm_correct"><i class="fas fa-exclamation-triangle me-1"></i>Akses Koreksi Disposisi</label></div></div>
+    <div class="col-12 mt-2 border-top border-secondary pt-2"><small class="text-warning fw-bold">Fitur Khusus:</small><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="backup_data" id="perm_backup"><label class="form-check-label text-white" for="perm_backup">Download Backup Data (Excel)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="correction_admin" id="perm_correct"><label class="form-check-label text-danger fw-bold" for="perm_correct"><i class="fas fa-exclamation-triangle me-1"></i>Akses Koreksi Disposisi</label></div></div>
     </div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan Perubahan</button></div></div></div></div>
     
     <!-- MODAL MANAGE SUBORDINATES -->
@@ -697,17 +697,7 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentLevel = ""; 
         let currentUserEmail = "";
-        
-        // --- DATA CACHE PATTERN (Robustness Fix) ---
-        const DATA_CACHE = {
-            disposisi: new Map(),
-            masuk: new Map(),
-            keluar: new Map(),
-            users: new Map()
-        };
-        
-        function safeId(id) { return encodeURIComponent(String(id)); }
-        
+        let allUsersCache = [];
         const structureOrg = {
             "Wadir Pelayanan": ["Bidang Pelayanan Medis", "Bidang Pelayanan Keperawatan", "Bidang Pelayanan Penunjang"],
             "Wadir Admin & Keuangan": ["Bagian Adm dan Umum", "Bagian Keuangan", "Bagian Progpel"]
@@ -1235,39 +1225,14 @@
         function logout() { Swal.fire({ title: 'Konfirmasi Logout', text: "Anda yakin ingin keluar?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('lastActiveBtn'); $('#appContent').stop().hide(); $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300); setTimeout(() => { location.reload(); }, 500); } }); }
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
         function openDisposisiPage(level, element) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); currentLevel = level; activateTab('disposisi-container', element, refreshCurrentDisposisi); let title = level.toUpperCase(); if(level.startsWith('kabag_') || level.startsWith('kabid_')) title = level.replace('_', ' ').toUpperCase(); if(level.includes('wadir')) title = level.replace('_', ' ').toUpperCase(); $('#dispPageTitle').text(title); }
-        
-        function refreshCurrentDisposisi() { 
-            showLoading(true); 
-            fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`)
-            .then(r=>r.json())
-            .then(r => { 
-                showLoading(false); 
-                const dt = $('#tableDisposisi').DataTable(); 
-                dt.clear(); 
-                DATA_CACHE.disposisi.clear(); 
-
-                if(r.data) r.data.forEach(row => { 
-                    DATA_CACHE.disposisi.set(String(row[1]), row);
-                    const safeRowId = safeId(row[1]);
-
-                    let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; 
-                    let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick="openDisposisiModalFromCache('${safeRowId}')">Proses</button>`; 
-                    dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); 
-                }); 
-                dt.draw(); 
-            }); 
-        }
-
+        function refreshCurrentDisposisi() { showLoading(true); fetch(`${GAS_URL}?action=read_pending&level=${currentLevel}`).then(r=>r.json()).then(r => { showLoading(false); const dt = $('#tableDisposisi').DataTable(); dt.clear(); if(r.data) r.data.forEach(row => { let btnFile = row[7] ? `<a href="${row[7]}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-pdf"></i></a>` : '-'; let btnProses = `<button class="btn btn-sm btn-warning fw-bold" onclick='openModalAction(${JSON.stringify(row)})'>Proses</button>`; dt.row.add([ new Date(row[4]).toLocaleDateString('id-ID'), row[1], row[5], row[6], btnFile, btnProses ]); }); dt.draw(); }); }
         function printDisposisi(noAgenda) { Swal.fire({ title: 'Sedang Memproses PDF...', text: 'Mohon tunggu, lembar disposisi sedang dibuat.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'cetak_disposisi', noAgenda: noAgenda }) }).then(r => r.json()).then(r => { if (r.status === 'success') { const byteCharacters = atob(r.data.pdfBase64); const byteNumbers = new Array(byteCharacters.length); for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); } const byteArray = new Uint8Array(byteNumbers); const blob = new Blob([byteArray], {type: "application/pdf"}); const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = r.data.fileName; link.click(); Swal.close(); } else { Swal.fire('Gagal', r.message, 'error'); } }).catch(e => { Swal.fire('Error', 'Gagal membuat PDF', 'error'); }); }
         function viewHistory(row) { let html = createTimelineItem(true, "SURAT DITERIMA", `Agenda: ${row[1]}`, `Tgl Surat: ${new Date(row[3]).toLocaleDateString('id-ID')}`, row[0]); if(row[8]) html += createTimelineItem(true, "DIREKTUR", `Ke: ${row[8]}`, row[9], row[10]); else html += createTimelineItem(false, "DIREKTUR", "Menunggu Proses", "", ""); if(row[11]) html += createTimelineItem(true, "WADIR", `Ke: ${row[11]}`, row[12], row[13]); if(row[14]) html += createTimelineItem(true, "KABAG/KABID", `Ke: ${row[14]}`, row[15], row[16]); if(row[17]) html += createTimelineItem(true, "JF", `Ke Staf: ${row[17]}`, row[18], row[19]); $('#timelineContent').html(html); new bootstrap.Modal(document.getElementById('modalHistory')).show(); }
         function formatDateTime(dateString) { if(!dateString) return ''; const d = new Date(dateString); if(isNaN(d.getTime())) return ''; return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); }
         function createTimelineItem(isDone, title, target, note, date) { let cls = isDone ? 'done' : ''; let dateStr = date ? `<span class="badge bg-dark ms-2">${formatDateTime(date)}</span>` : ''; return `<div class="timeline-item ${cls}"><div class="fw-bold text-warning small d-flex justify-content-between"><span>${title}</span>${dateStr}</div><div class="timeline-content mt-1"><div class="fw-bold small mb-1">${target}</div><div class="text-white-50 small fst-italic">"${note || '-'}"</div></div></div>`; }
         function updateStatusSelesai(noSurat) { const d = new Date(); const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); Swal.fire({ title: 'Selesaikan Surat?', html: `<p class="text-muted">Masukkan Tanggal Surat Resmi (setelah TTD):</p><input type="date" id="swal-date-input" class="swal2-input" value="${today}">`, focusConfirm: false, showCancelButton: true, confirmButtonText: 'Selesai', preConfirm: () => { const dateVal = document.getElementById('swal-date-input').value; if (!dateVal) { Swal.showValidationMessage('Tanggal Surat Resmi harus diisi'); } return dateVal; } }).then((result) => { if(result.isConfirmed) { showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'update_status_keluar', noAgenda: noSurat, tglSurat: result.value }) }).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('Berhasil', 'Status surat selesai & Tanggal Resmi disimpan.', 'success'); loadDataKeluar(); } else { Swal.fire('Gagal', r.message, 'error'); }}); } }); }
         function loadLogs() { showLoading(true); fetch(`${GAS_URL}?action=read_log`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableLog').DataTable(); dt.clear(); if (r.data && r.data.length > 0) { r.data.forEach(row => { let timeStr = row[0]; try { const d = new Date(row[0]); if (!isNaN(d.getTime())) { timeStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}); } } catch(e) {} dt.row.add([ timeStr, `<span class="text-primary fw-bold">${row[1]}</span>`, `<span class="badge bg-info text-dark">${row[2]}</span>`, row[3] ]); }); dt.order([0, 'desc']).draw(); } else { dt.draw(); } }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat log aktivitas', 'error'); }); }
-        
-        // --- UPDATED SAVE EDIT FUNCTION FOR SURAT MASUK (HANDLES FILE) ---
         function openEditMasuk(row) { $('#editMasukNoAgenda').val(row[1]); $('#editMasukAgendaDisplay').val(row[1]); $('#editMasukNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editMasukTglSurat').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editMasukTglTerima').valueAsDate = d; } $('#editMasukPengirim').val(row[5]); $('#editMasukPerihal').val(row[6]); if(row[21]) { $('#editMasukKode').val(row[21]); } else { $('#editMasukKode').val(''); } $('#editMasukFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }
-        
         async function saveEditMasuk() { 
             const fileInput = document.getElementById('editMasukFile');
             let fileData = "", fileName = "";
@@ -1296,10 +1261,7 @@
             showLoading(true); 
             sendData(payload, () => { Swal.fire('Sukses', 'Data surat masuk berhasil diperbarui', 'success'); loadDataMasuk(); }); 
         }
-
-        // --- UPDATED SAVE EDIT FUNCTION FOR SURAT KELUAR (HANDLES FILE) ---
         function openEditKeluar(row) { $('#editKeluarNoAgenda').val(row[1]); $('#editKeluarNoSurat').val(row[2]); if(row[3]) { const d = new Date(row[3]); if(!isNaN(d)) document.getElementById('editKeluarTglDiterima').valueAsDate = d; } if(row[4]) { const d = new Date(row[4]); if(!isNaN(d)) document.getElementById('editKeluarTglSurat').valueAsDate = d; } $('#editKeluarTujuan').val(row[5]); $('#editKeluarPerihal').val(row[6]); $('#editKeluarPembuat').val(row[8]); $('#editKeluarFile').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }
-        
         async function saveEditKeluar() { 
             const fileInput = document.getElementById('editKeluarFile');
             let fileData = "", fileName = "";
@@ -1328,41 +1290,12 @@
             showLoading(true); 
             sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
         }
-
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
         function showApp() { 
-            const lock = $('#door-lock-icon');
-            
-            // 1. Gembok Terbuka & Berubah Warna
-            lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
-            
-            // NEW: Segera pindahkan partikel ke background
-            $('#tsparticles').addClass('in-background');
-
-            setTimeout(() => {
-                // 2. Hilangkan Login Card
-                $('.login-card').fadeOut(500);
-                $('#quoteContainer').fadeOut(500);
-
-                // 3. Pintu Terbuka
-                $('#door-overlay').addClass('door-open');
-                
-                // 4. Sembunyikan Gembok setelah pintu mulai terbuka
-                setTimeout(() => {
-                    $('#door-lock-container').fadeOut(500);
-                }, 300);
-
-                // 5. Tampilkan App Content
-                $('#appContent').show(); // Sudah di z-index rendah, jadi akan terlihat saat pintu terbuka
-
-                // 6. Cleanup
-                setTimeout(() => {
-                    $('#loginSection').hide(); 
-                    $('#door-overlay').hide(); // Sembunyikan pintu sepenuhnya agar tidak menghalangi klik
-                }, 1600); // Sesuaikan dengan durasi transisi CSS (1.5s)
-            }, 800); // Delay agar user sempat melihat gembok terbuka
+            // STOP ANIMATION IF LOGGED IN
+            if(window.particleAnimation) cancelAnimationFrame(window.particleAnimation);
+            $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
         }
-
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }

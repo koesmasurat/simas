@@ -58,41 +58,83 @@
         .modal-content { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 
         /* Login Styles */
-        #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; overflow: hidden; }
-        .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; position: relative; z-index: 20; }
+        #loginSection { 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: fixed; /* Fixed agar tidak scroll saat animasi */
+            top: 0; left: 0; width: 100%;
+            z-index: 200; /* Paling atas */
+            overflow: hidden; 
+        }
+        .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; position: relative; z-index: 201; }
+        
+        /* --- ANIMATION: DOOR & LOCK EFFECT --- */
+        #door-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; /* Di bawah login card, di atas App */
+            display: flex;
+            pointer-events: none;
+        }
+
+        .door-panel {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, #9a3412 0%, #0f172a 100%); /* Samakan dengan body */
+            position: relative;
+            transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1); /* Efek easing yang smooth */
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            z-index: 101;
+        }
+
+        #door-left { border-right: 1px solid rgba(255,255,255,0.1); transform-origin: left; }
+        #door-right { border-left: 1px solid rgba(255,255,255,0.1); transform-origin: right; }
+
+        /* Class untuk membuka pintu */
+        .door-open #door-left { transform: translateX(-100%); }
+        .door-open #door-right { transform: translateX(100%); }
+
+        /* Lock Icon di tengah pintu */
+        #door-lock-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 102;
+            font-size: 4rem;
+            color: rgba(255,255,255,0.5);
+            transition: all 0.5s ease;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
         
         /* --- TSParticles Container --- */
         #tsparticles {
-            position: fixed; /* Fixed agar tetap terlihat saat scroll di dashboard */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; 
-            pointer-events: none; /* Agar tidak mengganggu klik */
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 150; /* Di atas pintu agar partikel terlihat saat login */
+            pointer-events: none; 
         }
 
-        /* --- Motivational Quote Styles (Updated) --- */
+        /* --- Motivational Quote Styles --- */
         #quoteContainer {
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid rgba(255,255,255,0.15);
-            min-height: 80px; /* Sedikit dikurangi tingginya */
+            min-height: 80px; 
         }
         #quoteText {
             font-family: 'Playfair Display', serif; 
-            font-size: 0.9rem; /* Ukuran font dikurangi 1 level */
+            font-size: 0.9rem; 
             line-height: 1.6;
-            color: #00ff41; /* Hijau Neon / Matrix Green */
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.3); /* Efek glow neon halus */
+            color: #00ff41; 
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.3); 
             font-style: italic;
             margin-bottom: 0;
             transition: opacity 1.5s ease-in-out; 
             opacity: 1;
         }
-        #quoteText.fade-out {
-            opacity: 0;
-        }
+        #quoteText.fade-out { opacity: 0; }
         
         /* Forms */
         .form-control, .form-select { background: #fff; border: 1px solid #ced4da; color: #333; }
@@ -100,7 +142,7 @@
         .btn-primary { background: linear-gradient(45deg, var(--emerald-accent), var(--blue-accent)); border: none; padding: 12px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
         
         /* Layout */
-        #appContent { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 5; }
+        #appContent { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 50; }
         .wrapper { display: flex; width: 100%; align-items: stretch; transition: all 0.3s; }
         
         /* Sidebar */
@@ -186,6 +228,15 @@
 
     <!-- Container untuk tsParticles -->
     <div id="tsparticles"></div>
+
+    <!-- NEW: Door Overlay Effect -->
+    <div id="door-overlay">
+        <div id="door-left" class="door-panel"></div>
+        <div id="door-right" class="door-panel"></div>
+        <div id="door-lock-container">
+            <i class="fas fa-lock" id="door-lock-icon"></i>
+        </div>
+    </div>
 
     <!-- Login Section -->
     <div id="loginSection">
@@ -1252,9 +1303,38 @@
             sendData(payload, () => { Swal.fire('Sukses', 'Data surat keluar berhasil diperbarui', 'success'); loadDataKeluar(); }); 
         }
         function setCount(id, c) { $(`#count-${id}`).text(c).toggleClass('has-data', c > 0); }
+        
+        // --- NEW: SHOW APP ANIMATION ---
         function showApp() { 
-            $('#loginSection').fadeOut(300, ()=> $('#appContent').fadeIn(300)); 
+            const lock = $('#door-lock-icon');
+            
+            // 1. Gembok Terbuka & Berubah Warna
+            lock.removeClass('fa-lock').addClass('fa-lock-open text-success'); 
+            
+            setTimeout(() => {
+                // 2. Hilangkan Login Card
+                $('.login-card').fadeOut(500);
+                $('#quoteContainer').fadeOut(500);
+
+                // 3. Pintu Terbuka
+                $('#door-overlay').addClass('door-open');
+                
+                // 4. Sembunyikan Gembok setelah pintu mulai terbuka
+                setTimeout(() => {
+                    $('#door-lock-container').fadeOut(500);
+                }, 300);
+
+                // 5. Tampilkan App Content
+                $('#appContent').show(); // Sudah di z-index rendah, jadi akan terlihat saat pintu terbuka
+
+                // 6. Cleanup
+                setTimeout(() => {
+                    $('#loginSection').hide(); 
+                    $('#door-overlay').hide(); // Sembunyikan pintu sepenuhnya agar tidak menghalangi klik
+                }, 1600); // Sesuaikan dengan durasi transisi CSS (1.5s)
+            }, 800); // Delay agar user sempat melihat gembok terbuka
         }
+
         function showLoading(show) { $('#loadingOverlay').css('display', show ? 'flex' : 'none'); }
         function sendData(data, cb) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) }).then(r=>r.json()).then(r=> { showLoading(false); if(r.status==='success') cb(); else Swal.fire('Gagal', r.message, 'error'); }); }
         function readFileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
@@ -1296,6 +1376,7 @@
     <!-- TSPARTICLES SCRIPT (Updated) -->
     <script>
     (function() {
+        // SVG Amplop Surat (Warna Warni Emas & Putih)
         const envelopeIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZEMzAwIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyA3YTIgMiAwIDAgMSAyLTJoMTRhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiIHN0cm9rZT0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0zIDcgMTIgMTMgMjEgNyIgc3Ryb2tlPSIjRkZEMzAwIi8+PC9zdmc+";
 
         tsParticles.load("tsparticles", {
@@ -1411,6 +1492,8 @@
 
         // --- MOTIVATIONAL QUOTES LOGIC ---
         const quotes = [
+            "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",
+            "Lelah itu biasa, kecewa itu wajar. Namun, menyerah bukanlah pilihan bagi jiwa yang profesional. Istirahatlah sejenak, lalu melesatlah lebih cepat.",
             "Rejeki itu bukan hanya soal gaji, tapi juga rekan kerja yang baik, atasan yang bijak, dan hati yang tenang saat bekerja. Syukuri yang ada.",
             "Di dalam kantor yang sibuk, ketenangan adalah kekuatan. Jangan biarkan tekanan merusak senyuman dan integritasmu hari ini.",
             "Masalah di meja kerja adalah cara Tuhan menaikkan level kesabaran dan keahlianmu. Hadapi dengan gagah, selesaikan dengan indah.",

@@ -509,7 +509,7 @@
                             </div>
                         </div>
 
-                        <!-- SETTINGS PAGE (Super Admin) - MODIFIED FOR STORAGE MANAGEMENT -->
+                    <!-- SETTINGS PAGE (Super Admin) - MODIFIED FOR STORAGE MANAGEMENT -->
                     <div class="tab-pane" id="settings-content">
                         <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="fw-light text-white m-0">Pengaturan <b class="text-info">Pengguna & Sistem</b></h2><button class="btn btn-outline-light" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                         
@@ -802,12 +802,22 @@
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal menyimpan pengaturan', 'error'); });
         }
         
+        // --- FIX: OPEN SETTINGS PAGE LOGIC ---
         function openSettingsPage(element) { 
-            activateTab('settings-content', element, () => {
+            // 1. Pindah Tab DULU (Agar tampilan berubah)
+            activateTab('settings-content', element);
+            
+            // 2. Baru kemudian load data (Jika error, UI tetap sudah pindah)
+            try {
                 loadUsers();
                 const role = sessionStorage.getItem('userRole');
-                if (role && role.toLowerCase().includes('admin')) { loadStorageStats(); }
-            }); 
+                if (role && (role.toLowerCase().includes('admin') || role.toLowerCase().includes('super'))) { 
+                    loadStorageStats(); 
+                }
+            } catch(e) {
+                console.error("Error loading settings data", e);
+                // Silent fail agar UI tidak rusak
+            }
         }
 
         // --- SERVER SIDE SEARCH FUNCTIONS ---
@@ -1101,40 +1111,6 @@
         function filterSubordinates() { const val = $('#searchSubordinate').val().toLowerCase(); $('.sub-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.indexOf(val) > -1); }); }
         function saveSubordinates() { const subs = []; $('.subord-check:checked').each(function() { subs.push($(this).val()); }); const payload = { type: 'update_user_subordinates', requestor: currentUserEmail, targetEmail: $('#subordTargetEmail').val(), subordinates: JSON.stringify(subs) }; bootstrap.Modal.getInstance(document.getElementById('modalManageSubordinates')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(r => { showLoading(false); if(r.status==='success') { Swal.fire('Sukses', 'Tim berhasil diatur', 'success'); loadUsers(); } else Swal.fire('Gagal', r.message, 'error'); }); }
         
-        // --- DYNAMIC MULTI-SELECT CHECKBOXES FOR DISPOSISI ---
-        function openModalAction(rowData) { 
-            $('#actNoAgenda').val(rowData[1]); $('#actPerihal').text(rowData[6]); document.querySelector('#actTgl').valueAsDate = new Date(); $('#actInstruksi').val(''); 
-            $('#modalDispLevelTitle').text(currentLevel.replace('_',' ').toUpperCase()); $('#prevDispInfo').addClass('d-none'); 
-            let prevLabel = ""; let prevText = ""; 
-            if (currentLevel.includes('wadir')) { prevLabel = "Instruksi Direktur:"; prevText = rowData[9]; } 
-            else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { prevLabel = "Instruksi Wadir:"; prevText = rowData[12]; } 
-            else if (currentLevel === 'jf') { prevLabel = "Instruksi Kabag/Kabid:"; prevText = rowData[15]; } 
-            if (prevLabel && prevText && prevText !== "") { $('#prevDispLabel').text(prevLabel); $('#prevDispText').text('"' + prevText + '"'); $('#prevDispInfo').removeClass('d-none'); } 
-            const container = $('#actTargetContainer'); container.empty(); let options = [];
-            if (currentLevel === 'direktur') { options = ["Wadir Pelayanan", "Wadir Admin & Keuangan"]; } 
-            else if (currentLevel.includes('wadir')) { if (currentLevel === 'wadir_pelayanan') options = structureOrg["Wadir Pelayanan"]; else if (currentLevel === 'wadir_admin') options = structureOrg["Wadir Admin & Keuangan"]; else { options = [...structureOrg["Wadir Pelayanan"], ...structureOrg["Wadir Admin & Keuangan"]]; } } 
-            else if (currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag') || currentLevel === 'jf') { let subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); if (subs && subs.length > 0) options = subs; else options = ["(Belum ada bawahan diset)"]; }
-            if(options.length > 0) { options.forEach(opt => { const idSafe = opt.replace(/\s+/g, '_'); const html = `<div class="form-check"><input class="form-check-input" type="checkbox" value="${opt}" id="chk_${idSafe}"><label class="form-check-label text-white" for="chk_${idSafe}">${opt}</label></div>`; container.append(html); }); } else { container.append('<div class="text-warning small fst-italic">Tidak ada target tersedia.</div>'); }
-            new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
-        }
-
-        function submitDisposisiLevel() { 
-            const targets = []; $('#actTargetContainer input:checked').each(function() { targets.push($(this).val()); });
-            if (targets.length === 0) { return Swal.fire('Peringatan', 'Pilih minimal satu tujuan disposisi.', 'warning'); }
-            const targetString = targets.join(", "); 
-            const formData = { type: 'update_disposisi_level', email: currentUserEmail, level: currentLevel, noAgenda: $('#actNoAgenda').val(), tglDisposisi: $('#actTgl').val(), instruksi: $('#actInstruksi').val() }; 
-            if(currentLevel === 'direktur') formData.targetWadir = targetString; if(currentLevel.includes('wadir')) formData.targetBidang = targetString; 
-            if(currentLevel.startsWith('kabid') || currentLevel.startsWith('kabag')) { formData.targetJF = targetString; } if(currentLevel === 'jf') { formData.targetStaf = targetString; } 
-            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); 
-            sendData(formData, () => { refreshCurrentDisposisi(); loadCounters(); Swal.fire('Sukses', 'Disposisi Terkirim ke: ' + targetString, 'success'); }); 
-        }
-
-        // --- EXISTING FUNCTIONS ---
-        function restoreState() { const lastBtnId = sessionStorage.getItem('lastActiveBtn'); if(lastBtnId && $('#'+lastBtnId).length) { if($('#'+lastBtnId).closest('.submenu').length) { $('#submenuDisposisi').addClass('show'); $('a[href="#submenuDisposisi"]').removeClass('collapsed').attr('aria-expanded', 'true'); } $('#'+lastBtnId).click(); } }
-        function loadCounters() { fetch(`${GAS_URL}?action=get_counts`).then(r=>r.json()).then(r => { if(r.status === 'success') { setCount('direktur', r.data.direktur); setCount('wadir_admin', r.data.wadir_admin); setCount('wadir_pelayanan', r.data.wadir_pelayanan); setCount('kabag_umum', r.data.kabag_umum); setCount('kabag_keuangan', r.data.kabag_keuangan); setCount('kabag_progpel', r.data.kabag_progpel); setCount('kabid_yanmed', r.data.kabid_yanmed); setCount('kabid_keperawatan', r.data.kabid_keperawatan); setCount('kabid_penunjang', r.data.kabid_penunjang); setCount('jf', r.data.jf); } }); fetch(`${GAS_URL}?action=get_auto_numbers`).then(r=>r.json()).then(r => { if(r.status === 'success') { $('input[name="noAgenda"]').val(r.data.masuk); $('#outNoAgenda').val(r.data.keluar); } }); }
-        function openBookingModal() { Swal.fire({ title: 'Booking Nomor Agenda', text: 'Jumlah nomor:', input: 'number', showCancelButton: true, confirmButtonText: 'Booking', showLoaderOnConfirm: true, preConfirm: (amount) => { return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_keluar', amount: amount, email: currentUserEmail }) }).then(response => response.json()); } }).then((result) => { if (result.isConfirmed) { $('#outNoAgenda').val(result.value.data.nextAvailable); Swal.fire('Berhasil', `Nomor berikutnya: ${result.value.data.nextAvailable}`, 'success'); } }); }
-        function setupSimpleForm(selector, type, msg) { $(selector).on('submit', async function(e) { e.preventDefault(); showLoading(true); let fileData = "", fileName = ""; const fileInput = $(this).find('input[type="file"]')[0]; if (fileInput.files.length > 0) { try { fileData = await readFileToBase64(fileInput.files[0]); fileName = fileInput.files[0].name; } catch(e) { showLoading(false); return Swal.fire('Error File', '', 'error'); } } const formData = { type: type, fileData: fileData, fileName: fileName, email: currentUserEmail }; $(this).serializeArray().forEach(item => formData[item.name] = item.value); sendData(formData, () => { $(selector)[0].reset(); document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date()); loadCounters(); Swal.fire('Sukses', msg, 'success'); }); }); }
-        function logout() { Swal.fire({ title: 'Konfirmasi Logout', text: "Anda yakin ingin keluar?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('lastActiveBtn'); $('#appContent').stop().hide(); $('#loginSection').stop().css('display', 'flex').hide().fadeIn(300); setTimeout(() => { location.reload(); }, 500); } }); }
         function activateTab(tabId, element, callback) { if(element && element.id) sessionStorage.setItem('lastActiveBtn', element.id); $('#sidebar .nav-link').removeClass('active'); $('.submenu .nav-link').removeClass('active'); if(element) $(element).addClass('active'); $('.tab-pane').removeClass('show active'); const target = $('#' + tabId); target.addClass('active'); setTimeout(() => { target.addClass('show'); }, 50); if ($(window).width() <= 991) $('#sidebar, #content').removeClass('toggled'); if (callback) callback(); }
         
         function openDisposisiPage(level, element) { 

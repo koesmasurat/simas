@@ -88,7 +88,6 @@
                     <div class="my-2 border-top border-white-50"></div>
 
                     <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
-                    <!-- UPDATED ONCLICK -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this)"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
@@ -172,12 +171,11 @@
                         <h3 class="fw-bold mb-4 border-bottom pb-2">Catat Surat Masuk</h3>
                         <form id="formSuratMasuk">
                             <div class="row g-3">
-                                <!-- UPDATED: Agenda Input Group -->
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Agenda</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" name="noAgenda" id="inNoAgenda" required>
-                                        <button class="btn btn-secondary" type="button" onclick="autoFillAgendaMasuk()">Booking</button>
+                                        <button class="btn btn-warning fw-bold" type="button" onclick="openBookingModal()">Booking</button>
                                     </div>
                                 </div>
                                 <div class="col-md-4"><label class="form-label fw-bold">Tgl Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
@@ -259,6 +257,33 @@
             <div class="row g-2"><div class="col-6"><label class="form-label small fw-bold">Dari Tanggal</label><input type="date" class="form-control" id="sa_start"></div><div class="col-6"><label class="form-label small fw-bold">Sampai Tanggal</label><input type="date" class="form-control" id="sa_end"></div></div>
         </form>
     </div><div class="modal-footer"><button type="button" class="btn btn-primary w-100" onclick="submitSearchAdvanced()">Cari Data</button></div></div></div></div>
+
+    <!-- MODAL BOOKING AGENDA (UPDATED) -->
+    <div class="modal fade" id="modalBooking" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Booking Nomor Agenda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <small>Nomor Agenda Terakhir:</small>
+                        <h2 id="lastAgendaDisplay" class="fw-bold text-primary">...</h2>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nomor yang ingin dibooking/dipakai:</label>
+                        <input type="number" class="form-control form-control-lg text-center fw-bold" id="bookingValue">
+                        <input type="text" class="form-control mt-2" id="bookingNote" placeholder="Catatan Booking (Opsional)">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success fw-bold" onclick="saveBooking()">Simpan Booking (Amankan Slot)</button>
+                        <button class="btn btn-outline-secondary" onclick="applyBooking()">Gunakan Saja (Tanpa Simpan)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL EDIT USER -->
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses & Bawahan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
@@ -452,9 +477,16 @@
         function sendData(d,cb){fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){cb();$('form').trigger('reset')}else Swal.fire('Err',r.message,'error')})}
         function readFile(f){return new Promise((r,j)=>{const fr=new FileReader();fr.readAsDataURL(f);fr.onload=()=>r(fr.result);fr.onerror=e=>j(e)})}
         
-        // --- AUTO FILL LOGIC FOR INPUT MASUK ---
+        // --- AUTO FILL LOGIC FOR INPUT MASUK (NEW) ---
         function autoFillAgendaMasuk() {
-            $('#inNoAgenda').val('Loading...');
+            openBookingModal(); // Just open modal, let modal logic fetch
+        }
+
+        function openBookingModal() {
+            new bootstrap.Modal(document.getElementById('modalBooking')).show();
+            $('#lastAgendaDisplay').text('Loading...');
+            $('#bookingValue').val('');
+            
             fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({ type: 'get_last_agenda_masuk' })
@@ -462,18 +494,56 @@
             .then(r => r.json())
             .then(r => {
                 if (r.status === 'success') {
-                    $('#inNoAgenda').val(r.data.nextAgenda);
+                    // Tampilkan agenda terakhir dan saran agenda baru
+                    const last = r.data.lastAgenda > 0 ? r.data.lastAgenda : '-';
+                    $('#lastAgendaDisplay').text(last);
+                    $('#bookingValue').val(r.data.nextAgenda);
                 } else {
-                    $('#inNoAgenda').val('');
-                    Swal.fire('Error', 'Gagal mengambil nomor agenda', 'error');
+                    $('#lastAgendaDisplay').text('Error');
+                }
+            });
+        }
+
+        function applyBooking() {
+            const val = $('#bookingValue').val();
+            if(val) {
+                $('#inNoAgenda').val(val);
+                bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide();
+            }
+        }
+
+        function saveBooking() {
+            const val = $('#bookingValue').val();
+            const note = $('#bookingNote').val();
+            if(!val) return Swal.fire('Warning', 'Isi Nomor Agenda', 'warning');
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide();
+            showLoading(true);
+            
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'booking_agenda',
+                    targetAgenda: val,
+                    email: currentUserEmail,
+                    note: note
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if(r.status === 'success') {
+                    Swal.fire('Sukses', r.data.message, 'success');
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
                 }
             });
         }
 
         function setDefaultDatesMasuk() {
             const today = new Date().toISOString().split('T')[0];
-            $('input[name="tglSurat"]').val(today);
-            $('input[name="tglTerima"]').val(today);
+            if(!$('input[name="tglSurat"]').val()) $('input[name="tglSurat"]').val(today);
+            if(!$('input[name="tglTerima"]').val()) $('input[name="tglTerima"]').val(today);
         }
     </script>
 </body>

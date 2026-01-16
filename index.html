@@ -579,16 +579,27 @@
                 const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } 
             }
 
-            // RENDER DELEGATION MENU
+            // RENDER DELEGATION MENU (FIXED DISPLAY NAME)
             const delContainer = $('#delegationLinks');
             delContainer.empty();
             if(delegations.length > 0) {
                 $('#delegationMenuContainer').show();
                 delegations.forEach(user => {
-                    // Create link that calls openDisposisiPage with override params
-                    const btn = $(`<button class="nav-link w-100 text-start text-warning"><i class="fas fa-user-check"></i> ${user.name}</button>`);
+                    // Pastikan nama tidak undefined. Jika user string (versi lama), pakai stringnya. Jika object, pakai .name atau .email
+                    let displayName = "Delegasi";
+                    let targetEmail = "";
+                    
+                    if (typeof user === 'string') {
+                        displayName = user;
+                        targetEmail = user;
+                    } else if (typeof user === 'object') {
+                        displayName = user.name || user.email;
+                        targetEmail = user.email;
+                    }
+
+                    const btn = $(`<button class="nav-link w-100 text-start text-warning"><i class="fas fa-user-check"></i> ${displayName}</button>`);
                     btn.on('click', function() {
-                        openDisposisiPage('staf', this, user.email, user.name);
+                        openDisposisiPage('staf', this, targetEmail, displayName);
                     });
                     delContainer.append(btn);
                 });

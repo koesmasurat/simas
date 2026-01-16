@@ -7,7 +7,8 @@
     <link rel="icon" href="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" type="image/png">
     
     <!-- LIBRARIES -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- PERBAIKAN: Menghapus 'async' agar script menunggu parsing HTML selesai, mencegah error 'callback not function' -->
+    <script src="https://accounts.google.com/gsi/client" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -710,6 +711,7 @@
             saveAppState('disposisi-container', l, currentInboxContextEmail, overrideName);
         }
 
+        // --- UPDATED REFRESH DISPOSISI (BULLETPROOF FIX) ---
         function refreshCurrentDisposisi(){
             showLoading(true);
             fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentInboxContextEmail}`)
@@ -719,14 +721,32 @@
                 const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}, order: [[ 1, 'desc' ]] });
                 dt.clear();
                 if(r.data) r.data.forEach(d=>{
-                    const safePerihal = d.perihal.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                    
+                    // SOLUSI ANTI-ERROR:
+                    // 1. Pastikan perihal dianggap sebagai String (jika angka/kosong tidak error)
+                    // 2. Gunakan encodeURIComponent untuk mengubah SEMUA karakter aneh menjadi kode % (misal spasi jadi %20, kutip jadi %27)
+                    // 3. Ganti manual kutip satu (') menjadi %27 agar tidak memutus string JavaScript
+                    const rawPerihal = String(d.perihal || ""); 
+                    const safePerihal = encodeURIComponent(rawPerihal).replace(/'/g, "%27");
+
                     let btnAction = '';
+                    
+                    // Perhatikan penggunaan decodeURIComponent(...) di dalam onclick
                     if(currentInboxLevel === 'staf') {
-                        btnAction = `<div class="btn-group" role="group"><button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${safePerihal}')"><i class="fas fa-share"></i></button><button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button></div>`;
+                        btnAction = `
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}', decodeURIComponent('${safePerihal}'))"><i class="fas fa-share"></i></button>
+                            <button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>
+                        </div>`;
                     } else {
-                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${safePerihal}')">Proses</button>`;
+                        // Tombol Proses Direktur/Pejabat
+                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}', decodeURIComponent('${safePerihal}'))">Proses</button>`;
                     }
-                    let perihalHtml = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` : `<span class="text-dark">${d.perihal}</span>`;
+                    
+                    let perihalHtml = d.file 
+                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
+                        : `<span class="text-dark">${d.perihal}</span>`;
+
                     dt.row.add([d.tgl, d.agenda, d.pengirim, perihalHtml, btnAction]);
                 });
                 dt.draw();
@@ -885,6 +905,7 @@
                 }
             });
         }
+        window.handleCredentialResponse = handleCredentialResponse;
     </script>
 </body>
 </html>

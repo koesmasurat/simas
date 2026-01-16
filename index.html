@@ -116,26 +116,29 @@
                 
                 <div class="sidebar-scroll">
                     <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
-                    <!-- FIX: PROFILE BUTTON ENABLED -->
+                    <!-- PROFIL SAYA -->
                     <button class="nav-link w-100 text-start" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> Profil Saya</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
-                    <!-- FIX: PENCARIAN LANJUT DENGAN PERMISSION -->
+                    <!-- PENCARIAN LANJUT DENGAN PERMISSION -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="search_advanced" onclick="openAdvancedSearch()"><i class="fas fa-search"></i> Pencarian Lanjut (OCR)</button>
                     <div class="my-2 border-top border-white-50"></div>
 
-                    <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Input Data</small>
+                    <!-- INPUT DATA -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this); autoFillAgendaKeluar();"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
-                    <small class="text-white-50 text-uppercase fw-bold mb-2 d-block px-2" style="font-size:0.7rem;">Inbox & Disposisi</small>
                     
+                    <!-- INBOXKU (DEFAULT FOR ALL) -->
+                    <button class="nav-link w-100 text-start" onclick="openDisposisiPage('staf', this)"><i class="fas fa-inbox"></i> Inboxku <span class="badge-count" id="count-staf">0</span></button>
+
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)">Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_adm', this)">Inbox Wadir Adm & Keu <span class="badge-count" id="count-wadir_adm">0</span></button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pel', this)">Inbox Wadir Pelayanan <span class="badge-count" id="count-wadir_pel">0</span></button>
                     
-                    <a class="nav-link w-100 text-start" data-bs-toggle="collapse" href="#subKabag" role="button">Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
+                    <!-- INBOX KABAG (SMART HIDE) -->
+                    <a class="nav-link w-100 text-start" id="btnInboxKabagParent" data-bs-toggle="collapse" href="#subKabag" role="button">Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="subKabag">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)">Kabag Umum <span class="badge-count" id="count-kabag_umum">0</span></button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_keu" onclick="openDisposisiPage('kabag_keuangan', this)">Kabag Keu <span class="badge-count" id="count-kabag_keuangan">0</span></button>
@@ -146,7 +149,7 @@
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
-                    <!-- FIX: PARENT MENU VISIBILITY -->
+                    <!-- ARSIP PARENTS -->
                     <a class="nav-link w-100 text-start text-info restricted-feature" id="btnArsipMasukParent" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipMasuk">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">All (Semua)</button>
@@ -161,7 +164,6 @@
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_kabid_kep" onclick="openArsipPage('masuk', 'kabid_kep', this)">Kabid Keperawatan</button>
                     </div>
 
-                    <!-- FIX: PARENT MENU VISIBILITY -->
                     <a class="nav-link w-100 text-start text-success restricted-feature" id="btnArsipKeluarParent" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipKeluar">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">All (Semua)</button>
@@ -359,32 +361,13 @@
     <!-- MODAL EDIT USER (UPDATED) -->
     <div class="modal fade" id="modalEditUser" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Edit Hak Akses & Bawahan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body bg-light"><form id="formEditUser"><input type="hidden" id="editUserEmail"><div class="row g-2 mb-3 bg-white p-3 rounded shadow-sm"><div class="col-md-6"><label class="small fw-bold">Nama</label><input type="text" class="form-control" id="editUserName" readonly></div><div class="col-md-3"><label class="small fw-bold">Role</label><select class="form-select" id="editUserRole"><option value="User">User</option><option value="Admin">Admin</option><option value="Super Admin">Super Admin</option></select></div><div class="col-md-3"><label class="small fw-bold">Status</label><select class="form-select" id="editUserStatus"><option value="Aktif">Aktif</option><option value="Blokir">Blokir</option></select></div></div>
-    
-    <div class="mb-3 p-3 bg-white border rounded shadow-sm">
-        <label class="fw-bold text-success">Pilih Bawahan (Tujuan Disposisi)</label>
-        <div class="input-group mb-2"><span class="input-group-text"><i class="fas fa-search"></i></span><input type="text" class="form-control form-control-sm" id="searchSubs" placeholder="Cari nama..." onkeyup="filterSubs()"></div>
-        <div id="listCandidates" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background:#f9f9f9;"></div>
-    </div>
-
-    <div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;">
-        <div class="perm-category">A. INPUT</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk"><label class="form-check-label">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar"><label class="form-check-label">Input Keluar</label></div></div>
-        <div class="perm-category">B. INBOX</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_staf"><label class="form-check-label text-primary">Inboxku (Staf)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur"><label class="form-check-label">Inbox Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm"><label class="form-check-label">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel"><label class="form-check-label">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum"><label class="form-check-label">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu"><label class="form-check-label">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_prog"><label class="form-check-label">Kabag Program</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed"><label class="form-check-label">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_penunjang"><label class="form-check-label">Kabid Penunjang</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_kep"><label class="form-check-label">Kabid Kep</label></div></div>
-        <div class="perm-category">C. ARSIP</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_all"><label class="form-check-label fw-bold text-success">SEMUA MASUK</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_direktur"><label class="form-check-label">Masuk Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_all"><label class="form-check-label fw-bold text-success">SEMUA KELUAR</label></div></div>
-        <div class="perm-category">D. EDIT DATA (SENSITIF)</div>
-        <div class="perm-grid">
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_masuk"><label class="form-check-label text-warning fw-bold">Edit Surat Masuk</label></div>
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_keluar"><label class="form-check-label text-warning fw-bold">Edit Surat Keluar</label></div>
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_tujuan_disposisi"><label class="form-check-label text-danger fw-bold">Edit Tujuan Disposisi</label></div>
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_status_approval"><label class="form-check-label text-danger fw-bold">Edit Status Approval</label></div>
-        </div>
-        <!-- FITUR TAMBAHAN (NEW) -->
-        <div class="perm-category">F. FITUR TAMBAHAN</div>
-        <div class="perm-grid">
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="search_advanced"><label class="form-check-label text-primary fw-bold">Pencarian Lanjut</label></div>
-            <div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_profil"><label class="form-check-label text-danger fw-bold">Admin: Edit Profil User</label></div>
-        </div>
-        <div class="perm-category">E. ADMIN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user"><label class="form-check-label text-danger">Setting User</label></div></div>
-    </div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan</button></div></div></div></div>
+    <div class="mb-3 p-3 bg-white border rounded shadow-sm"><label class="fw-bold text-success">Pilih Bawahan (Tujuan Disposisi)</label><div class="input-group mb-2"><span class="input-group-text"><i class="fas fa-search"></i></span><input type="text" class="form-control form-control-sm" id="searchSubs" placeholder="Cari nama..." onkeyup="filterSubs()"></div><div id="listCandidates" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background:#f9f9f9;"></div></div>
+    <div class="bg-white p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y: auto;"><div class="perm-category">A. INPUT</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_masuk"><label class="form-check-label">Input Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="input_keluar"><label class="form-check-label">Input Keluar</label></div></div>
+    <div class="perm-category">B. INBOX</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_staf"><label class="form-check-label text-primary">Inboxku (Staf)</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_direktur"><label class="form-check-label">Inbox Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_adm"><label class="form-check-label">Wadir Adm</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_wadir_pel"><label class="form-check-label">Wadir Pel</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_umum"><label class="form-check-label">Kabag Umum</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_keu"><label class="form-check-label">Kabag Keu</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabag_prog"><label class="form-check-label">Kabag Program</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_yanmed"><label class="form-check-label">Kabid Yanmed</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_penunjang"><label class="form-check-label">Kabid Penunjang</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="inbox_kabid_kep"><label class="form-check-label">Kabid Kep</label></div></div>
+    <div class="perm-category">C. ARSIP</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_all"><label class="form-check-label fw-bold text-success">SEMUA MASUK</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_masuk_direktur"><label class="form-check-label">Masuk Direktur</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="arsip_keluar_all"><label class="form-check-label fw-bold text-success">SEMUA KELUAR</label></div></div>
+    <div class="perm-category">D. EDIT DATA (SENSITIF)</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_masuk"><label class="form-check-label text-warning fw-bold">Edit Surat Masuk</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_surat_keluar"><label class="form-check-label text-warning fw-bold">Edit Surat Keluar</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_tujuan_disposisi"><label class="form-check-label text-danger fw-bold">Edit Tujuan Disposisi</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_status_approval"><label class="form-check-label text-danger fw-bold">Edit Status Approval</label></div></div>
+    <div class="perm-category">F. FITUR TAMBAHAN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="search_advanced"><label class="form-check-label text-primary fw-bold">Pencarian Lanjut</label></div><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="edit_profil"><label class="form-check-label text-danger fw-bold">Admin: Edit Profil User</label></div></div>
+    <div class="perm-category">E. ADMIN</div><div class="perm-grid"><div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="setting_user"><label class="form-check-label text-danger">Setting User</label></div></div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveUserPermissions()">Simpan</button></div></div></div></div>
 
     <!-- OTHER MODALS -->
     <div class="modal fade" id="modalSearchAdvanced" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Pencarian Lanjut (OCR)</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formSearchAdvanced"><div class="mb-3"><label class="form-label small fw-bold">Kategori</label><select class="form-select" id="sa_category"><option value="masuk">Surat Masuk</option><option value="keluar">Surat Keluar</option></select></div><div class="mb-3"><label class="form-label small fw-bold">Kata Kunci</label><input type="text" class="form-control" id="sa_keyword"></div><div class="row g-2"><div class="col-6"><label class="form-label small fw-bold">Dari</label><input type="date" class="form-control" id="sa_start"></div><div class="col-6"><label class="form-label small fw-bold">Sampai</label><input type="date" class="form-control" id="sa_end"></div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-primary w-100" onclick="submitSearchAdvanced()">Cari Data</button></div></div></div></div>
@@ -432,7 +415,6 @@
                     showApp();
                     renderSidebarPermissions();
                     loadRefCodes();
-                    // CHECK PROFILE
                     if(res.data.profileIncomplete) {
                         openUpdateProfileModal(res.data.email, res.data.name, true);
                     }
@@ -512,7 +494,6 @@
                 showLoading(false);
                 if(r.status === 'success'){
                     const wb = XLSX.utils.book_new();
-                    // Create Worksheets
                     const ws1 = XLSX.utils.aoa_to_sheet(r.data.suratMasuk);
                     const ws2 = XLSX.utils.aoa_to_sheet(r.data.suratKeluar);
                     XLSX.utils.book_append_sheet(wb, ws1, "SuratMasuk");
@@ -542,18 +523,27 @@
 
             if(r==='Super Admin'){
                 $('.restricted-feature').removeClass('restricted-feature');
+                // Ensure parents are shown
+                $('#btnArsipMasukParent').removeClass('restricted-feature');
+                $('#btnArsipKeluarParent').removeClass('restricted-feature');
+                $('#btnInboxKabagParent').show();
             } else {
                 p.forEach(x => {
                     $(`[data-perm="${x}"]`).removeClass('restricted-feature');
-                    // Check logic for parents
                     if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true;
                     if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true;
                 });
-                if(r==='User')$(`[data-perm="inbox_staf"]`).removeClass('restricted-feature');
                 
-                // SHOW PARENTS IF HAS PERM
                 if(hasAnyArsipMasuk) $('#btnArsipMasukParent').removeClass('restricted-feature');
                 if(hasAnyArsipKeluar) $('#btnArsipKeluarParent').removeClass('restricted-feature');
+                
+                // SMART HIDE INBOX KABAG PARENT
+                const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0;
+                if (!kabagVisible) {
+                    $('#btnInboxKabagParent').hide();
+                } else {
+                    $('#btnInboxKabagParent').show();
+                }
             }
         }
 

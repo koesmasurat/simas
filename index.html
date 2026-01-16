@@ -150,35 +150,38 @@
                 
                 <div class="sidebar-scroll">
                     <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this); loadDashboardStats();"><i class="fas fa-home"></i> Beranda</button>
+                    <!-- PROFIL SAYA -->
                     <button class="nav-link w-100 text-start" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> Profil Saya</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
+                    <!-- PENCARIAN LANJUT DENGAN PERMISSION -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="search_advanced" onclick="openAdvancedSearch()"><i class="fas fa-search"></i> Pencarian Lanjut (OCR)</button>
                     <div class="my-2 border-top border-white-50"></div>
 
-                    <!-- INPUT -->
+                    <!-- INPUT DATA -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this); autoFillAgendaKeluar();"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
                     
-                    <!-- INBOX UTAMA -->
+                    <!-- INBOXKU (DEFAULT FOR ALL) -->
                     <button class="nav-link w-100 text-start" onclick="openDisposisiPage('staf', this)"><i class="fas fa-inbox"></i> Inboxku <span class="badge-count" id="count-staf">0</span></button>
+                    
+                    <!-- ARSIPKU (NEW) -->
                     <button class="nav-link w-100 text-start text-warning" onclick="openArsipku(this)"><i class="fas fa-archive"></i> Arsipku (Selesai)</button>
                     
-                    <!-- MENU DELEGASI -->
+                    <!-- MENU DELEGASI (DYNAMICALLY FILLED) -->
                     <div id="delegationMenuContainer" style="display:none;">
                         <div class="my-2 border-top border-white-50"></div>
                         <div class="fw-bold text-white-50 px-3 py-1 small"><i class="fas fa-user-friends me-1"></i> Inbox Delegasi</div>
                         <div id="delegationLinks"></div>
                     </div>
 
-                    <!-- INBOX PEJABAT -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_direktur" onclick="openDisposisiPage('direktur', this)">Inbox Direktur <span class="badge-count" id="count-direktur">0</span></button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_adm" onclick="openDisposisiPage('wadir_adm', this)">Inbox Wadir Adm & Keu <span class="badge-count" id="count-wadir_adm">0</span></button>
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_wadir_pel" onclick="openDisposisiPage('wadir_pel', this)">Inbox Wadir Pelayanan <span class="badge-count" id="count-wadir_pel">0</span></button>
                     
-                    <!-- SUBMENU KABAG -->
+                    <!-- INBOX KABAG (SMART HIDE) -->
                     <a class="nav-link w-100 text-start" id="btnInboxKabagParent" data-bs-toggle="collapse" href="#subKabag" role="button">Inbox Kabag/Kabid <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="subKabag">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="inbox_kabag_umum" onclick="openDisposisiPage('kabag_umum', this)">Kabag Umum <span class="badge-count" id="count-kabag_umum">0</span></button>
@@ -190,7 +193,7 @@
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
-                    <!-- ARSIP MASUK PARENT -->
+                    <!-- ARSIP PARENTS -->
                     <a class="nav-link w-100 text-start text-info restricted-feature" id="btnArsipMasukParent" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipMasuk">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">All (Semua)</button>
@@ -234,17 +237,88 @@
                     <!-- 1. DASHBOARD -->
                     <div class="tab-pane active white-panel p-4" id="home-content">
                         <div class="welcome-header d-flex justify-content-between align-items-center">
-                            <div><h2 class="fw-bold mb-1" id="dashGreeting">Selamat Datang</h2><p class="mb-0 opacity-75" id="dashDate">...</p></div>
-                            <div class="text-end"><h5 class="mb-0" id="dashUser">...</h5><span class="badge bg-warning text-dark" id="dashRole">...</span></div>
+                            <div>
+                                <h2 class="fw-bold mb-1" id="dashGreeting">Selamat Datang</h2>
+                                <p class="mb-0 opacity-75" id="dashDate">...</p>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="mb-0" id="dashUser">...</h5>
+                                <span class="badge bg-warning text-dark" id="dashRole">...</span>
+                            </div>
                         </div>
+
+                        <!-- Statistics Cards -->
                         <div class="row g-4 mb-4">
-                            <div class="col-md-4"><div class="card dash-card bg-primary text-white h-100" onclick="$('button:contains(Inboxku)').click()"><div class="card-body"><h6 class="card-title text-white-50 mb-1">Inbox Saya</h6><h2 class="display-4 fw-bold mb-0" id="dashInboxVal">0</h2><p class="card-text small">Surat Menunggu Tindakan</p><i class="fas fa-inbox dash-icon"></i></div></div></div>
-                            <div class="col-md-4"><div class="card dash-card bg-success text-white h-100" onclick="$('#btnArsipMasukParent').click()"><div class="card-body"><h6 class="card-title text-white-50 mb-1">Surat Masuk RS</h6><h2 class="display-4 fw-bold mb-0" id="dashMasukVal">0</h2><p class="card-text small">Bulan Ini</p><i class="fas fa-envelope-open-text dash-icon"></i></div></div></div>
-                            <div class="col-md-4"><div class="card dash-card bg-info text-white h-100" onclick="openArsipku()"><div class="card-body"><h6 class="card-title text-white-50 mb-1">Kinerja Saya</h6><h2 class="display-4 fw-bold mb-0" id="dashArsipVal">0</h2><p class="card-text small">Surat Diselesaikan (Total)</p><i class="fas fa-check-circle dash-icon"></i></div></div></div>
+                            <!-- Card 1: Inbox (Most Important) -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-primary text-white h-100" onclick="$('button:contains(Inboxku)').click()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Inbox Saya</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashInboxVal">0</h2>
+                                        <p class="card-text small">Surat Menunggu Tindakan</p>
+                                        <i class="fas fa-inbox dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card 2: Surat Masuk Month -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-success text-white h-100" onclick="$('#btnArsipMasukParent').click()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Surat Masuk RS</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashMasukVal">0</h2>
+                                        <p class="card-text small">Bulan Ini</p>
+                                        <i class="fas fa-envelope-open-text dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card 3: Performance (Arsipku) -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-info text-white h-100" onclick="openArsipku()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Kinerja Saya</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashArsipVal">0</h2>
+                                        <p class="card-text small">Surat Diselesaikan (Total)</p>
+                                        <i class="fas fa-check-circle dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Chart & Actions Section -->
                         <div class="row g-4">
-                            <div class="col-lg-8"><div class="card h-100 shadow-sm border-0"><div class="card-header bg-white fw-bold py-3"><i class="fas fa-chart-bar text-primary me-2"></i>Tren Surat Masuk (6 Bulan Terakhir)</div><div class="card-body"><canvas id="dashboardChart" style="max-height: 300px;"></canvas></div></div></div>
-                            <div class="col-lg-4"><div class="card h-100 shadow-sm border-0"><div class="card-header bg-white fw-bold py-3"><i class="fas fa-bolt text-warning me-2"></i>Akses Cepat</div><div class="card-body d-grid gap-2"><button class="btn btn-outline-primary text-start p-3 restricted-feature" data-perm="input_masuk" onclick="$('button:contains(Surat Masuk)').click()"><i class="fas fa-plus-circle me-2"></i>Input Surat Masuk</button><button class="btn btn-outline-success text-start p-3 restricted-feature" data-perm="input_keluar" onclick="$('button:contains(Surat Keluar)').click()"><i class="fas fa-paper-plane me-2"></i>Input Surat Keluar</button><button class="btn btn-outline-secondary text-start p-3" onclick="openMyProfile()"><i class="fas fa-user-edit me-2"></i>Update Profil Saya</button></div><div class="card-footer bg-light small text-muted"><i class="fas fa-info-circle me-1"></i> Sistem v21.6</div></div></div>
+                            <!-- Left: Chart -->
+                            <div class="col-lg-8">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold py-3">
+                                        <i class="fas fa-chart-bar text-primary me-2"></i>Tren Surat Masuk (6 Bulan Terakhir)
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="dashboardChart" style="max-height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right: Quick Actions -->
+                            <div class="col-lg-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold py-3">
+                                        <i class="fas fa-bolt text-warning me-2"></i>Akses Cepat
+                                    </div>
+                                    <div class="card-body d-grid gap-2">
+                                        <button class="btn btn-outline-primary text-start p-3 restricted-feature" data-perm="input_masuk" onclick="$('button:contains(Surat Masuk)').click()">
+                                            <i class="fas fa-plus-circle me-2"></i>Input Surat Masuk
+                                        </button>
+                                        <button class="btn btn-outline-success text-start p-3 restricted-feature" data-perm="input_keluar" onclick="$('button:contains(Surat Keluar)').click()">
+                                            <i class="fas fa-paper-plane me-2"></i>Input Surat Keluar
+                                        </button>
+                                        <button class="btn btn-outline-secondary text-start p-3" onclick="openMyProfile()">
+                                            <i class="fas fa-user-edit me-2"></i>Update Profil Saya
+                                        </button>
+                                    </div>
+                                    <div class="card-footer bg-light small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Sistem v21.4
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -645,11 +719,12 @@
                 const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}, order: [[ 1, 'desc' ]] });
                 dt.clear();
                 if(r.data) r.data.forEach(d=>{
+                    const safePerihal = d.perihal.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                     let btnAction = '';
                     if(currentInboxLevel === 'staf') {
-                        btnAction = `<div class="btn-group" role="group"><button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button><button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button></div>`;
+                        btnAction = `<div class="btn-group" role="group"><button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${safePerihal}')"><i class="fas fa-share"></i></button><button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button></div>`;
                     } else {
-                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
+                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${safePerihal}')">Proses</button>`;
                     }
                     let perihalHtml = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` : `<span class="text-dark">${d.perihal}</span>`;
                     dt.row.add([d.tgl, d.agenda, d.pengirim, perihalHtml, btnAction]);

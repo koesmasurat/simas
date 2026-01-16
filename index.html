@@ -16,6 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
@@ -29,6 +30,16 @@
         .glass-form-card h3 { color: white !important; }
         .glass-form-card label { color: #f8f9fa !important; }
         .glass-form-card .form-control, .glass-form-card .form-select { background-color: #ffffff; color: #333333; border: none; }
+
+        /* DASHBOARD STYLES */
+        .dash-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px; transition: all 0.3s ease; height: 100%; position: relative; overflow: hidden; }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); background: rgba(255,255,255,0.15); }
+        .dash-card h3 { font-size: 2.5rem; font-weight: 700; margin: 10px 0 5px 0; }
+        .dash-card p { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0; }
+        .dash-icon { position: absolute; right: 15px; top: 15px; font-size: 3rem; opacity: 0.2; }
+        .dash-red { border-left: 5px solid #ef4444; }
+        .dash-green { border-left: 5px solid #10b981; }
+        .dash-blue { border-left: 5px solid #3b82f6; }
 
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 200; }
         .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; border-radius: 16px; position: relative; z-index: 201; }
@@ -115,7 +126,7 @@
                 </div>
                 
                 <div class="sidebar-scroll">
-                    <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
+                    <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this); loadDashboard();"><i class="fas fa-home"></i> Beranda</button>
                     <!-- PROFIL SAYA -->
                     <button class="nav-link w-100 text-start" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> Profil Saya</button>
                     
@@ -190,16 +201,56 @@
             <div id="content">
                 <button type="button" id="sidebarCollapse" class="btn btn-outline-light mb-3"><i class="fas fa-bars"></i> Menu</button>
                 <div class="tab-content">
-                    <div class="tab-pane white-panel p-4" id="home-content">
-                        <div class="text-center py-5">
-                            <h2 class="fw-bold text-primary mb-3">Selamat Datang di SIMAS KOESMA</h2>
-                            <p class="lead mb-4">Sistem Informasi Manajemen Arsip Surat</p>
-                            <div class="alert alert-info d-inline-block text-start">
-                                <strong><i class="fas fa-info-circle me-2"></i>Status Akun Anda:</strong>
-                                <ul class="mb-0 mt-2">
-                                    <li>Nama: <span id="homeDisplayName" class="fw-bold">...</span></li>
-                                    <li>Role: <span id="homeRoleBadge" class="badge bg-secondary">...</span></li>
-                                </ul>
+                    
+                    <!-- NEW HOME / DASHBOARD CONTENT -->
+                    <div class="tab-pane active" id="home-content">
+                        <div class="mb-4">
+                            <h2 class="fw-bold mb-1">Halo, <span id="dashName">User</span></h2>
+                            <p class="text-white-50">Berikut adalah ringkasan aktivitas surat Anda hari ini.</p>
+                        </div>
+                        
+                        <!-- 3 MAIN BOXES -->
+                        <div class="row g-4 mb-4">
+                            <!-- Box 1: Tugas Saya (Inbox) -->
+                            <div class="col-md-4">
+                                <div class="dash-card dash-red" role="button" onclick="$('#btn-inbox-me').click()">
+                                    <p>TUGAS SAYA</p>
+                                    <h3 id="statInbox">0</h3>
+                                    <small class="text-white-50">Surat menunggu disposisi/tindak lanjut</small>
+                                    <i class="fas fa-exclamation-circle dash-icon"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Box 2: Kinerja Saya (Arsipku) -->
+                            <div class="col-md-4">
+                                <div class="dash-card dash-green" role="button" onclick="$('#btn-arsipku').click()">
+                                    <p>KINERJA SAYA</p>
+                                    <h3 id="statArsipku">0</h3>
+                                    <small class="text-white-50">Surat diselesaikan bulan ini</small>
+                                    <i class="fas fa-check-circle dash-icon"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Box 3: Surat Masuk Bulan Ini -->
+                            <div class="col-md-4">
+                                <div class="dash-card dash-blue">
+                                    <p>SURAT MASUK</p>
+                                    <h3 id="statMasuk">0</h3>
+                                    <small class="text-white-50">Total surat masuk bulan ini</small>
+                                    <i class="fas fa-envelope-open-text dash-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CHART SECTION -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="white-panel p-4">
+                                    <h5 class="fw-bold mb-3 text-dark">Tren Surat Masuk (6 Bulan Terakhir)</h5>
+                                    <div style="height: 300px;">
+                                        <canvas id="chartSurat"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -468,7 +519,8 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentUserEmail = "", currentInboxLevel = "", currentArsipScope = "";
         let allUsersList = []; 
-        
+        let dashboardChart = null;
+
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ 
                 currentUserEmail=sessionStorage.getItem('userEmail'); 
@@ -476,7 +528,6 @@
                 renderSidebarPermissions(); 
                 loadRefCodes(); 
                 
-                // RESTORE STATE LOGIC (NEW)
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -484,13 +535,16 @@
                     else if(lastState.tabId.includes('disposisi')) openDisposisiPage(lastState.context, null);
                     else if(lastState.tabId.includes('arsipku')) openArsipku(null); 
                     else activateTab(lastState.tabId, null);
+                    
+                    if(lastState.tabId === 'home-content') loadDashboard(); // Load dash if home
+                } else {
+                    loadDashboard(); // Default
                 }
             } 
             $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
             tsParticles.load("tsparticles", { fpsLimit: 60, particles: { number: { value: 30, density: { enable: true, value_area: 800 } }, color: { value: "#ffffff" }, shape: { type: "image", image: [ { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 } ] }, opacity: { value: 0.6, random: true }, size: { value: 20, random: true }, move: { enable: true, speed: 2 } } });
         });
 
-        // STATE PERSISTENCE HELPER
         function saveAppState(tabId, context = null) {
             sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context }));
         }
@@ -505,8 +559,6 @@
             $('.tab-pane').removeClass('active');
             $('#'+t).addClass('active');
             if(cb)cb();
-            
-            // Save state for non-dynamic tabs
             if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
                 saveAppState(t, null);
             }
@@ -514,102 +566,117 @@
         
         function logout(){sessionStorage.clear();location.reload()}
         
-        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
+        // --- DASHBOARD FUNCTIONS ---
+        function loadDashboard() {
+            // Only load if Home is active
+            if (!$('#home-content').hasClass('active')) return;
+            
+            // showLoading(true); // Optional: Loading spinner
+            fetch(`${GAS_URL}?action=get_dashboard_stats&email=${currentUserEmail}`)
+            .then(r => r.json())
+            .then(r => {
+                // showLoading(false);
+                if(r.status === 'success') {
+                    // Update Text
+                    $('#dashName').text(r.data.role === 'Super Admin' ? 'Administrator' : sessionStorage.getItem('userName').split(' ')[0]);
+                    
+                    // Animate Numbers
+                    animateValue("statInbox", 0, r.data.inbox, 1000);
+                    animateValue("statArsipku", 0, r.data.arsipku, 1000);
+                    animateValue("statMasuk", 0, r.data.suratMasukMonth, 1000);
+                    
+                    // Render Chart
+                    renderChart(r.data.chartLabels, r.data.chartData);
+                    
+                    // Update Badge
+                    $('#count-staf').text(r.data.inbox);
+                    if(r.data.inbox > 0) $('#count-staf').addClass('has-data');
+                    else $('#count-staf').removeClass('has-data');
+                }
+            });
+        }
+        
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            var range = end - start;
+            var current = start;
+            var increment = end > start ? 1 : -1;
+            var stepTime = Math.abs(Math.floor(duration / range));
+            var obj = document.getElementById(id);
+            var timer = setInterval(function() {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('chartSurat').getContext('2d');
+            
+            if (dashboardChart) {
+                dashboardChart.destroy();
+            }
+
+            dashboardChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Surat Masuk',
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#3b82f6',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ... (Other functions remain largely the same, ensuring compatibility) ...
+        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); loadDashboard(); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
         function openUpdateProfileModal(email, name, force=false) { $('#prof_email').val(email); $('#prof_nama').val(name); $('#prof_bidang').val(sessionStorage.getItem('userBidang') || ''); if(force) { $('#btnCancelProfile').hide(); new bootstrap.Modal(document.getElementById('modalUpdateProfile'), {backdrop: 'static', keyboard: false}).show(); } else { $('#btnCancelProfile').show(); new bootstrap.Modal(document.getElementById('modalUpdateProfile')).show(); } }
         function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
         $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
         
+        // --- ARSIPKU & FINISH LOGIC (NEW) ---
         function openArsipku(e) { activateTab('arsipku-container', e, loadArsipku); saveAppState('arsipku-container', null); }
         function loadArsipku() { showLoading(true); fetch(`${GAS_URL}?action=read_arsipku&email=${currentUserEmail}`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); dt.clear(); if(r.data) r.data.forEach(d => { dt.row.add([ d.tglTerima, d.agenda, d.perihal, d.pengirim, d.keterangan || '-', d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-' ]); }); dt.draw(); }); }
         function openFinishModal(agenda) { $('#fd_agenda').val(agenda); $('#fd_note').val(''); new bootstrap.Modal(document.getElementById('modalFinishDisposition')).show(); }
-        function submitFinishDisposition() { const agenda = $('#fd_agenda').val(); const note = $('#fd_note').val(); if(!note) return Swal.fire('Warning', 'Isi keterangan tindak lanjut', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalFinishDisposition')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'finish_disposition', agenda: agenda, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', 'Tugas diselesaikan. Surat dipindah ke Arsipku.', 'success'); refreshCurrentDisposisi(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
+        function submitFinishDisposition() { const agenda = $('#fd_agenda').val(); const note = $('#fd_note').val(); if(!note) return Swal.fire('Warning', 'Isi keterangan tindak lanjut', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalFinishDisposition')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'finish_disposition', agenda: agenda, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', 'Tugas diselesaikan. Surat dipindah ke Arsipku.', 'success'); refreshCurrentDisposisi(); loadDashboard(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
         function openDisposisiPage(l, e) { currentInboxLevel = l; $('#dispPageTitle').text(l.replace(/_/g, ' ').toUpperCase()); activateTab('disposisi-container', e, refreshCurrentDisposisi); saveAppState('disposisi-container', l); }
         function refreshCurrentDisposisi(){ showLoading(true); fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}}); dt.clear(); if(r.data) r.data.forEach(d=>{ let btnAction = ''; if(currentInboxLevel === 'staf') { btnAction = ` <div class="btn-group" role="group"> <button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button> <button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button> </div>`; } else { btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`; } dt.row.add([d.tgl, d.agenda, d.pengirim, d.perihal, btnAction]); }); dt.draw(); }); }
-        
         function openArsipPage(t, s, e) { currentArsipScope = s; if(t==='masuk') { activateTab('arsip-masuk-container', e, loadArsipMasuk); saveAppState('arsip-masuk-container', s); } else { activateTab('arsip-keluar-container', e, loadArsipKeluar); saveAppState('arsip-keluar-container', s); } }
-
-        // --- UPDATED LOAD ARSIP MASUK (UI OPTIMIZATION) ---
-        function loadArsipMasuk(){
-            showLoading(true);
-            fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
-                showLoading(false);
-                const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); 
-                dt.clear();
-                
-                const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
-                const role = sessionStorage.getItem('userRole');
-                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_masuk');
-                const canEditDispo = role === 'Super Admin' || perms.includes('edit_tujuan_disposisi');
-                
-                if(r.data) r.data.forEach(d=>{
-                    let aksi = `<div class="d-flex gap-1">`;
-                    // Updated PDF button function
-                    aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`;
-                    aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;
-                    if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
-                    if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
-                    aksi += `</div>`;
-                    
-                    const perihalLink = d.file 
-                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal} <i class="fas fa-external-link-alt small text-muted ms-1"></i></a>` 
-                        : d.perihal;
-
-                    // Updated columns (Removed Kode/File)
-                    dt.row.add([
-                        d.tglTerima,
-                        d.agenda,
-                        d.pengirim,
-                        perihalLink,
-                        d.status,
-                        aksi
-                    ]);
-                });
-                dt.draw();
-            });
-        }
-
-        // Updated printDisposisi to handle Base64
-        function printDisposisi(agenda) { 
-            Swal.fire({title: 'Memproses PDF...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }}); 
-            fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`)
-            .then(r => r.json())
-            .then(r => { 
-                if(r.status === 'success') { 
-                    Swal.close(); 
-                    // Open Base64 PDF in new window without saving to Drive
-                    const byteCharacters = atob(r.base64);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], {type: 'application/pdf'});
-                    const blobUrl = URL.createObjectURL(blob);
-                    window.open(blobUrl, '_blank');
-                } else { 
-                    Swal.fire('Gagal', r.message, 'error'); 
-                } 
-            }); 
-        }
+        function loadArsipMasuk(){ showLoading(true); fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{ showLoading(false); const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); dt.clear(); const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); const role = sessionStorage.getItem('userRole'); const canEdit = role === 'Super Admin' || perms.includes('edit_surat_masuk'); const canEditDispo = role === 'Super Admin' || perms.includes('edit_tujuan_disposisi'); if(r.data) r.data.forEach(d=>{ let aksi = `<div class="d-flex gap-1">`; aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`; aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`; if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;} if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;} aksi += `</div>`; const perihalLink = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal} <i class="fas fa-external-link-alt small text-muted ms-1"></i></a>` : d.perihal; dt.row.add([ d.tglTerima, d.agenda, d.pengirim, perihalLink, d.status, aksi ]); }); dt.draw(); }); }
+        function printDisposisi(agenda) { Swal.fire({title: 'Memproses PDF...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }}); fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`).then(r => r.json()).then(r => { if(r.status === 'success') { Swal.close(); const byteCharacters = atob(r.base64); const byteNumbers = new Array(byteCharacters.length); for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); } const byteArray = new Uint8Array(byteNumbers); const blob = new Blob([byteArray], {type: 'application/pdf'}); const blobUrl = URL.createObjectURL(blob); window.open(blobUrl, '_blank'); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
         
         // --- LOGIKA EDIT DISPOSISI (CHECKBOX + MANUAL) ---
         function openEditDisposisi(row) {
             $('#ed_agenda').val(row.agenda);
             
-            // Helper untuk mengisi checkbox dan input manual
             function populate(targets, checkboxClass, inputId) {
-                // Reset semua
                 $(`.${checkboxClass}`).prop('checked', false);
                 $(inputId).val('');
-                
                 if (!targets) return;
-                
                 const parts = targets.split(',').map(s => s.trim());
                 const manual = [];
-                
                 parts.forEach(p => {
-                    // Cari checkbox dengan value ini
-                    // Gunakan filter karena selector jQuery dengan spasi/karakter khusus kadang bermasalah
                     let found = false;
                     $(`.${checkboxClass}`).each(function() {
                         if ($(this).val() === p) {
@@ -617,24 +684,21 @@
                             found = true;
                         }
                     });
-                    
                     if (!found && p) {
                         manual.push(p);
                     }
                 });
-                
                 $(inputId).val(manual.join(', '));
             }
             
             populate(row.tujuanDirektur, 'chk-direktur', '#ed_targetDirektur_manual');
             populate(row.tujuanWadir, 'chk-wadir', '#ed_targetWadir_manual');
-            $('#ed_targetKabid').val(row.tujuanKabid || ''); // Level 3 tetap manual
+            $('#ed_targetKabid').val(row.tujuanKabid || ''); 
             
             new bootstrap.Modal(document.getElementById('modalEditDisposisi')).show();
         }
 
         function saveEditDisposisi() {
-            // Helper untuk mengumpulkan data
             function gather(checkboxClass, inputId) {
                 const selected = [];
                 $(`.${checkboxClass}:checked`).each(function() {
@@ -674,48 +738,11 @@
                 }
             });
         }
-
-        // --- EXISTING FUNCTIONS (Unchanged Logic) ---
+        
         function backupDatabase(){ showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success'){ const wb = XLSX.utils.book_new(); const ws1 = XLSX.utils.aoa_to_sheet(r.data.suratMasuk); const ws2 = XLSX.utils.aoa_to_sheet(r.data.suratKeluar); XLSX.utils.book_append_sheet(wb, ws1, "SuratMasuk"); XLSX.utils.book_append_sheet(wb, ws2, "SuratKeluar"); const date = new Date().toISOString().slice(0,10); XLSX.writeFile(wb, `Backup_SIMAS_${date}.xlsx`); } else { Swal.fire('Gagal', 'Anda tidak memiliki hak akses backup.', 'error'); } }); }
         function renderSidebarPermissions(){ const r=sessionStorage.getItem('userRole'); const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); $('.restricted-feature').addClass('restricted-feature'); $('#btnArsipMasukParent').addClass('restricted-feature'); $('#btnArsipKeluarParent').addClass('restricted-feature'); let hasAnyArsipMasuk = false; let hasAnyArsipKeluar = false; if(r==='Super Admin'){ $('.restricted-feature').removeClass('restricted-feature'); $('#btnArsipMasukParent').removeClass('restricted-feature'); $('#btnArsipKeluarParent').removeClass('restricted-feature'); $('#btnInboxKabagParent').show(); } else { p.forEach(x => { $(`[data-perm="${x}"]`).removeClass('restricted-feature'); if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true; if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true; }); if(hasAnyArsipMasuk) $('#btnArsipMasukParent').removeClass('restricted-feature'); if(hasAnyArsipKeluar) $('#btnArsipKeluarParent').removeClass('restricted-feature'); const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } } }
         function togglePembuatManual(sel) { const val = sel.value; if(val === 'Lainnya') { $('#inputPembuatManual').show().focus().prop('required', true); } else { $('#inputPembuatManual').hide().prop('required', false); } }
-        
-        // --- FIXED viewHistory Function ---
-        function viewHistory(agenda) {
-            const modal = new bootstrap.Modal(document.getElementById('modalHistory'));
-            modal.show();
-            
-            $('#historyLoading').show(); 
-            $('#historyContent').hide();
-            
-            fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
-                return response.json();
-            })
-            .then(r => {
-                $('#historyLoading').hide();
-                $('#historyContent').fadeIn(); // Always show content container
-                
-                if(r.status === 'success') {
-                    $('#histPerihal').text(r.data.perihal);
-                    let html = '';
-                    r.data.history.forEach(h => {
-                        html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
-                    });
-                    $('#timelineContainer').html(html);
-                } else {
-                     $('#histPerihal').text('-');
-                     $('#timelineContainer').html(`<div class="alert alert-danger text-center">${r.message || 'Data tidak ditemukan'}</div>`);
-                }
-            })
-            .catch(e => {
-                $('#historyLoading').hide();
-                $('#historyContent').fadeIn();
-                $('#timelineContainer').html(`<div class="alert alert-danger text-center">Gagal memuat: ${e.message}</div>`);
-            });
-        }
-        
+        function viewHistory(agenda) {new bootstrap.Modal(document.getElementById('modalHistory')).show();$('#historyLoading').show(); $('#historyContent').hide();fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`).then(r => r.json()).then(r => {$('#historyLoading').hide();if(r.status === 'success') {$('#historyContent').fadeIn();$('#histPerihal').text(r.data.perihal);let html = '';r.data.history.forEach(h => {html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;});$('#timelineContainer').html(html);} else {$('#timelineContainer').html('<div class="text-danger text-center">History tidak ditemukan.</div>');}});}
         function loadArsipKeluar(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipKeluar').DataTable({destroy:true, order:[[0,'desc']]}); dt.clear();const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");const role = sessionStorage.getItem('userRole');const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');if(r.data) r.data.forEach(d=>{let statusHtml = d.status;if(canApprove) {statusHtml = `<div class="d-flex justify-content-between align-items-center"><span>${d.status}</span><button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button></div>`;}let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';dt.row.add([d.agenda,d.tglSurat,d.tujuan,d.perihal,d.pembuat || '-',statusHtml,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-', btnEdit]);});dt.draw();});}
         function openStatusApproval(agenda) {$('#esa_agenda').val(agenda);const today = new Date().toISOString().split('T')[0];$('#esa_tanggal').val(today);new bootstrap.Modal(document.getElementById('modalStatusApproval')).show();}
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}

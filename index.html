@@ -323,7 +323,7 @@
                         <div class="table-responsive"><table id="tableDisposisi" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th width="10%">Aksi</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- ARSIPKU -->
+                    <!-- ARSIPKU (NEW) -->
                     <div class="tab-pane white-panel p-4" id="arsipku-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                             <h3 class="fw-bold m-0 text-success">Arsipku (Selesai)</h3>
@@ -333,13 +333,14 @@
                         <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- ARSIP MASUK -->
+                    <!-- ARSIP MASUK (OPTIMIZED UI) -->
                     <div class="tab-pane white-panel p-4" id="arsip-masuk-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk</h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
                         <div class="table-responsive">
                             <table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle">
                                 <thead class="table-light">
                                     <tr>
+                                        <!-- Column Width Optimization -->
                                         <th style="white-space: nowrap; width: 1%;">Tgl Terima</th>
                                         <th style="white-space: nowrap; width: 1%;">Agenda</th>
                                         <th>Pengirim</th>
@@ -521,6 +522,7 @@
                 showApp(); 
                 renderSidebarPermissions(); 
                 loadRefCodes(); 
+                
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -528,13 +530,45 @@
                     else if(lastState.tabId.includes('disposisi')) openDisposisiPage(lastState.context, null);
                     else if(lastState.tabId.includes('arsipku')) openArsipku(null); 
                     else activateTab(lastState.tabId, null);
+                    
                     if(lastState.tabId === 'home-content') loadDashboard(); 
-                } else { loadDashboard(); }
+                } else {
+                    loadDashboard(); 
+                }
             } 
             $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
             tsParticles.load("tsparticles", { fpsLimit: 60, particles: { number: { value: 30, density: { enable: true, value_area: 800 } }, color: { value: "#ffffff" }, shape: { type: "image", image: [ { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 } ] }, opacity: { value: 0.6, random: true }, size: { value: 20, random: true }, move: { enable: true, speed: 2 } } });
         });
 
+        // STATE PERSISTENCE HELPER
+        function saveAppState(tabId, context = null) {
+            sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context }));
+        }
+
+        function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
+        
+        function showApp(){ $('#tsparticles').addClass('in-background'); $('#loginSection').fadeOut(500, ()=>{ $('#door-overlay').addClass('door-open'); setTimeout(()=>{ $('#appContent').fadeIn(500); $('#userDisplayName').text(sessionStorage.getItem('userName')); $('#userRoleBadge').text(sessionStorage.getItem('userRole')); $('#homeDisplayName').text(sessionStorage.getItem('userName')); $('#homeRoleBadge').text(sessionStorage.getItem('userRole')); if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); }, 300); }); }
+        
+        function activateTab(t,e,cb){
+            $('.nav-link').removeClass('active');
+            if(e)$(e).addClass('active');
+            $('.tab-pane').removeClass('active');
+            $('#'+t).addClass('active');
+            if(cb)cb();
+            
+            // Save state for non-dynamic tabs
+            if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
+                saveAppState(t, null);
+            }
+        }
+        
+        function logout(){sessionStorage.clear();location.reload()}
+        
+        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); loadDashboard(); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
+        function openUpdateProfileModal(email, name, force=false) { $('#prof_email').val(email); $('#prof_nama').val(name); $('#prof_bidang').val(sessionStorage.getItem('userBidang') || ''); if(force) { $('#btnCancelProfile').hide(); new bootstrap.Modal(document.getElementById('modalUpdateProfile'), {backdrop: 'static', keyboard: false}).show(); } else { $('#btnCancelProfile').show(); new bootstrap.Modal(document.getElementById('modalUpdateProfile')).show(); } }
+        function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
+        $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
+        
         // --- DASHBOARD FUNCTIONS ---
         function loadDashboard() {
             if (!$('#home-content').hasClass('active')) return;
@@ -550,25 +584,15 @@
         function animateValue(id, start, end, duration) { if (start === end) return; var range = end - start; var current = start; var increment = end > start ? 1 : -1; var stepTime = Math.abs(Math.floor(duration / range)); var obj = document.getElementById(id); var timer = setInterval(function() { current += increment; obj.innerHTML = current; if (current == end) { clearInterval(timer); } }, stepTime); }
         function renderChart(labels, data) { const ctx = document.getElementById('chartSurat').getContext('2d'); if (dashboardChart) { dashboardChart.destroy(); } dashboardChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Surat Masuk', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#fff', pointBorderColor: '#3b82f6', pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } } }); }
 
-        function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
-        function showApp(){ $('#tsparticles').addClass('in-background'); $('#loginSection').fadeOut(500, ()=>{ $('#door-overlay').addClass('door-open'); setTimeout(()=>{ $('#appContent').fadeIn(500); $('#userDisplayName').text(sessionStorage.getItem('userName')); $('#userRoleBadge').text(sessionStorage.getItem('userRole')); $('#homeDisplayName').text(sessionStorage.getItem('userName')); $('#homeRoleBadge').text(sessionStorage.getItem('userRole')); if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); }, 300); }); }
-        function activateTab(t,e,cb){ $('.nav-link').removeClass('active'); if(e)$(e).addClass('active'); $('.tab-pane').removeClass('active'); $('#'+t).addClass('active'); if(cb)cb(); if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) { saveAppState(t, null); } }
-        function saveAppState(tabId, context = null) { sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context })); }
-        function logout(){sessionStorage.clear();location.reload()}
-        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); loadDashboard(); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
-        function openUpdateProfileModal(email, name, force=false) { $('#prof_email').val(email); $('#prof_nama').val(name); $('#prof_bidang').val(sessionStorage.getItem('userBidang') || ''); if(force) { $('#btnCancelProfile').hide(); new bootstrap.Modal(document.getElementById('modalUpdateProfile'), {backdrop: 'static', keyboard: false}).show(); } else { $('#btnCancelProfile').show(); new bootstrap.Modal(document.getElementById('modalUpdateProfile')).show(); } }
-        function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
-        $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
-
         // --- ADMIN EDIT USER (UPDATED) ---
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList = r.data || []; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
         function openEditUser(u){ 
             $('#editUserEmail').val(u.email); 
-            $('#editUserName').val(u.name); // Skrg bisa diedit
+            $('#editUserName').val(u.name); 
             $('#editUserRole').val(u.role); 
             $('#editUserStatus').val(u.status); 
-            $('#editUserBidang').val(u.bidang || ''); // New
-            $('#editUserWa').val(u.wa || ''); // New
+            $('#editUserBidang').val(u.bidang || ''); 
+            $('#editUserWa').val(u.wa || ''); 
             
             $('.perm-check').prop('checked',false); 
             try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) } catch(e){} 
@@ -590,13 +614,13 @@
                 type: 'update_user_permissions',
                 requestor: currentUserEmail,
                 targetEmail: $('#editUserEmail').val(),
-                name: $('#editUserName').val(), // New
+                name: $('#editUserName').val(), 
                 role: $('#editUserRole').val(),
                 status: $('#editUserStatus').val(),
                 permissions: JSON.stringify(p),
                 subordinates: JSON.stringify(subsList),
-                bidang: $('#editUserBidang').val(), // New
-                wa: $('#editUserWa').val() // New
+                bidang: $('#editUserBidang').val(), 
+                wa: $('#editUserWa').val() 
             };
             
             bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();
@@ -630,7 +654,7 @@
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
         function openDisposisiModal(id, p) { $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val(''); const container = $('#dispTargetContainer'); container.empty(); const subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); let t = []; if (currentInboxLevel === 'direktur') t = ['Wadir Administrasi & Keuangan', 'Wadir Pelayanan']; else if (currentInboxLevel === 'wadir_adm') t = ['Kabag Administrasi & Umum', 'Kabag Keuangan', 'Kabag Program & Pelaporan']; else if (currentInboxLevel === 'wadir_pel') t = ['Kabid Pelayanan Medik', 'Kabid Pelayanan Penunjang', 'Kabid Pelayanan Keperawatan']; else if (currentInboxLevel.includes('kabag') || currentInboxLevel.includes('kabid')) t = subs; if (t.length === 0 && subs.length > 0) t = subs; if (t.length === 0) { container.html('<span class="text-muted small">Tidak ada tujuan tersedia. Hubungi Admin.</span>'); } else { t.forEach(x => { container.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}" id="chk_${x.replace(/\s/g,'')}"><label class="form-check-label small" for="chk_${x.replace(/\s/g,'')}">${x}</label></div>`); }); } new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); }
-        function submitDisposisi() { const selected = []; $('.target-check:checked').each(function() { selected.push($(this).val()); }); if (selected.length === 0) return Swal.fire('!', 'Pilih minimal satu tujuan', 'warning'); const p = { type: 'submit_disposisi', idSurat: $('#dispIdSurat').val(), levelAsal: currentInboxLevel, target: selected.join(', '), instruksi: $('#dispInstruksi').val(), sender: currentUserEmail }; bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(p) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { Swal.fire('OK', 'Terkirim', 'success'); refreshCurrentDisposisi(); } else Swal.fire('Err', r.message, 'error'); }); }
+        function submitDisposisi() { const selected = []; $('.target-check:checked').each(function() { selected.push($(this).val()); }); if (selected.length === 0) return Swal.fire('!', 'Pilih minimal satu tujuan', 'warning'); const p = { type: 'submit_disposisi', idSurat: $('#dispIdSurat').val(), levelAsal: currentInboxLevel, target: selected.join(', '), instruksi: $('#dispInstruksi').val(), sender: currentUserEmail }; bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(p) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('OK', 'Terkirim', 'success'); refreshCurrentDisposisi(); } else Swal.fire('Err', r.message, 'error'); }); }
         function openAdvancedSearch(){ new bootstrap.Modal(document.getElementById('modalSearchAdvanced')).show(); }
         function submitSearchAdvanced(){ const d = { type: 'search_advanced', category: $('#sa_category').val(), keyword: $('#sa_keyword').val(), startDate: $('#sa_start').val(), endDate: $('#sa_end').val() }; bootstrap.Modal.getInstance(document.getElementById('modalSearchAdvanced')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success'){ activateTab('search-content', null); const dt=$('#tableSearch').DataTable({destroy:true}); dt.clear(); r.data.results.forEach(d=>{ let link = d.file ? `<a href="${d.file}" target="_blank">File</a>` : '-'; dt.row.add([d.tgl, d.agenda, d.ref, d.perihal, d.ocr, link]); }); dt.draw(); } else Swal.fire('Err', r.message, 'error'); }); }
         function loadRefCodes() {fetch(`${GAS_URL}?action=get_ref_codes`).then(r => r.json()).then(r => {if (r.status === 'success' && r.data) {const list = $('#listKodeKlarifikasi');list.empty();r.data.forEach(item => {list.append(`<option value="${item.code}">${item.desc}</option>`);});}});}

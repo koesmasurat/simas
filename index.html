@@ -1076,8 +1076,53 @@
         function openStatusApproval(agenda) {$('#esa_agenda').val(agenda);const today = new Date().toISOString().split('T')[0];$('#esa_tanggal').val(today);new bootstrap.Modal(document.getElementById('modalStatusApproval')).show();}
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
-        function openDisposisiModal(id, p) { $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val(''); const container = $('#dispTargetContainer'); container.empty(); const subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); let t = []; if (currentInboxLevel === 'direktur') t = ['Wadir Administrasi & Keuangan', 'Wadir Pelayanan']; else if (currentInboxLevel === 'wadir_adm') t = ['Kabag Administrasi & Umum', 'Kabag Keuangan', 'Kabag Program & Pelaporan']; else if (currentInboxLevel === 'wadir_pel') t = ['Kabid Pelayanan Medik', 'Kabid Pelayanan Penunjang', 'Kabid Pelayanan Keperawatan']; else if (currentInboxLevel.includes('kabag') || currentInboxLevel.includes('kabid')) t = subs; if (t.length === 0 && subs.length > 0) t = subs; if (t.length === 0) { container.html('<span class="text-muted small">Tidak ada tujuan tersedia. Hubungi Admin.</span>'); } else { t.forEach(x => { container.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}" id="chk_${x.replace(/\s/g,'')}"><label class="form-check-label small" for="chk_${x.replace(/\s/g,'')}">${x}</label></div>`); }); } new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); }
-        function submitDisposisi() { const selected = []; $('.target-check:checked').each(function() { selected.push($(this).val()); }); if (selected.length === 0) return Swal.fire('!', 'Pilih minimal satu tujuan', 'warning'); const p = { type: 'submit_disposisi', idSurat: $('#dispIdSurat').val(), levelAsal: currentInboxLevel, target: selected.join(', '), instruksi: $('#dispInstruksi').val(), sender: currentUserEmail }; bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify(p) }).then(r => r.json()).then(r => { showLoading(false); if (r.status === 'success') { Swal.fire('OK', 'Terkirim', 'success'); refreshCurrentDisposisi(); } else Swal.fire('Err', r.message, 'error'); }); }
+        
+        function openDisposisiModal(id, p) { 
+            $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val(''); 
+            const container = $('#dispTargetContainer'); container.empty(); 
+            const subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); 
+            let t = []; 
+            if (currentInboxLevel === 'direktur') t = ['Wadir Administrasi & Keuangan', 'Wadir Pelayanan']; 
+            else if (currentInboxLevel === 'wadir_adm') t = ['Kabag Administrasi & Umum', 'Kabag Keuangan', 'Kabag Program & Pelaporan']; 
+            else if (currentInboxLevel === 'wadir_pel') t = ['Kabid Pelayanan Medik', 'Kabid Pelayanan Penunjang', 'Kabid Pelayanan Keperawatan']; 
+            else if (currentInboxLevel.includes('kabag') || currentInboxLevel.includes('kabid')) t = subs; 
+            
+            // Staf Logic (Self or Delegated)
+            if (t.length === 0 && subs.length > 0) t = subs; 
+            if (t.length === 0) { container.html('<span class="text-muted small">Tidak ada tujuan tersedia. Hubungi Admin.</span>'); } 
+            else { t.forEach(x => { container.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}" id="chk_${x.replace(/\s/g,'')}"><label class="form-check-label small" for="chk_${x.replace(/\s/g,'')}">${x}</label></div>`); }); } 
+            new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
+        }
+        
+        function submitDisposisi() { 
+            const selected = []; $('.target-check:checked').each(function() { selected.push($(this).val()); }); 
+            if (selected.length === 0) return Swal.fire('!', 'Pilih minimal satu tujuan', 'warning'); 
+            
+            // Send payload with potential delegation context
+            const p = { 
+                type: 'submit_disposisi', 
+                idSurat: $('#dispIdSurat').val(), 
+                levelAsal: currentInboxLevel, 
+                target: selected.join(', '), 
+                instruksi: $('#dispInstruksi').val(), 
+                sender: currentUserEmail,
+                senderName: sessionStorage.getItem('userName') // Sending name for cleaner logs
+            }; 
+
+            if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) {
+                p.onBehalfOf = currentInboxContextEmail;
+                p.onBehalfOfName = currentInboxContextName;
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); 
+            showLoading(true); 
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(p) }).then(r => r.json()).then(r => { 
+                showLoading(false); 
+                if (r.status === 'success') { Swal.fire('OK', 'Terkirim', 'success'); refreshCurrentDisposisi(); } 
+                else Swal.fire('Err', r.message, 'error'); 
+            }); 
+        }
+
         function openAdvancedSearch(){ new bootstrap.Modal(document.getElementById('modalSearchAdvanced')).show(); }
         function submitSearchAdvanced(){ const d = { type: 'search_advanced', category: $('#sa_category').val(), keyword: $('#sa_keyword').val(), startDate: $('#sa_start').val(), endDate: $('#sa_end').val() }; bootstrap.Modal.getInstance(document.getElementById('modalSearchAdvanced')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success'){ activateTab('search-content', null); const dt=$('#tableSearch').DataTable({destroy:true}); dt.clear(); r.data.results.forEach(d=>{ let link = d.file ? `<a href="${d.file}" target="_blank">File</a>` : '-'; dt.row.add([d.tgl, d.agenda, d.ref, d.perihal, d.ocr, link]); }); dt.draw(); } else Swal.fire('Err', r.message, 'error'); }); }
         function loadRefCodes() {fetch(`${GAS_URL}?action=get_ref_codes`).then(r => r.json()).then(r => {if (r.status === 'success' && r.data) {const list = $('#listKodeKlarifikasi');list.empty();r.data.forEach(item => {list.append(`<option value="${item.code}">${item.desc}</option>`);});}});}
@@ -1086,10 +1131,106 @@
         async function saveEditMasuk(){const f = $('#em_file')[0].files[0]; let fData="",fName="";if(f){fData=await readFile(f);fName=f.name;}const d = { type:'edit_surat_masuk', email:currentUserEmail, noAgenda:$('#em_noAgenda').val(), noSurat:$('#em_noSurat').val(), tglSurat:$('#em_tglSurat').val(), tglTerima:$('#em_tglTerima').val(), pengirim:$('#em_pengirim').val(), perihal:$('#em_perihal').val(), kodeKlarifikasi:$('#em_kodeKlarifikasi').val(), fileData:fData, fileName:fName };bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide();sendData(d, ()=>{Swal.fire('OK','Data Diupdate','success'); loadArsipMasuk();});}
         async function saveEditKeluar(){const f = $('#ek_file')[0].files[0]; let fData="",fName="";if(f){fData=await readFile(f);fName=f.name;}const d = { type:'edit_surat_keluar', email:currentUserEmail, noAgenda:$('#ek_noAgenda').val(), noSurat:$('#ek_noSurat').val(), tglSurat:$('#ek_tglSurat').val(), tujuan:$('#ek_tujuan').val(), perihal:$('#ek_perihal').val(), fileData:fData, fileName:fName };bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide();sendData(d, ()=>{Swal.fire('OK','Data Diupdate','success'); loadArsipKeluar();});}
         function formatDateInput(dStr){ if(!dStr || dStr==='-') return ''; const parts=dStr.split('/'); if(parts.length===3) return `${parts[2]}-${parts[1]}-${parts[0]}`; return ''; }
+        
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList = r.data || []; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
-        function openEditUser(u){ $('#editUserEmail').val(u.email); $('#editUserName').val(u.name); $('#editUserRole').val(u.role); $('#editUserStatus').val(u.status); $('.perm-check').prop('checked',false); try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) } catch(e){} const listDiv = $('#listCandidates'); listDiv.empty(); const currentSubs = JSON.parse(u.subordinates || "[]"); allUsersList.forEach(user => { if(user.email !== u.email) { const isChecked = currentSubs.includes(user.name) ? 'checked' : ''; listDiv.append(`<div class="user-list-item"><input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${isChecked}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); } }); new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
-        function filterSubs() { const term = $('#searchSubs').val().toLowerCase(); $('.user-list-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.includes(term)); }); }
-        function saveUserPermissions(){const p=[];$('.perm-check:checked').each(function(){p.push($(this).val())});const subsList = [];$('.sub-check:checked').each(function(){ subsList.push($(this).val()); });const d={type:'update_user_permissions',requestor:currentUserEmail,targetEmail:$('#editUserEmail').val(),role:$('#editUserRole').val(),status:$('#editUserStatus').val(),permissions:JSON.stringify(p),subordinates: JSON.stringify(subsList)};bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Tersimpan','success');loadUsers()}else Swal.fire('Err',r.message,'error')});}
+        
+        // --- FIXED OPEN EDIT USER FUNCTION (DELEGATION RENDER) ---
+        function openEditUser(u){ 
+            $('#editUserEmail').val(u.email); 
+            $('#editUserName').val(u.name); 
+            $('#editUserRole').val(u.role); 
+            $('#editUserStatus').val(u.status);
+            
+            // POPULATE NEW FIELDS
+            $('#editUserBidang').val(u.bidang || '');
+            $('#editUserWA').val(u.wa || '');
+
+            // CHECK PERMISSION TO EDIT PROFILE (SUPER ADMIN ONLY)
+            const isSuper = sessionStorage.getItem('userRole') === 'Super Admin';
+            if(isSuper) {
+                $('#editUserName').prop('readonly', false);
+                $('#editUserBidang').prop('readonly', false);
+                $('#editUserWA').prop('readonly', false);
+            } else {
+                $('#editUserName').prop('readonly', true);
+                $('#editUserBidang').prop('readonly', true);
+                $('#editUserWA').prop('readonly', true);
+            }
+
+            $('.perm-check').prop('checked',false); 
+            try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) } catch(e){} 
+            
+            // RESET SEARCH
+            $('#searchSubs').val('');
+            $('#searchDelegations').val('');
+
+            // RENDER BAWAHAN (Disposisi Targets)
+            const listDiv = $('#listCandidates'); listDiv.empty(); 
+            const currentSubs = JSON.parse(u.subordinates || "[]"); 
+            allUsersList.forEach(user => { if(user.email !== u.email) { 
+                const isChecked = currentSubs.includes(user.name) ? 'checked' : ''; 
+                listDiv.append(`<div class="user-list-item"><input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${isChecked}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); 
+            } }); 
+            
+            // RENDER DELEGASI (Inbox Access) - FIXED LOGIC
+            const delegDiv = $('#listDelegations'); delegDiv.empty();
+            let currentDelegations = [];
+            try {
+                // Handle various formats of data
+                if (typeof u.delegations === 'string') {
+                    currentDelegations = JSON.parse(u.delegations || "[]");
+                } else if (Array.isArray(u.delegations)) {
+                    currentDelegations = u.delegations; // already array
+                }
+            } catch(e) { console.error("Error parsing delegations", e); currentDelegations = []; }
+
+            allUsersList.forEach(user => { 
+                if(user.email !== u.email) {
+                    const isChecked = currentDelegations.includes(user.email) ? 'checked' : '';
+                    delegDiv.append(`<div class="user-list-item delegation-item"><input class="form-check-input me-2 delegation-check" type="checkbox" value="${user.email}" ${isChecked}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`);
+                }
+            });
+
+            new bootstrap.Modal(document.getElementById('modalEditUser')).show(); 
+        }
+        
+        function filterSubs() { const term = $('#searchSubs').val().toLowerCase(); $('#listCandidates .user-list-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.includes(term)); }); }
+        
+        // FIXED FILTER DELEGATIONS
+        function filterDelegations() { 
+            const term = $('#searchDelegations').val().toLowerCase(); 
+            $('#listDelegations .user-list-item').each(function() { 
+                const text = $(this).text().toLowerCase(); 
+                $(this).toggle(text.includes(term)); 
+            }); 
+        }
+
+        function saveUserPermissions(){
+            const p=[]; $('.perm-check:checked').each(function(){p.push($(this).val())});
+            const subsList = []; $('.sub-check:checked').each(function(){ subsList.push($(this).val()); });
+            const delegationList = []; $('.delegation-check:checked').each(function(){ delegationList.push($(this).val()); });
+
+            const d={
+                type:'update_user_permissions',
+                requestor:currentUserEmail,
+                targetEmail:$('#editUserEmail').val(),
+                role:$('#editUserRole').val(),
+                status:$('#editUserStatus').val(),
+                permissions:JSON.stringify(p),
+                subordinates: JSON.stringify(subsList),
+                delegations: JSON.stringify(delegationList),
+                
+                // NEW: Send Profile Data updates
+                name: $('#editUserName').val(),
+                bidang: $('#editUserBidang').val(),
+                wa: $('#editUserWA').val()
+            };
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();
+            showLoading(true);
+            fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Tersimpan','success');loadUsers()}else Swal.fire('Err',r.message,'error')});
+        }
+        
         function loadStorageStats(){showLoading(true);fetch(`${GAS_URL}?action=get_storage_stats&requestor=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){const d=r.data;$('#disp-quota-A').text(d.nodeA.percentage+'%');$('#prog-A').css('width',d.nodeA.percentage+'%');$('#disp-quota-B').text(d.nodeB.percentage+'%');$('#prog-B').css('width',d.nodeB.percentage+'%');$('#disp-quota-C').text(d.nodeC.percentage+'%');$('#prog-C').css('width',d.nodeC.percentage+'%');$('#switchFailover').prop('checked',d.settings.failover);$('#selectActiveNode').val(d.settings.activeNode)}else Swal.fire('Akses Ditolak','Hanya Admin','warning')})}
         function saveStorageSettings(){const f=$('#switchFailover').is(':checked');const a=$('#selectActiveNode').val();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'update_storage_settings',failover:f,activeNode:a,requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success')Swal.fire('OK','Disimpan','success');else Swal.fire('Err',r.message,'error')})}
         function openSettingsPage(e){activateTab('settings-content',e,()=>{loadUsers();if(sessionStorage.getItem('userRole')!=='User')loadStorageStats()})}

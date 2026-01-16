@@ -522,7 +522,6 @@
                 showApp(); 
                 renderSidebarPermissions(); 
                 loadRefCodes(); 
-                
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -530,45 +529,13 @@
                     else if(lastState.tabId.includes('disposisi')) openDisposisiPage(lastState.context, null);
                     else if(lastState.tabId.includes('arsipku')) openArsipku(null); 
                     else activateTab(lastState.tabId, null);
-                    
                     if(lastState.tabId === 'home-content') loadDashboard(); 
-                } else {
-                    loadDashboard(); 
-                }
+                } else { loadDashboard(); }
             } 
             $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
             tsParticles.load("tsparticles", { fpsLimit: 60, particles: { number: { value: 30, density: { enable: true, value_area: 800 } }, color: { value: "#ffffff" }, shape: { type: "image", image: [ { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 } ] }, opacity: { value: 0.6, random: true }, size: { value: 20, random: true }, move: { enable: true, speed: 2 } } });
         });
 
-        // STATE PERSISTENCE HELPER
-        function saveAppState(tabId, context = null) {
-            sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context }));
-        }
-
-        function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
-        
-        function showApp(){ $('#tsparticles').addClass('in-background'); $('#loginSection').fadeOut(500, ()=>{ $('#door-overlay').addClass('door-open'); setTimeout(()=>{ $('#appContent').fadeIn(500); $('#userDisplayName').text(sessionStorage.getItem('userName')); $('#userRoleBadge').text(sessionStorage.getItem('userRole')); $('#homeDisplayName').text(sessionStorage.getItem('userName')); $('#homeRoleBadge').text(sessionStorage.getItem('userRole')); if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); }, 300); }); }
-        
-        function activateTab(t,e,cb){
-            $('.nav-link').removeClass('active');
-            if(e)$(e).addClass('active');
-            $('.tab-pane').removeClass('active');
-            $('#'+t).addClass('active');
-            if(cb)cb();
-            
-            // Save state for non-dynamic tabs
-            if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
-                saveAppState(t, null);
-            }
-        }
-        
-        function logout(){sessionStorage.clear();location.reload()}
-        
-        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); loadDashboard(); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
-        function openUpdateProfileModal(email, name, force=false) { $('#prof_email').val(email); $('#prof_nama').val(name); $('#prof_bidang').val(sessionStorage.getItem('userBidang') || ''); if(force) { $('#btnCancelProfile').hide(); new bootstrap.Modal(document.getElementById('modalUpdateProfile'), {backdrop: 'static', keyboard: false}).show(); } else { $('#btnCancelProfile').show(); new bootstrap.Modal(document.getElementById('modalUpdateProfile')).show(); } }
-        function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
-        $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
-        
         // --- DASHBOARD FUNCTIONS ---
         function loadDashboard() {
             if (!$('#home-content').hasClass('active')) return;
@@ -583,6 +550,16 @@
         }
         function animateValue(id, start, end, duration) { if (start === end) return; var range = end - start; var current = start; var increment = end > start ? 1 : -1; var stepTime = Math.abs(Math.floor(duration / range)); var obj = document.getElementById(id); var timer = setInterval(function() { current += increment; obj.innerHTML = current; if (current == end) { clearInterval(timer); } }, stepTime); }
         function renderChart(labels, data) { const ctx = document.getElementById('chartSurat').getContext('2d'); if (dashboardChart) { dashboardChart.destroy(); } dashboardChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Surat Masuk', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#fff', pointBorderColor: '#3b82f6', pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } } }); }
+
+        function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
+        function showApp(){ $('#tsparticles').addClass('in-background'); $('#loginSection').fadeOut(500, ()=>{ $('#door-overlay').addClass('door-open'); setTimeout(()=>{ $('#appContent').fadeIn(500); $('#userDisplayName').text(sessionStorage.getItem('userName')); $('#userRoleBadge').text(sessionStorage.getItem('userRole')); $('#homeDisplayName').text(sessionStorage.getItem('userName')); $('#homeRoleBadge').text(sessionStorage.getItem('userRole')); if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); }, 300); }); }
+        function activateTab(t,e,cb){ $('.nav-link').removeClass('active'); if(e)$(e).addClass('active'); $('.tab-pane').removeClass('active'); $('#'+t).addClass('active'); if(cb)cb(); if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) { saveAppState(t, null); } }
+        function saveAppState(tabId, context = null) { sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context })); }
+        function logout(){sessionStorage.clear();location.reload()}
+        function handleCredentialResponse(r){ showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})}).then(res=>res.json()).then(res=>{ showLoading(false); if(res.status==='success'){ sessionStorage.setItem('isLoggedIn','true'); sessionStorage.setItem('userEmail',res.data.email); sessionStorage.setItem('userRole',res.data.role); sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); loadDashboard(); } else { Swal.fire('Login Gagal',res.message,'error') } }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) }
+        function openUpdateProfileModal(email, name, force=false) { $('#prof_email').val(email); $('#prof_nama').val(name); $('#prof_bidang').val(sessionStorage.getItem('userBidang') || ''); if(force) { $('#btnCancelProfile').hide(); new bootstrap.Modal(document.getElementById('modalUpdateProfile'), {backdrop: 'static', keyboard: false}).show(); } else { $('#btnCancelProfile').show(); new bootstrap.Modal(document.getElementById('modalUpdateProfile')).show(); } }
+        function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
+        $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
 
         // --- ADMIN EDIT USER (UPDATED) ---
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList = r.data || []; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
@@ -632,6 +609,33 @@
             });
         }
         function filterSubs() { const term = $('#searchSubs').val().toLowerCase(); $('.user-list-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.includes(term)); }); }
+
+        // --- STORAGE STATS (FIXED) ---
+        function loadStorageStats(){
+            showLoading(true);
+            fetch(`${GAS_URL}?action=get_storage_stats&requestor=${currentUserEmail}`)
+            .then(r=>r.json())
+            .then(r=>{
+                showLoading(false);
+                if(r.status==='success'){
+                    const d=r.data;
+                    $('#disp-quota-A').text(d.nodeA.percentage+'%');
+                    $('#prog-A').css('width',d.nodeA.percentage+'%');
+                    $('#disp-quota-B').text(d.nodeB.percentage+'%');
+                    $('#prog-B').css('width',d.nodeB.percentage+'%');
+                    $('#disp-quota-C').text(d.nodeC.percentage+'%');
+                    $('#prog-C').css('width',d.nodeC.percentage+'%');
+                    $('#switchFailover').prop('checked',d.settings.failover);
+                    $('#selectActiveNode').val(d.settings.activeNode);
+                } else {
+                    Swal.fire('Akses Ditolak','Hanya Admin','warning');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Gagal memuat storage: ' + e, 'error');
+            });
+        }
 
         // --- EXISTING FUNCTIONS (Standard) ---
         function openArsipku(e) { activateTab('arsipku-container', e, loadArsipku); saveAppState('arsipku-container', null); }

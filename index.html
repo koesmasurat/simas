@@ -806,7 +806,13 @@
                     } else {
                         btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
                     }
-                    dt.row.add([d.tgl, d.agenda, d.pengirim, d.perihal, btnAction]);
+                    
+                    // MODIFIED HERE: Make perihal clickable
+                    let perihalHtml = d.file 
+                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
+                        : `<span class="text-dark">${d.perihal}</span>`;
+
+                    dt.row.add([d.tgl, d.agenda, d.pengirim, perihalHtml, btnAction]);
                 });
                 dt.draw();
             });

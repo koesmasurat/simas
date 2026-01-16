@@ -16,7 +16,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
-    <!-- ADDED CHART.JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -884,6 +883,8 @@
                         : `<span class="fw-bold text-primary">${d.perihal}</span>`; // Still make it blue if no file, for consistency, or text-dark if preferred. Assuming blue for content per request.
 
                     let aksi = `<div class="d-flex gap-1">`;
+                    // Added print icon button here
+                    aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`;
                     aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;
                     if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
                     if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
@@ -900,6 +901,42 @@
                     ]);
                 });
                 dt.draw();
+            });
+        }
+
+        // Add print function logic
+        function printDisposisi(agenda) {
+            showLoading(true);
+            fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`)
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    // Convert Base64 to Blob
+                    const byteCharacters = atob(r.base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: 'application/pdf'});
+                    
+                    // Create URL and open/download
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Disposisi_Agenda_${agenda}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    Swal.fire('Error', 'Gagal membuat PDF: ' + r.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Koneksi Gagal', 'error');
             });
         }
 

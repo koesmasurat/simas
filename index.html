@@ -297,10 +297,25 @@
                         <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- ARSIP MASUK -->
+                    <!-- ARSIP MASUK (UPDATED TABLE HEADERS) -->
                     <div class="tab-pane white-panel p-4" id="arsip-masuk-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk</h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
-                        <div class="table-responsive"><table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>Status</th><th>File</th><th>Kode</th><th width="10%">Aksi</th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive">
+                            <table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tgl Terima</th>
+                                        <th>Agenda</th>
+                                        <th>Pengirim</th>
+                                        <th>Perihal</th> <!-- Clickable Link Now -->
+                                        <th>Status</th>
+                                        <!-- REMOVED FILE & KODE HEADERS -->
+                                        <th width="10%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- ARSIP KELUAR -->
@@ -388,7 +403,16 @@
     </div>
 
     <!-- OTHER MODALS -->
-    <div class="modal fade" id="modalHistory" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title"><i class="fas fa-history me-2"></i>History Surat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="historyLoading" class="text-center py-3"><div class="spinner-border text-info"></div><p>Memuat history...</p></div><div id="historyContent" style="display:none;"><div class="alert alert-light border"><small class="text-muted d-block">Perihal:</small><strong id="histPerihal">...</strong></div><div class="timeline" id="timelineContainer"></div></div></div></div></div></div>
+    <div class="modal fade" id="modalHistory" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title"><i class="fas fa-history me-2"></i>History Surat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="historyLoading" class="text-center py-3"><div class="spinner-border text-info"></div><p>Memuat history...</p></div>
+        <div id="historyContent" style="display:none;">
+            <div class="alert alert-light border">
+                <small class="text-muted d-block">Perihal:</small>
+                <!-- Container for Title and Date -->
+                <div id="histPerihal" class="fs-6 fw-bold">...</div>
+            </div>
+            <div class="timeline" id="timelineContainer"></div>
+        </div>
+    </div></div></div></div></div>
     
     <!-- MODAL EDIT DISPOSISI (UPDATED TO CHECKBOX) -->
     <div class="modal fade" id="modalEditDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5 class="modal-title">Edit Tujuan Disposisi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
@@ -663,8 +687,73 @@
         }
         
         function togglePembuatManual(sel) { const val = sel.value; if(val === 'Lainnya') { $('#inputPembuatManual').show().focus().prop('required', true); } else { $('#inputPembuatManual').hide().prop('required', false); } }
-        function loadArsipMasuk(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); dt.clear();const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");const role = sessionStorage.getItem('userRole');const canEdit = role === 'Super Admin' || perms.includes('edit_surat_masuk');const canEditDispo = role === 'Super Admin' || perms.includes('edit_tujuan_disposisi');if(r.data) r.data.forEach(d=>{let aksi = `<div class="d-flex gap-1">`;aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}aksi += `</div>`;dt.row.add([d.tglTerima,d.agenda,d.pengirim,d.perihal,d.status,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-', d.kode||'-', aksi]);});dt.draw();});}
-        function viewHistory(agenda) {new bootstrap.Modal(document.getElementById('modalHistory')).show();$('#historyLoading').show(); $('#historyContent').hide();fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`).then(r => r.json()).then(r => {$('#historyLoading').hide();if(r.status === 'success') {$('#historyContent').fadeIn();$('#histPerihal').text(r.data.perihal);let html = '';r.data.history.forEach(h => {html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;});$('#timelineContainer').html(html);} else {$('#timelineContainer').html('<div class="text-danger text-center">History tidak ditemukan.</div>');}});}
+        
+        // --- UPDATED LOAD ARSIP MASUK (Hidden Columns & Clickable Perihal) ---
+        function loadArsipMasuk(){
+            showLoading(true);
+            fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
+                showLoading(false);
+                const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); 
+                dt.clear();
+                
+                const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
+                const role = sessionStorage.getItem('userRole');
+                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_masuk');
+                const canEditDispo = role === 'Super Admin' || perms.includes('edit_tujuan_disposisi');
+                
+                if(r.data) r.data.forEach(d=>{
+                    // Create Perihal Link logic
+                    let perihalHtml = d.file 
+                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-dark" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
+                        : d.perihal;
+
+                    let aksi = `<div class="d-flex gap-1">`;
+                    aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;
+                    if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
+                    if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
+                    aksi += `</div>`;
+                    
+                    // Added columns based on updated header (removed File & Kode)
+                    dt.row.add([
+                        d.tglTerima,
+                        d.agenda,
+                        d.pengirim,
+                        perihalHtml, // New Logic
+                        d.status,
+                        aksi
+                    ]);
+                });
+                dt.draw();
+            });
+        }
+
+        // --- UPDATED VIEW HISTORY (ADD TGL SURAT) ---
+        function viewHistory(agenda) {
+            new bootstrap.Modal(document.getElementById('modalHistory')).show();
+            $('#historyLoading').show(); 
+            $('#historyContent').hide();
+            
+            fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`).then(r => r.json()).then(r => {
+                $('#historyLoading').hide();
+                if(r.status === 'success') {
+                    $('#historyContent').fadeIn();
+                    
+                    // Modified Header Content
+                    $('#histPerihal').html(`
+                        <div>${r.data.perihal}</div>
+                        <div class="small text-muted fw-normal mt-1"><i class="far fa-calendar-alt me-1"></i>Tgl Surat: ${r.data.tglSurat}</div>
+                    `);
+                    
+                    let html = '';
+                    r.data.history.forEach(h => {
+                        html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
+                    });
+                    $('#timelineContainer').html(html);
+                } else {
+                    $('#timelineContainer').html('<div class="text-danger text-center">History tidak ditemukan.</div>');
+                }
+            });
+        }
         
         // --- UPDATED OPEN EDIT DISPOSISI (POPULATE CHECKBOXES) ---
         function openEditDisposisi(row) {

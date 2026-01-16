@@ -16,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+    <!-- ADDED CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
@@ -30,6 +32,13 @@
         .glass-form-card label { color: #f8f9fa !important; }
         .glass-form-card .form-control, .glass-form-card .form-select { background-color: #ffffff; color: #333333; border: none; }
 
+        /* DASHBOARD CARDS */
+        .dash-card { transition: transform 0.2s; cursor: pointer; border-radius: 12px; overflow: hidden; position: relative; }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .dash-icon { position: absolute; right: 15px; bottom: 15px; font-size: 3rem; opacity: 0.2; }
+        .welcome-header { background: linear-gradient(90deg, #0f172a, #334155); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+
+        /* ... existing styles ... */
         #loginSection { height: 100vh; display: flex; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 200; }
         .login-card { width: 100%; max-width: 450px; padding: 2.5rem; text-align: center; border-radius: 16px; position: relative; z-index: 201; }
         #door-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; pointer-events: none; }
@@ -76,6 +85,7 @@
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
 
+    <!-- ... (Datalists remain same) ... -->
     <datalist id="listKodeKlarifikasi"></datalist>
     <datalist id="listBagian">
         <option value="Direktur">Direktur</option>
@@ -106,6 +116,7 @@
     <div id="appContent">
         <div class="wrapper">
             <nav id="sidebar">
+                <!-- ... (Sidebar Header remains same) ... -->
                 <div class="p-3 text-center border-bottom border-white-50">
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
                         <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" width="40">
@@ -115,7 +126,8 @@
                 </div>
                 
                 <div class="sidebar-scroll">
-                    <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this)"><i class="fas fa-home"></i> Beranda</button>
+                    <!-- ... (Sidebar Menu Items remain same) ... -->
+                    <button class="nav-link w-100 text-start" id="btn-home" onclick="activateTab('home-content', this); loadDashboardStats();"><i class="fas fa-home"></i> Beranda</button>
                     <!-- PROFIL SAYA -->
                     <button class="nav-link w-100 text-start" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> Profil Saya</button>
                     
@@ -136,7 +148,7 @@
                     <!-- ARSIPKU (NEW) -->
                     <button class="nav-link w-100 text-start text-warning" onclick="openArsipku(this)"><i class="fas fa-archive"></i> Arsipku (Selesai)</button>
                     
-                    <!-- MENU DELEGASI (DYNAMICALLY FILLED) -->
+                    <!-- MENU DELEGASI -->
                     <div id="delegationMenuContainer" style="display:none;">
                         <div class="my-2 border-top border-white-50"></div>
                         <div class="fw-bold text-white-50 px-3 py-1 small"><i class="fas fa-user-friends me-1"></i> Inbox Delegasi</div>
@@ -159,7 +171,7 @@
                     </div>
 
                     <div class="my-2 border-top border-white-50"></div>
-                    <!-- ARSIP PARENTS -->
+                    <!-- ARSIP PARENTS (Expanded as before) -->
                     <a class="nav-link w-100 text-start text-info restricted-feature" id="btnArsipMasukParent" data-bs-toggle="collapse" href="#menuArsipMasuk" role="button"><i class="fas fa-folder-open"></i> Arsip Masuk <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipMasuk">
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_masuk_all" onclick="openArsipPage('masuk', 'all', this)">All (Semua)</button>
@@ -197,16 +209,92 @@
             <div id="content">
                 <button type="button" id="sidebarCollapse" class="btn btn-outline-light mb-3"><i class="fas fa-bars"></i> Menu</button>
                 <div class="tab-content">
-                    <div class="tab-pane white-panel p-4" id="home-content">
-                        <div class="text-center py-5">
-                            <h2 class="fw-bold text-primary mb-3">Selamat Datang di SIMAS KOESMA</h2>
-                            <p class="lead mb-4">Sistem Informasi Manajemen Arsip Surat</p>
-                            <div class="alert alert-info d-inline-block text-start">
-                                <strong><i class="fas fa-info-circle me-2"></i>Status Akun Anda:</strong>
-                                <ul class="mb-0 mt-2">
-                                    <li>Nama: <span id="homeDisplayName" class="fw-bold">...</span></li>
-                                    <li>Role: <span id="homeRoleBadge" class="badge bg-secondary">...</span></li>
-                                </ul>
+                    
+                    <!-- NEW DASHBOARD (BERANDA) -->
+                    <div class="tab-pane active white-panel p-4" id="home-content">
+                        <!-- Greeting Section -->
+                        <div class="welcome-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="fw-bold mb-1" id="dashGreeting">Selamat Datang</h2>
+                                <p class="mb-0 opacity-75" id="dashDate">...</p>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="mb-0" id="dashUser">...</h5>
+                                <span class="badge bg-warning text-dark" id="dashRole">...</span>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Cards -->
+                        <div class="row g-4 mb-4">
+                            <!-- Card 1: Inbox (Most Important) -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-primary text-white h-100" onclick="$('button:contains(Inboxku)').click()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Inbox Saya</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashInboxVal">0</h2>
+                                        <p class="card-text small">Surat Menunggu Tindakan</p>
+                                        <i class="fas fa-inbox dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card 2: Surat Masuk Month -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-success text-white h-100" onclick="$('#btnArsipMasukParent').click()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Surat Masuk RS</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashMasukVal">0</h2>
+                                        <p class="card-text small">Bulan Ini</p>
+                                        <i class="fas fa-envelope-open-text dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card 3: Performance (Arsipku) -->
+                            <div class="col-md-4">
+                                <div class="card dash-card bg-info text-white h-100" onclick="openArsipku()">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white-50 mb-1">Kinerja Saya</h6>
+                                        <h2 class="display-4 fw-bold mb-0" id="dashArsipVal">0</h2>
+                                        <p class="card-text small">Surat Diselesaikan (Total)</p>
+                                        <i class="fas fa-check-circle dash-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart & Actions Section -->
+                        <div class="row g-4">
+                            <!-- Left: Chart -->
+                            <div class="col-lg-8">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold py-3">
+                                        <i class="fas fa-chart-bar text-primary me-2"></i>Tren Surat Masuk (6 Bulan Terakhir)
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="dashboardChart" style="max-height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right: Quick Actions -->
+                            <div class="col-lg-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold py-3">
+                                        <i class="fas fa-bolt text-warning me-2"></i>Akses Cepat
+                                    </div>
+                                    <div class="card-body d-grid gap-2">
+                                        <button class="btn btn-outline-primary text-start p-3 restricted-feature" data-perm="input_masuk" onclick="$('button:contains(Surat Masuk)').click()">
+                                            <i class="fas fa-plus-circle me-2"></i>Input Surat Masuk
+                                        </button>
+                                        <button class="btn btn-outline-success text-start p-3 restricted-feature" data-perm="input_keluar" onclick="$('button:contains(Surat Keluar)').click()">
+                                            <i class="fas fa-paper-plane me-2"></i>Input Surat Keluar
+                                        </button>
+                                        <button class="btn btn-outline-secondary text-start p-3" onclick="openMyProfile()">
+                                            <i class="fas fa-user-edit me-2"></i>Update Profil Saya
+                                        </button>
+                                    </div>
+                                    <div class="card-footer bg-light small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Sistem v21.4
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -219,6 +307,7 @@
 
                     <!-- INPUT MASUK -->
                     <div class="tab-pane glass-form-card" id="input-masuk-content">
+                        <!-- ... (Input Masuk Form - no changes needed) ... -->
                         <h3 class="fw-bold mb-4 border-bottom pb-2 text-white">Catat Surat Masuk</h3>
                         <form id="formSuratMasuk">
                             <div class="row g-3">
@@ -237,6 +326,7 @@
 
                     <!-- INPUT KELUAR -->
                     <div class="tab-pane glass-form-card" id="input-keluar-content">
+                       <!-- ... (Input Keluar Form - no changes needed) ... -->
                         <h3 class="fw-bold mb-4 border-bottom pb-2 text-white">Catat Surat Keluar</h3>
                         <form id="formSuratKeluar">
                             <div class="row g-3">
@@ -297,7 +387,7 @@
                         <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- ARSIP MASUK (UPDATED COLUMN WIDTHS) -->
+                    <!-- ARSIP MASUK (UPDATED TABLE HEADERS) -->
                     <div class="tab-pane white-panel p-4" id="arsip-masuk-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk</h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
                         <div class="table-responsive">
@@ -475,6 +565,7 @@
         let currentInboxContextEmail = ""; // To track whose inbox we are viewing
         let currentInboxContextName = "";
         let allUsersList = []; 
+        let dashboardChart = null; // Store chart instance
         
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ 
@@ -497,6 +588,9 @@
                     }
                     else if(lastState.tabId.includes('arsipku')) openArsipku(null); 
                     else activateTab(lastState.tabId, null);
+                } else {
+                    // Default to dashboard
+                    loadDashboardStats();
                 }
             } 
             $('#sidebarCollapse').on('click', function(){$('#sidebar, #content').toggleClass('toggled')}); 
@@ -549,6 +643,95 @@
             }
         }
         
+        // NEW DASHBOARD LOGIC
+        function loadDashboardStats() {
+            // Update Greeting & Date
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = "Selamat Pagi";
+            if(hour >= 11 && hour < 15) greeting = "Selamat Siang";
+            else if(hour >= 15 && hour < 18) greeting = "Selamat Sore";
+            else if(hour >= 18) greeting = "Selamat Malam";
+            
+            $('#dashGreeting').text(`${greeting}, ${sessionStorage.getItem('userName')}`);
+            $('#dashUser').text(sessionStorage.getItem('userName'));
+            $('#dashRole').text(sessionStorage.getItem('userRole'));
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            $('#dashDate').text(now.toLocaleDateString('id-ID', options));
+
+            // Fetch Stats
+            fetch(`${GAS_URL}?action=get_dashboard_stats&email=${currentUserEmail}`)
+            .then(r=>r.json())
+            .then(r => {
+                if(r.status === 'success') {
+                    const d = r.data;
+                    // Animate Numbers
+                    animateValue("dashInboxVal", 0, d.inbox, 1000);
+                    animateValue("dashMasukVal", 0, d.suratMasukMonth, 1000);
+                    animateValue("dashArsipVal", 0, d.arsipku, 1000);
+                    
+                    // Render Chart
+                    renderDashboardChart(d.chartLabels, d.chartData);
+                }
+            });
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            const range = end - start;
+            let current = start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            const obj = document.getElementById(id);
+            const timer = setInterval(function() {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        function renderDashboardChart(labels, data) {
+            const ctx = document.getElementById('dashboardChart').getContext('2d');
+            
+            if(dashboardChart) {
+                dashboardChart.destroy(); // Destroy old chart instance
+            }
+
+            dashboardChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Surat Masuk',
+                        data: data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
         function logout(){sessionStorage.clear();location.reload()}
         
         // ... (Credential & Profile functions maintained) ...

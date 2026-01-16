@@ -287,10 +287,24 @@
                         <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>File</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
-                    <!-- ARSIP MASUK -->
+                    <!-- ARSIP MASUK (UPDATED) -->
                     <div class="tab-pane white-panel p-4" id="arsip-masuk-container">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Masuk</h3><button class="btn btn-outline-info btn-sm" onclick="loadArsipMasuk()">Refresh</button></div>
-                        <div class="table-responsive"><table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th>Status</th><th>File</th><th>Kode</th><th width="15%">Aksi</th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive">
+                            <table id="tableArsipMasuk" class="table table-hover table-bordered w-100 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="white-space: nowrap; width: 1%;">Tgl Terima</th>
+                                        <th style="white-space: nowrap; width: 1%;">Agenda</th>
+                                        <th>Pengirim</th>
+                                        <th>Perihal (Klik untuk File)</th>
+                                        <th>Status</th>
+                                        <th width="15%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- ARSIP KELUAR -->
@@ -405,7 +419,6 @@
                 renderSidebarPermissions(); 
                 loadRefCodes(); 
                 
-                // RESTORE STATE LOGIC (NEW)
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -434,8 +447,6 @@
             $('.tab-pane').removeClass('active');
             $('#'+t).addClass('active');
             if(cb)cb();
-            
-            // Save state for non-dynamic tabs
             if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
                 saveAppState(t, null);
             }
@@ -448,124 +459,23 @@
         function openMyProfile() { showLoading(true); fetch(`${GAS_URL}?action=get_my_profile&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { $('#prof_email').val(r.data.email); $('#prof_nama').val(r.data.name); $('#prof_bidang').val(r.data.bidang); $('#prof_wa').val(r.data.wa); openUpdateProfileModal(r.data.email, r.data.name, false); } else { Swal.fire('Error', 'Gagal memuat profil', 'error'); } }); }
         $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
         
-        // --- ARSIPKU & FINISH LOGIC (NEW) ---
-        function openArsipku(e) {
-            activateTab('arsipku-container', e, loadArsipku);
-            saveAppState('arsipku-container', null);
-        }
+        function openArsipku(e) { activateTab('arsipku-container', e, loadArsipku); saveAppState('arsipku-container', null); }
+        function loadArsipku() { showLoading(true); fetch(`${GAS_URL}?action=read_arsipku&email=${currentUserEmail}`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); dt.clear(); if(r.data) r.data.forEach(d => { dt.row.add([ d.tglTerima, d.agenda, d.perihal, d.pengirim, d.keterangan || '-', d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-' ]); }); dt.draw(); }); }
+        function openFinishModal(agenda) { $('#fd_agenda').val(agenda); $('#fd_note').val(''); new bootstrap.Modal(document.getElementById('modalFinishDisposition')).show(); }
+        function submitFinishDisposition() { const agenda = $('#fd_agenda').val(); const note = $('#fd_note').val(); if(!note) return Swal.fire('Warning', 'Isi keterangan tindak lanjut', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalFinishDisposition')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'finish_disposition', agenda: agenda, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', 'Tugas diselesaikan. Surat dipindah ke Arsipku.', 'success'); refreshCurrentDisposisi(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
+        function openDisposisiPage(l, e) { currentInboxLevel = l; $('#dispPageTitle').text(l.replace(/_/g, ' ').toUpperCase()); activateTab('disposisi-container', e, refreshCurrentDisposisi); saveAppState('disposisi-container', l); }
+        function refreshCurrentDisposisi(){ showLoading(true); fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentUserEmail}`).then(r=>r.json()).then(r=>{ showLoading(false); const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}}); dt.clear(); if(r.data) r.data.forEach(d=>{ let btnAction = ''; if(currentInboxLevel === 'staf') { btnAction = ` <div class="btn-group" role="group"> <button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button> <button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button> </div>`; } else { btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`; } dt.row.add([d.tgl, d.agenda, d.pengirim, d.perihal, btnAction]); }); dt.draw(); }); }
+        
+        function openArsipPage(t, s, e) { currentArsipScope = s; if(t==='masuk') { activateTab('arsip-masuk-container', e, loadArsipMasuk); saveAppState('arsip-masuk-container', s); } else { activateTab('arsip-keluar-container', e, loadArsipKeluar); saveAppState('arsip-keluar-container', s); } }
 
-        function loadArsipku() {
-            showLoading(true);
-            fetch(`${GAS_URL}?action=read_arsipku&email=${currentUserEmail}`)
-            .then(r => r.json())
-            .then(r => {
-                showLoading(false);
-                const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]});
-                dt.clear();
-                if(r.data) r.data.forEach(d => {
-                    dt.row.add([
-                        d.tglTerima,
-                        d.agenda,
-                        d.perihal,
-                        d.pengirim,
-                        d.keterangan || '-', // Catatan Tindak Lanjut
-                        d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-'
-                    ]);
-                });
-                dt.draw();
-            });
-        }
-
-        function openFinishModal(agenda) {
-            $('#fd_agenda').val(agenda);
-            $('#fd_note').val('');
-            new bootstrap.Modal(document.getElementById('modalFinishDisposition')).show();
-        }
-
-        function submitFinishDisposition() {
-            const agenda = $('#fd_agenda').val();
-            const note = $('#fd_note').val();
-            
-            if(!note) return Swal.fire('Warning', 'Isi keterangan tindak lanjut', 'warning');
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalFinishDisposition')).hide();
-            showLoading(true);
-            
-            fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    type: 'finish_disposition',
-                    agenda: agenda,
-                    email: currentUserEmail,
-                    note: note
-                })
-            })
-            .then(r => r.json())
-            .then(r => {
-                showLoading(false);
-                if(r.status === 'success') {
-                    Swal.fire('Sukses', 'Tugas diselesaikan. Surat dipindah ke Arsipku.', 'success');
-                    refreshCurrentDisposisi(); // Remove form list
-                } else {
-                    Swal.fire('Gagal', r.message, 'error');
-                }
-            });
-        }
-
-        // --- UPDATED DISPOSISI PAGE (Save State) ---
-        function openDisposisiPage(l, e) {
-            currentInboxLevel = l;
-            $('#dispPageTitle').text(l.replace(/_/g, ' ').toUpperCase());
-            activateTab('disposisi-container', e, refreshCurrentDisposisi);
-            saveAppState('disposisi-container', l);
-        }
-
-        function refreshCurrentDisposisi(){
-            showLoading(true);
-            fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentUserEmail}`)
-            .then(r=>r.json())
-            .then(r=>{
-                showLoading(false);
-                const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}});
-                dt.clear();
-                if(r.data) r.data.forEach(d=>{
-                    let btnAction = '';
-                    
-                    // Logic: Tombol Selesai HANYA muncul di Inboxku (Staf)
-                    if(currentInboxLevel === 'staf') {
-                        btnAction = `
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button>
-                            <button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>
-                        </div>`;
-                    } else {
-                        // Level Pimpinan hanya bisa Disposisi
-                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
-                    }
-                    
-                    dt.row.add([d.tgl, d.agenda, d.pengirim, d.perihal, btnAction]);
-                });
-                dt.draw();
-            });
-        }
-
-        // --- UPDATED ARSIP PAGE (Save State + Print PDF) ---
-        function openArsipPage(t, s, e) {
-            currentArsipScope = s;
-            if(t==='masuk') {
-                activateTab('arsip-masuk-container', e, loadArsipMasuk);
-                saveAppState('arsip-masuk-container', s);
-            } else {
-                activateTab('arsip-keluar-container', e, loadArsipKeluar);
-                saveAppState('arsip-keluar-container', s);
-            }
-        }
-
+        // --- UPDATED LOAD ARSIP MASUK (UI OPTIMIZATION) ---
         function loadArsipMasuk(){
             showLoading(true);
             fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
                 showLoading(false);
-                const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); dt.clear();
+                const dt=$('#tableArsipMasuk').DataTable({destroy:true, order:[[1,'desc']]}); 
+                dt.clear();
+                
                 const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
                 const role = sessionStorage.getItem('userRole');
                 const canEdit = role === 'Super Admin' || perms.includes('edit_surat_masuk');
@@ -573,33 +483,34 @@
                 
                 if(r.data) r.data.forEach(d=>{
                     let aksi = `<div class="d-flex gap-1">`;
-                    // PDF Button
                     aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`;
                     aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;
                     if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
                     if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
                     aksi += `</div>`;
-                    dt.row.add([d.tglTerima,d.agenda,d.pengirim,d.perihal,d.status,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-', d.kode||'-', aksi]);
+                    
+                    // Merged Perihal Link
+                    const perihalLink = d.file 
+                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal} <i class="fas fa-external-link-alt small text-muted ms-1"></i></a>` 
+                        : d.perihal;
+
+                    // Table Row: [Tgl, Agenda, Pengirim, Perihal (Linked), Status, Aksi]
+                    dt.row.add([
+                        d.tglTerima,
+                        d.agenda,
+                        d.pengirim,
+                        perihalLink,
+                        d.status,
+                        aksi
+                    ]);
                 });
                 dt.draw();
             });
         }
 
-        function printDisposisi(agenda) {
-            Swal.fire({title: 'Memproses PDF...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
-            fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`)
-            .then(r => r.json())
-            .then(r => {
-                if(r.status === 'success') {
-                    Swal.close();
-                    window.open(r.url, '_blank');
-                } else {
-                    Swal.fire('Gagal', r.message, 'error');
-                }
-            });
-        }
-
-        // --- EXISTING FUNCTIONS ---
+        function printDisposisi(agenda) { Swal.fire({title: 'Memproses PDF...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }}); fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`).then(r => r.json()).then(r => { if(r.status === 'success') { Swal.close(); window.open(r.url, '_blank'); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
+        
+        // --- EXISTING FUNCTIONS (Unchanged Logic) ---
         function backupDatabase(){ showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success'){ const wb = XLSX.utils.book_new(); const ws1 = XLSX.utils.aoa_to_sheet(r.data.suratMasuk); const ws2 = XLSX.utils.aoa_to_sheet(r.data.suratKeluar); XLSX.utils.book_append_sheet(wb, ws1, "SuratMasuk"); XLSX.utils.book_append_sheet(wb, ws2, "SuratKeluar"); const date = new Date().toISOString().slice(0,10); XLSX.writeFile(wb, `Backup_SIMAS_${date}.xlsx`); } else { Swal.fire('Gagal', 'Anda tidak memiliki hak akses backup.', 'error'); } }); }
         function renderSidebarPermissions(){ const r=sessionStorage.getItem('userRole'); const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); $('.restricted-feature').addClass('restricted-feature'); $('#btnArsipMasukParent').addClass('restricted-feature'); $('#btnArsipKeluarParent').addClass('restricted-feature'); let hasAnyArsipMasuk = false; let hasAnyArsipKeluar = false; if(r==='Super Admin'){ $('.restricted-feature').removeClass('restricted-feature'); $('#btnArsipMasukParent').removeClass('restricted-feature'); $('#btnArsipKeluarParent').removeClass('restricted-feature'); $('#btnInboxKabagParent').show(); } else { p.forEach(x => { $(`[data-perm="${x}"]`).removeClass('restricted-feature'); if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true; if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true; }); if(hasAnyArsipMasuk) $('#btnArsipMasukParent').removeClass('restricted-feature'); if(hasAnyArsipKeluar) $('#btnArsipKeluarParent').removeClass('restricted-feature'); const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } } }
         function togglePembuatManual(sel) { const val = sel.value; if(val === 'Lainnya') { $('#inputPembuatManual').show().focus().prop('required', true); } else { $('#inputPembuatManual').hide().prop('required', false); } }

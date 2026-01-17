@@ -843,7 +843,34 @@
         $('#formUpdateProfile').on('submit', function(e){ e.preventDefault(); const d = { type: 'update_user_profile', email: $('#prof_email').val(), name: $('#prof_nama').val(), bidang: $('#prof_bidang').val(), wa: $('#prof_wa').val(), requestor: currentUserEmail }; showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status === 'success') { Swal.fire('Berhasil', 'Profil disimpan', 'success'); sessionStorage.setItem('userName', d.name); sessionStorage.setItem('userBidang', d.bidang); $('#userDisplayName').text(d.name); bootstrap.Modal.getInstance(document.getElementById('modalUpdateProfile')).hide(); } else { Swal.fire('Gagal', r.message, 'error'); } }); });
         
         function openArsipku(e) { activateTab('arsipku-container', e, loadArsipku); saveAppState('arsipku-container', null); }
-        function loadArsipku() { showLoading(true); fetch(`${GAS_URL}?action=read_arsip_keluar&email=${currentUserEmail}`).then(r => r.json()).then(r => { showLoading(false); const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); dt.clear(); if(r.data) r.data.forEach(d => { dt.row.add([d.tglTerima, d.agenda, d.perihal, d.pengirim, d.keterangan || '-', d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-']); }); dt.draw(); }); }
+        
+        // PERBAIKAN: Mengganti action menjadi 'read_arsipku' dan menambahkan catch error
+        function loadArsipku() { 
+            showLoading(true); 
+            fetch(`${GAS_URL}?action=read_arsipku&email=${currentUserEmail}`)
+            .then(r => r.json())
+            .then(r => { 
+                showLoading(false); 
+                const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); 
+                dt.clear(); 
+                if(r.data) r.data.forEach(d => { 
+                    dt.row.add([
+                        d.tglTerima, 
+                        d.agenda, 
+                        d.perihal, 
+                        d.pengirim, 
+                        d.keterangan || '-', 
+                        d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-'
+                    ]); 
+                }); 
+                dt.draw(); 
+            })
+            .catch(e => {
+                showLoading(false);
+                console.error(e);
+                Swal.fire('Error', 'Gagal memuat data Arsipku', 'error');
+            });
+        }
 
         function openFinishModal(agenda) { $('#fd_agenda').val(agenda); $('#fd_note').val(''); new bootstrap.Modal(document.getElementById('modalFinishDisposition')).show(); }
 

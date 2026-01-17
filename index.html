@@ -368,7 +368,22 @@
                             </div>
                             <button class="btn btn-outline-primary btn-sm" onclick="refreshCurrentDisposisi()">Refresh</button>
                         </div>
-                        <div class="table-responsive"><table id="tableDisposisi" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tanggal</th><th>Agenda</th><th>Pengirim</th><th>Perihal</th><th width="10%">Aksi</th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive">
+                            <table id="tableDisposisi" class="table table-hover table-bordered w-100 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <!-- UPDATED HEADER WIDTHS -->
+                                        <th style="width: 1%; white-space: nowrap;">Tgl</th>
+                                        <th style="width: 1%; white-space: nowrap;">Agenda</th>
+                                        <th style="width: 15%;">Pengirim</th>
+                                        <th>Perihal</th>
+                                        <th style="width: 25%;">Disposisi</th>
+                                        <th style="width: 1%; white-space: nowrap;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- ARSIPKU (NEW) -->
@@ -786,6 +801,7 @@
             saveAppState('disposisi-container', l, currentInboxContextEmail, overrideName);
         }
 
+        // UPDATED: Render Table Inbox with File Link, Instruction Column, and History Icon
         function refreshCurrentDisposisi(){
             showLoading(true);
             // Fetch inbox for contextEmail (either me or delegated user)
@@ -793,21 +809,53 @@
             .then(r=>r.json())
             .then(r=>{
                 showLoading(false);
-                const dt=$('#tableDisposisi').DataTable({destroy:true,language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}, order: [[ 1, 'desc' ]] });
+                const dt=$('#tableDisposisi').DataTable({
+                    destroy:true,
+                    language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}, 
+                    order: [[ 1, 'desc' ]],
+                    // Adjust column widths via DataTables settings for robustness
+                    autoWidth: false, // Important for custom widths
+                    columnDefs: [
+                        { width: "1%", targets: [0, 1, 5] }, // Tgl, Agenda, Aksi
+                        { width: "15%", targets: 2 },        // Pengirim
+                        { width: "25%", targets: 4 }         // Disposisi
+                    ]
+                });
                 dt.clear();
                 if(r.data) r.data.forEach(d=>{
                     let btnAction = '';
+                    // Action Buttons Logic
+                    btnAction = `<div class="btn-group btn-group-sm">`;
+                    // 1. Tombol History (Mata) - Added as requested
+                    btnAction += `<button class="btn btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}')"><i class="fas fa-eye"></i></button>`;
+
                     if(currentInboxLevel === 'staf') {
                         // Staf B acting as Staf A can perform actions
-                        btnAction = `
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button>
-                            <button class="btn btn-sm btn-success ms-1" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>
-                        </div>`;
+                        btnAction += `<button class="btn btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button>`;
+                        btnAction += `<button class="btn btn-success" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>`;
                     } else {
-                        btnAction = `<button class="btn btn-sm btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
+                        btnAction += `<button class="btn btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
                     }
-                    dt.row.add([d.tgl, d.agenda, d.pengirim, d.perihal, btnAction]);
+                    btnAction += `</div>`;
+
+                    // Perihal Link Logic (Assuming backend sends file url in d.file)
+                    let perihalHtml = d.perihal;
+                    if(d.file) { 
+                        perihalHtml = `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal} <i class="fas fa-paperclip small"></i></a>`;
+                    }
+
+                    // Disposisi / Instruction Text Logic (Assuming backend sends instruction in d.instruksi)
+                    // If undefined (not sent by backend yet), showing empty or hyphen is safer than 'undefined'
+                    let dispContent = d.instruksi || d.disposisi || '-';
+
+                    dt.row.add([
+                        `<div class="text-nowrap">${d.tgl}</div>`, 
+                        `<div class="text-nowrap fw-bold">${d.agenda}</div>`, 
+                        `<div class="text-truncate" style="max-width: 150px;" title="${d.pengirim}">${d.pengirim}</div>`, 
+                        perihalHtml, 
+                        `<div class="small text-muted" style="max-height:60px; overflow-y:auto;">${dispContent}</div>`, 
+                        btnAction
+                    ]);
                 });
                 dt.draw();
             });
@@ -1106,7 +1154,7 @@
                 levelAsal: currentInboxLevel, 
                 target: selected.join(', '), 
                 instruksi: $('#dispInstruksi').val(), 
-                sender: currentUserEmail,
+                sender: currentUserEmail, 
                 senderName: sessionStorage.getItem('userName') // Sending name for cleaner logs
             }; 
 

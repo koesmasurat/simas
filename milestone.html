@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Penerapan SIMAS KOESMA</title>
+    <link rel="icon" href="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" type="image/png">
+    
+    <!-- Fonts & Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --primary-orange: #9a3412;
+            --accent-blue: #3b82f6;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+            color: #334155;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .paper-container {
+            max-width: 210mm; /* A4 Width */
+            margin: 40px auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 297mm; /* A4 Height */
+            padding: 0;
+            position: relative;
+        }
+
+        /* HEADER */
+        .doc-header {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content { position: relative; z-index: 2; }
+        
+        .watermark-logo {
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+            width: 250px;
+            z-index: 1;
+        }
+
+        .doc-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2rem; margin-bottom: 5px; }
+        .doc-meta { font-size: 0.9rem; opacity: 0.9; border-left: 3px solid rgba(255,255,255,0.5); padding-left: 15px; margin-top: 15px; }
+
+        /* CONTENT BODY */
+        .doc-body { padding: 40px; }
+
+        /* PHASE VISUALIZER */
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .timeline-steps::before {
+            content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px;
+            background: #e2e8f0; z-index: 0;
+        }
+        .step-item {
+            position: relative; z-index: 1; text-align: center; background: white; padding: 0 10px;
+        }
+        .step-circle {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: var(--primary-dark); color: white;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px; font-weight: bold; border: 4px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--primary-orange); }
+        .step-sub { font-size: 0.7rem; color: #64748b; }
+
+        /* TABLES */
+        .phase-section { margin-bottom: 35px; }
+        .phase-header {
+            background: #f1f5f9;
+            border-left: 5px solid var(--primary-orange);
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .phase-title { font-weight: 700; color: var(--primary-dark); margin: 0; font-size: 1.1rem; }
+        .phase-badge { background: var(--primary-dark); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; letter-spacing: 1px; }
+
+        .table-custom { font-size: 0.85rem; border: 1px solid #e2e8f0; }
+        .table-custom thead { background-color: #f8fafc; }
+        .table-custom th { color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        .table-custom td { padding: 12px; vertical-align: top; border-bottom: 1px solid #f1f5f9; }
+        .table-custom tr:last-child td { border-bottom: none; }
+        
+        .col-day { width: 10%; font-weight: 600; color: var(--primary-orange); }
+        .col-activity { width: 25%; font-weight: 600; }
+        .col-pic { width: 15%; color: var(--accent-blue); }
+
+        /* PREREQUISITES CARD */
+        .prereq-card {
+            background: #fff7ed;
+            border: 1px solid #ffedd5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .prereq-title { color: var(--primary-orange); font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; }
+        
+        /* SIGNATURE */
+        .signature-section { margin-top: 60px; display: flex; justify-content: flex-end; }
+        .signature-box { text-align: center; width: 250px; }
+        .sign-line { border-bottom: 1px solid #333; margin: 60px 0 5px; }
+
+        /* PRINT BUTTON */
+        .fab-print {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--primary-orange); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            z-index: 100; border: none;
+        }
+        .fab-print:hover { transform: scale(1.1); background: #ea580c; }
+
+        @media print {
+            body { background: white; }
+            .paper-container { box-shadow: none; margin: 0; width: 100%; max-width: 100%; }
+            .fab-print { display: none; }
+            .doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .phase-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .step-circle { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="fab-print" onclick="window.print()" title="Cetak Jadwal"><i class="fas fa-print"></i></button>
+
+    <div class="paper-container">
+        
+        <!-- Header Dokumen -->
+        <div class="doc-header">
+            <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" class="watermark-logo">
+            <div class="header-content">
+                <div class="d-flex align-items-center mb-2">
+                    <img src="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" width="50" class="me-3 bg-white rounded-circle p-1">
+                    <div>
+                        <h5 class="m-0 text-white-50 small text-uppercase ls-1">RSUD dr. R. KOESMA TUBAN</h5>
+                        <h1 class="doc-title">Rencana Implementasi</h1>
+                    </div>
+                </div>
+                <div class="doc-meta">
+                    <div class="row">
+                        <div class="col-6"><strong>Sistem:</strong> SIMAS KOESMA (Enterprise)</div>
+                        <div class="col-6"><strong>Versi Dokumen:</strong> 1.0</div>
+                        <div class="col-6"><strong>Target:</strong> Seluruh Bidang/Bagian</div>
+                        <div class="col-6"><strong>Durasi:</strong> 4 Minggu (1 Bulan)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-body">
+            
+            <!-- Timeline Visual -->
+            <div class="timeline-steps">
+                <div class="step-item">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Pilot Project</div>
+                    <div class="step-sub">Internal Adm & Umum</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Sosialisasi</div>
+                    <div class="step-sub">Perwakilan Bidang</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Soft Launch</div>
+                    <div class="step-sub">Level Pimpinan</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Grand Launch</div>
+                    <div class="step-sub">Operasional Penuh</div>
+                </div>
+            </div>
+
+            <!-- FASE 1 -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <div>
+                        <h3 class="phase-title">Fase 1: Internal Pilot Project</h3>
+                        <small class="text-muted">Fokus: Kestabilan Sistem & Validasi Alur</small>
+                    </div>
+                    <span class="phase-badge">MINGGU KE-1</span>
+                </div>
+                <table class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th class="col-day">Hari</th>
+                            <th class="col-activity">Kegiatan Utama</th>
+                            <th>Deskripsi Detail</th>
+                            <th class="col-pic">PIC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Senin</td>
+                            <td>Setup Awal & Data</td>
+                            <td>Pengumpulan data user, registrasi akun Admin Loket & Staf Umum, setting hak akses.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                        <tr>
+                            <td>Selasa</td>
+                            <td>Uji Input Surat</td>
+                            <td>Simulasi input surat masuk riil hari ini, testing upload file & OCR, validasi notifikasi.</td>
+                            <td>Admin Loket</td>
+                        </tr>
+                        <tr>
+                            <td>Rabu</td>
+                            <td>Uji Alur Disposisi</td>
+                            <td>Simulasi disposisi internal: Kabag -> Kasubag -> Staf. Cek fitur "Inbox Delegasi".</td>
+                            <td>Kabag Umum</td>
+                        </tr>
+                        <tr>
+                            <td>Kamis</td>
+                            <td>Testing Surat Keluar</td>
+                            <td>Uji coba fitur "Booking Nomor Agenda" dan perubahan status approval.</td>
+                            <td>Staf Adm</td>
+                        </tr>
+                        <tr>
+                            <td>Jumat</td>
+                            <td>Evaluasi Fase 1</td>
+                            <td>Rapat evaluasi, perbaikan bug (jika ada), finalisasi materi panduan.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FASE 2 -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <div>
+                        <h3 class="phase-title">Fase 2: Sosialisasi & Bimtek</h3>
+                        <small class="text-muted">Fokus: Transfer Pengetahuan (Perwakilan Ruangan)</small>
+                    </div>
+                    <span class="phase-badge">MINGGU KE-2</span>
+                </div>
+                <table class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th class="col-day">Hari</th>
+                            <th class="col-activity">Kegiatan Utama</th>
+                            <th>Deskripsi Detail</th>
+                            <th class="col-pic">PIC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Senin</td>
+                            <td>Registrasi Massal</td>
+                            <td>Input akun seluruh Kabid, Kabag, dan Perwakilan Admin Ruangan ke database.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                        <tr>
+                            <td>Selasa</td>
+                            <td>Sosialisasi Akbar</td>
+                            <td>Demo aplikasi di layar lebar, penjelasan logika alur sistem (Top-Down).</td>
+                            <td>Tim IT</td>
+                        </tr>
+                        <tr>
+                            <td>Rabu</td>
+                            <td>Workshop Sesi 1</td>
+                            <td>Hands-on untuk <strong>Wadir & Kabag/Kabid</strong> (atau sekretaris). Fokus: Cara Disposisi.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                        <tr>
+                            <td>Kamis</td>
+                            <td>Workshop Sesi 2</td>
+                            <td>Hands-on untuk <strong>Staf Pelaksana</strong>. Fokus: Terima Disposisi & Arsip.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="page-break-before: always;"></div> <!-- Page Break for Print -->
+
+            <!-- FASE 3 -->
+            <div class="phase-section mt-4">
+                <div class="phase-header">
+                    <div>
+                        <h3 class="phase-title">Fase 3: Soft Launch (Manajemen)</h3>
+                        <small class="text-muted">Fokus: Membangun Kebiasaan Pimpinan</small>
+                    </div>
+                    <span class="phase-badge">MINGGU KE-3</span>
+                </div>
+                <table class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th class="col-day">Hari</th>
+                            <th class="col-activity">Kegiatan Utama</th>
+                            <th>Deskripsi Detail</th>
+                            <th class="col-pic">Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Senin-Rabu</td>
+                            <td>Disposisi Paralel</td>
+                            <td>Surat fisik tetap berjalan, namun Direktur & Wadir <strong>WAJIB</strong> melakukan disposisi via aplikasi agar data turun ke Kabid.</td>
+                            <td>Direksi</td>
+                        </tr>
+                        <tr>
+                            <td>Kamis-Jumat</td>
+                            <td>Monitoring Inbox</td>
+                            <td>Tim IT memantau Inbox Pimpinan. Memastikan tidak ada surat "stuck" > 24 jam.</td>
+                            <td>Tim IT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FASE 4 -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <div>
+                        <h3 class="phase-title">Fase 4: Grand Launch</h3>
+                        <small class="text-muted">Fokus: Operasional Penuh (Paperless)</small>
+                    </div>
+                    <span class="phase-badge">MINGGU KE-4</span>
+                </div>
+                <table class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th class="col-day">Status</th>
+                            <th class="col-activity">Kegiatan</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge bg-success">GO LIVE</span></td>
+                            <td>Stop Manual</td>
+                            <td>Lembar disposisi kertas ditiadakan (atau hanya diprint dari sistem). Acuan utama adalah aplikasi.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">SUPPORT</span></td>
+                            <td>Posko IT</td>
+                            <td>Tim IT standby penuh untuk bantuan teknis via WA/Telegram Group.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-info text-dark">AUDIT</span></td>
+                            <td>Cek Kinerja</td>
+                            <td>Evaluasi mingguan statistik "Arsipku" untuk melihat bidang mana yang paling responsif.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PREREQUISITES -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="prereq-card">
+                        <div class="prereq-title"><i class="fas fa-exclamation-triangle me-2"></i> Prasyarat Teknis (Sebelum Hari-1)</div>
+                        <ul class="mb-0 small ps-3">
+                            <li>Koneksi internet stabil di Ruang Administrasi & Umum.</li>
+                            <li>Scanner dokumen tersedia dan terkoneksi di meja Admin Loket.</li>
+                            <li>Data Excel User: Nama, Email (Gmail), Jabatan, No WA.</li>
+                            <li>SK/Surat Edaran Direktur tentang kewajiban penggunaan aplikasi.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="signature-section">
+                        <div class="signature-box">
+                            <p class="small text-muted mb-5">Tuban, ....................................</p>
+                            <div class="sign-line"></div>
+                            <p class="fw-bold small">Kepala Bagian Administrasi & Umum</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

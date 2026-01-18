@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMAS KOESMA - Enterprise</title>
+    <title>SIMAS KOESMA</title>
     <link rel="icon" href="https://github.com/koesmasurat/simas/blob/main/logo%20rsud%202%20png.png?raw=true" type="image/png">
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -54,15 +54,12 @@
         /* OPTIMASI MOBILE (RESPONSIVE) */
         @media (max-width: 768px) {
             #sidebar {
-                /* Pada mobile, sidebar overlay di atas konten, tidak mendorong konten */
                 box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
             }
             #content {
-                /* Konten selalu full width di mobile */
                 margin-left: 0 !important;
-                padding: 15px; /* Sedikit padding lebih kecil */
+                padding: 15px; 
             }
-            /* Saat sidebar muncul di mobile, beri backdrop gelap di konten (opsional, bisa via JS tapi CSS shadow di sidebar sudah cukup) */
         }
 
         .nav-link { color: rgba(255,255,255,0.8); border-radius: 6px; padding: 10px 15px; margin-bottom: 4px; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; }
@@ -91,6 +88,34 @@
         .timeline-content { background: #f8f9fa; padding: 10px 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .timeline-title { font-weight: bold; margin-bottom: 2px; font-size: 0.95rem; }
         .timeline-actor { font-size: 0.85rem; color: #007bff; margin-bottom: 5px; font-weight: 600; }
+
+        /* --- CUSTOM STYLE FOR DISPOSISI POPUP --- */
+        #modalDisposisi .modal-content {
+            background-color: rgba(255, 255, 0, 0.5) !important; /* Kuning Transparan 50% */
+            backdrop-filter: blur(10px);                        /* Efek blur di belakang kartu */
+            border: 2px solid rgba(255, 255, 255, 0.3);         /* Garis pinggir tipis */
+        }
+        #modalDisposisi .modal-header .modal-title {
+            color: #000000 !important;
+            font-weight: bold;
+        }
+        #modalDisposisi .btn-close {
+            filter: none; /* Ensure default dark close button */
+        }
+        /* Style for Target Container: White Ice Transparent */
+        #dispTargetContainer {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(5px);
+            color: #000000 !important;
+            border: 1px solid #dee2e6;
+        }
+        #dispTargetContainer label {
+            color: #000000 !important;
+            font-weight: 500;
+        }
+        #modalDisposisi label {
+            color: #000000 !important;
+        }
     </style>
 </head>
 <body>
@@ -587,7 +612,9 @@
     <div class="modal fade" id="modalBooking" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Booking Nomor Agenda</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="bookingCategory"><div class="text-center mb-4"><small>Nomor Terakhir:</small><h2 id="lastAgendaDisplay" class="fw-bold text-primary">...</h2></div><div class="mb-3"><label class="form-label fw-bold">Nomor yang dibooking:</label><input type="number" class="form-control text-center fw-bold" id="bookingValue"><input type="text" class="form-control mt-2" id="bookingNote" placeholder="Catatan"></div><div class="d-grid gap-2"><button class="btn btn-success" onclick="saveBooking()">Simpan Booking</button><button class="btn btn-outline-secondary" onclick="applyBooking()">Gunakan Saja</button></div></div></div></div></div>
     <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Edit Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditSuratMasuk"><input type="hidden" id="em_noAgenda"><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Agenda</label><input type="text" class="form-control" id="em_displayAgenda" disabled></div><div class="col-md-6"><label class="small fw-bold">No Surat</label><input type="text" class="form-control" id="em_noSurat"></div></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Tgl Surat</label><input type="date" class="form-control" id="em_tglSurat"></div><div class="col-md-6"><label class="small fw-bold">Tgl Terima</label><input type="date" class="form-control" id="em_tglTerima"></div></div><div class="mb-3"><label class="small fw-bold">Pengirim</label><input type="text" class="form-control" id="em_pengirim"></div><div class="mb-3"><label class="small fw-bold">Kode Klarifikasi</label><input type="text" class="form-control" id="em_kodeKlarifikasi" list="listKodeKlarifikasi"></div><div class="mb-3"><label class="small fw-bold">Perihal</label><textarea class="form-control" id="em_perihal" rows="3"></textarea></div><div class="mb-3"><label class="small fw-bold">Ganti File</label><input type="file" class="form-control" id="em_file"></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveEditMasuk()">Simpan Perubahan</button></form></div></div></div></div>
     <div class="modal fade" id="modalEditSuratKeluar" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Edit Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEditSuratKeluar"><input type="hidden" id="ek_noAgenda"><div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Agenda</label><input type="text" class="form-control" id="ek_displayAgenda" disabled></div><div class="col-md-6"><label class="small fw-bold">No Surat</label><input type="text" class="form-control" id="ek_noSurat"></div></div><div class="mb-3"><label class="small fw-bold">Tgl Surat</label><input type="date" class="form-control" id="ek_tglSurat"></div><div class="mb-3"><label class="small fw-bold">Tujuan</label><input type="text" class="form-control" id="ek_tujuan"></div><div class="mb-3"><label class="small fw-bold">Perihal</label><textarea class="form-control" id="ek_perihal" rows="3"></textarea></div><div class="mb-3"><label class="small fw-bold">Ganti File</label><input type="file" class="form-control" id="ek_file"></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveEditKeluar()">Simpan Perubahan</button></form></div></div></div></div>
-    <div class="modal fade" id="modalDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Kirim Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formDisposisi"><input type="hidden" id="dispIdSurat"><div class="alert alert-light border shadow-sm mb-3"><small class="text-muted d-block fw-bold">Perihal:</small><span id="dispPerihal" class="fs-6">...</span></div><div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><div id="dispTargetContainer" class="border rounded p-2 bg-light" style="max-height: 150px; overflow-y: auto;"></div></div><div class="mb-3"><label class="fw-bold small mb-1">Instruksi:</label><textarea class="form-control" id="dispInstruksi" rows="4"></textarea></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
+    
+    <!-- MODAL DISPOSISI (MODIFIED) -->
+    <div class="modal fade" id="modalDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Kirim Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formDisposisi"><input type="hidden" id="dispIdSurat"><div class="alert alert-light border shadow-sm mb-3"><small class="text-muted d-block fw-bold">Perihal:</small><span id="dispPerihal" class="fs-6 text-dark">...</span></div><div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><div id="dispTargetContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"></div></div><div class="mb-3"><label class="fw-bold small mb-1">Instruksi:</label><textarea class="form-control" id="dispInstruksi" rows="4"></textarea></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -940,6 +967,10 @@
                 dt.clear();
                 if(r.data) r.data.forEach(d=>{
                     let btnAction = '';
+                    
+                    // SECURITY FIX: Escape the perihal content so quotes don't break the HTML attribute
+                    const safePerihal = d.perihal.replace(/"/g, '&quot;');
+
                     // Action Buttons Logic
                     btnAction = `<div class="btn-group btn-group-sm">`;
                     // 1. Tombol History (Mata) - Added as requested
@@ -947,10 +978,12 @@
 
                     if(currentInboxLevel === 'staf') {
                         // Staf B acting as Staf A can perform actions
-                        btnAction += `<button class="btn btn-warning" title="Disposisi Lanjut" onclick="openDisposisiModal('${d.id}','${d.perihal}')"><i class="fas fa-share"></i></button>`;
+                        // Updated to use data attribute for safety
+                        btnAction += `<button class="btn btn-warning" title="Disposisi Lanjut" data-id="${d.id}" data-perihal="${safePerihal}" onclick="openDisposisiModal(this.dataset.id, this.dataset.perihal)"><i class="fas fa-share"></i></button>`;
                         btnAction += `<button class="btn btn-success" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>`;
                     } else {
-                        btnAction += `<button class="btn btn-warning" onclick="openDisposisiModal('${d.id}','${d.perihal}')">Proses</button>`;
+                        // Updated to use data attribute for safety
+                        btnAction += `<button class="btn btn-warning" data-id="${d.id}" data-perihal="${safePerihal}" onclick="openDisposisiModal(this.dataset.id, this.dataset.perihal)">Proses</button>`;
                     }
                     btnAction += `</div>`;
 
@@ -1250,8 +1283,8 @@
             const subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); 
             let t = []; 
             if (currentInboxLevel === 'direktur') t = ['Wadir Umum & Keuangan', 'Wadir Pelayanan']; 
-            else if (currentInboxLevel === 'wadir_adm') t = ['Kabag Administrasi & Umum', 'Kabag Keuangan', 'Kabag Program & Pelaporan']; 
-            else if (currentInboxLevel === 'wadir_pel') t = ['Kabid Pelayanan Medik', 'Kabid Pelayanan Penunjang', 'Kabid Pelayanan Keperawatan']; 
+            else if (currentInboxLevel === 'wadir_adm') t = ['Bagian Administrasi & Umum', 'Bagian Keuangan', 'Bagian Program & Pelaporan']; 
+            else if (currentInboxLevel === 'wadir_pel') t = ['Bidang Pelayanan Medik', 'Bidang Pelayanan Penunjang', 'Bidang Pelayanan Keperawatan']; 
             else if (currentInboxLevel.includes('kabag') || currentInboxLevel.includes('kabid')) t = subs; 
             
             // Staf Logic (Self or Delegated)

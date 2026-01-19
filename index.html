@@ -552,16 +552,34 @@
     </div>
 
     <!-- OTHER MODALS -->
-    <div class="modal fade" id="modalHistory" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title"><i class="fas fa-history me-2"></i>History Surat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="historyLoading" class="text-center py-3"><div class="spinner-border text-info"></div><p>Memuat history...</p></div>
-        <div id="historyContent" style="display:none;">
-            <div class="alert alert-light border">
-                <small class="text-muted d-block">Perihal:</small>
-                <!-- Container for Title and Date -->
-                <div id="histPerihal" class="fs-6 fw-bold">...</div>
+    <!-- MODIFIED MODAL HISTORY WITH FOOTER -->
+    <div class="modal fade" id="modalHistory" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-history me-2"></i>History Surat</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="historyLoading" class="text-center py-3"><div class="spinner-border text-info"></div><p>Memuat history...</p></div>
+                    <div id="historyContent" style="display:none;">
+                        <div class="alert alert-light border">
+                            <small class="text-muted d-block">Perihal:</small>
+                            <!-- Container for Title and Date -->
+                            <div id="histPerihal" class="fs-6 fw-bold">...</div>
+                        </div>
+                        <div class="timeline" id="timelineContainer"></div>
+                    </div>
+                </div>
+                <!-- ADDED FOOTER FOR WHATSAPP BUTTON -->
+                <div class="modal-footer">
+                    <a id="btnShareWA" target="_blank" class="btn btn-success w-100 fw-bold">
+                        <i class="fab fa-whatsapp me-2"></i>Share WA
+                    </a>
+                </div>
             </div>
-            <div class="timeline" id="timelineContainer"></div>
         </div>
-    </div></div></div></div></div>
+    </div>
     
     <!-- MODAL EDIT DISPOSISI (UPDATED WITH TEXTAREAS) -->
     <div class="modal fade" id="modalEditDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5 class="modal-title">Edit Tujuan & Isi Disposisi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
@@ -1029,8 +1047,8 @@
 
                     // Action Buttons Logic
                     btnAction = `<div class="btn-group btn-group-sm">`;
-                    // 1. Tombol History (Mata) - Added as requested
-                    btnAction += `<button class="btn btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}')"><i class="fas fa-eye"></i></button>`;
+                    // 1. Tombol History (Mata) - Added WA Params here
+                    btnAction += `<button class="btn btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`;
 
                     if(currentInboxLevel === 'staf') {
                         // Staf B acting as Staf A can perform actions
@@ -1189,7 +1207,8 @@
                     let aksi = `<div class="d-flex gap-1">`;
                     // Added print icon button here
                     aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`;
-                    aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory(${d.agenda})"><i class="fas fa-eye"></i></button>`;
+                    // UPDATE: Pass extra parameters for WA logic
+                    aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tglTerima}')"><i class="fas fa-eye"></i></button>`;
                     if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan & Isi Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
                     if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
                     aksi += `</div>`;
@@ -1244,11 +1263,12 @@
             });
         }
 
-        // --- UPDATED VIEW HISTORY (ADD TGL SURAT) ---
-        function viewHistory(agenda) {
+        // --- UPDATED VIEW HISTORY (ADD TGL SURAT & WHATSAPP GENERATOR) ---
+        function viewHistory(agenda, fileUrl, tglTerima) {
             new bootstrap.Modal(document.getElementById('modalHistory')).show();
             $('#historyLoading').show(); 
             $('#historyContent').hide();
+            $('#btnShareWA').hide(); // Hide button initially
             
             fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`).then(r => r.json()).then(r => {
                 $('#historyLoading').hide();
@@ -1262,10 +1282,34 @@
                     `);
                     
                     let html = '';
+                    
+                    // --- BUILD WHATSAPP MESSAGE START ---
+                    let waText = `*DETAIL SURAT MASUK*\n`;
+                    waText += `--------------------\n`;
+                    waText += `📂 Link File: ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
+                    waText += `📝 Perihal: ${r.data.perihal}\n`;
+                    waText += `📅 Tgl Surat: ${r.data.tglSurat}\n`;
+                    waText += `📥 Tgl Terima: ${tglTerima || '-'}\n\n`;
+                    waText += `*RIWAYAT DISPOSISI:*\n`;
+                    // -----------------------------------
+
                     r.data.history.forEach(h => {
                         html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
+                        
+                        // --- APPEND TO WA MESSAGE ---
+                        waText += `🔹 ${h.timestamp} ${h.stage}\n`;
+                        waText += `   Oleh: ${h.actor}\n`;
+                        waText += `   Isi: "${h.desc}"\n`;
+                        if(h.action && h.action !== 'Selesai') waText += `   (${h.action})\n`;
+                        waText += `\n`;
                     });
+                    
                     $('#timelineContainer').html(html);
+
+                    // --- ACTIVATE WA BUTTON ---
+                    let finalWaUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+                    $('#btnShareWA').attr('href', finalWaUrl).show();
+
                 } else {
                     $('#timelineContainer').html('<div class="text-danger text-center">History tidak ditemukan.</div>');
                 }
@@ -1471,8 +1515,8 @@
                             ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal}</a>` 
                             : d.perihal;
 
-                        // Aksi: Removed Link, Added Eye Icon for History
-                        let aksi = `<button class="btn btn-sm btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}')"><i class="fas fa-eye"></i></button>`;
+                        // Aksi: Removed Link, Added Eye Icon for History with Extra Params
+                        let aksi = `<button class="btn btn-sm btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`;
 
                         // Removed OCR column from display
                         dt.row.add([d.tgl, d.agenda, d.ref, perihalHtml, aksi]); 

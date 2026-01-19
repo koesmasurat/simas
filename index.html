@@ -1012,7 +1012,57 @@
 
         function openArsipPage(t, s, e) { currentArsipScope = s; if(t==='masuk') { activateTab('arsip-masuk-container', e, loadArsipMasuk); saveAppState('arsip-masuk-container', s); } else { activateTab('arsip-keluar-container', e, loadArsipKeluar); saveAppState('arsip-keluar-container', s); } }
 
-        function backupDatabase(){ showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'get_backup_data', requestor: currentUserEmail }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success'){ const wb = XLSX.utils.book_new(); const ws1 = XLSX.utils.aoa_to_sheet(r.data.suratMasuk); const ws2 = XLSX.utils.aoa_to_sheet(r.data.suratKeluar); XLSX.utils.book_append_sheet(wb, ws1, "SuratMasuk"); XLSX.utils.book_append_sheet(wb, ws2, "SuratKeluar"); const date = new Date().toISOString().slice(0,10); XLSX.writeFile(wb, `Backup_SIMAS_${date}.xlsx`); } else { Swal.fire('Gagal', 'Anda tidak memiliki hak akses backup.', 'error'); } }); }
+        function backupDatabase() {
+            showLoading(true);
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'get_backup_data',
+                    requestor: currentUserEmail
+                })
+            }).then(r => r.json()).then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    // LOGIC BARU: Menerima Base64 string dari backend (Tahap 2) dan convert ke Blob
+                    try {
+                        // Perhatikan: Backend nanti harus mengirim data base64 di properti r.data atau r.base64
+                        // Kita asumsikan backend mengirim string base64 di r.data
+                        const base64Data = r.data;
+
+                        // Konversi Base64 ke Blob
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+                        // Download File
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        const date = new Date().toISOString().slice(0, 10);
+                        a.download = `FULL_BACKUP_SIMAS_${date}.xlsx`; // Nama file output
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        Swal.fire('Berhasil', 'Full Backup berhasil didownload', 'success');
+                    } catch (e) {
+                        console.error(e);
+                        // Pesan ini muncul jika backend belum diupdate (masih kirim array JSON, bukan string base64)
+                        Swal.fire('Peringatan', 'Format data backend belum sesuai (Lanjutkan ke Tahap 2)', 'warning');
+                    }
+                } else {
+                    Swal.fire('Gagal', 'Anda tidak memiliki hak akses backup.', 'error');
+                }
+            }).catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Terjadi kesalahan jaringan', 'error');
+            });
+        }
         
         function renderSidebarPermissions(){ 
             const r=sessionStorage.getItem('userRole'); 

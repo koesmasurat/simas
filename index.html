@@ -444,7 +444,7 @@
                             <button class="btn btn-outline-success btn-sm" onclick="loadArsipku()">Refresh</button>
                         </div>
                         <div class="alert alert-success small py-2"><i class="fas fa-check-circle me-2"></i>Daftar surat yang sudah Anda selesaikan / tindak lanjuti.</div>
-                        <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>File</th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive"><table id="tableArsipku" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Tgl Terima</th><th>Agenda</th><th>Perihal</th><th>Pengirim</th><th>Tindak Lanjut</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <!-- ARSIP MASUK (UPDATED COLUMN WIDTHS) -->
@@ -708,7 +708,7 @@
                             // Mail Icon
                             { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 },
                             // Book Icon
-                            { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 5.6-32 26.7-32 26.7H48s-10.1-21.1-32-26.7V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V192.6c21.9 5.6 32 26.7 32 26.7h416s10.1-21.1 32-26.7v127.4c0 8.8-7.2 16-16 16z'/%3E%3C/svg%3E", width: 32, height: 32 },
+                            { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 5.6-32 26.7-32 26.7H48s-10.1-21.1-32-26.7V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V192.6c21.9 5.6 32 26.7 32 26.7h416s10.1-21.1 32-26.7v127.4c0 8.8-7.2 16 16 16z'/%3E%3C/svg%3E", width: 32, height: 32 },
                             // Document Icon
                             { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z'/%3E%3C/svg%3E", width: 32, height: 32 }
                         ] 
@@ -938,13 +938,21 @@
                 const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); 
                 dt.clear(); 
                 if(r.data) r.data.forEach(d => { 
+                    // Perihal menjadi link jika ada file
+                    let perihalHtml = d.file 
+                        ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
+                        : d.perihal;
+                    
+                    // Tombol Aksi: Icon Mata (History)
+                    let aksi = `<button class="btn btn-sm btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tglTerima}')"><i class="fas fa-eye"></i></button>`;
+
                     dt.row.add([
                         d.tglTerima, 
                         d.agenda, 
-                        d.perihal, 
+                        perihalHtml, // Kolom Perihal sudah jadi link
                         d.pengirim, 
                         d.keterangan || '-', 
-                        d.file ? `<a href="${d.file}" target="_blank">Lihat</a>` : '-'
+                        aksi // Kolom Aksi pengganti File
                     ]); 
                 }); 
                 dt.draw(); 
@@ -1286,8 +1294,8 @@
                     // --- BUILD WHATSAPP MESSAGE START ---
                     let waText = `*DETAIL SURAT MASUK*\n`;
                     waText += `--------------------\n`;
-                    waText += `📂 Link File: ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
-                    waText += `📝 Perihal: ${r.data.perihal}\n`;
+                    waText += `🔗 Link File: ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
+                    waText += `🏷️ Perihal: ${r.data.perihal}\n`;
                     waText += `📅 Tgl Surat: ${r.data.tglSurat}\n`;
                     waText += `📥 Tgl Terima: ${tglTerima || '-'}\n\n`;
                     waText += `*RIWAYAT DISPOSISI:*\n`;

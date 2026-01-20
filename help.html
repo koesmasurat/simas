@@ -131,10 +131,39 @@
         .fab-back { position: fixed; bottom: 30px; right: 30px; background: var(--accent-orange); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); z-index: 100; text-decoration: none; transition: transform 0.2s; }
         .fab-back:hover { transform: scale(1.1); color: white; background: #ea580c; }
 
+        /* BUTTON BACK TO HOME TOP LEFT */
+        .btn-back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        .btn-back-home:hover {
+            background: white;
+            color: var(--accent-orange);
+            transform: translateY(2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
         @media (max-width: 991px) {
             .doc-sidebar { display: none; }
             .doc-content { padding: 20px; }
             .hero-title { font-size: 2rem; }
+            .btn-back-home { top: 15px; left: 15px; padding: 8px 15px; font-size: 0.75rem; }
         }
         
     </style>
@@ -142,6 +171,13 @@
 <body data-bs-spy="scroll" data-bs-target="#doc-nav" data-bs-offset="100">
 
     <div id="tsparticles"></div>
+    
+    <!-- BUTTON BACK TO HOME -->
+    <a href="https://simas.koesma.biz.id" class="btn-back-home">
+        <i class="fas fa-arrow-left"></i> BACK TO HOME
+    </a>
+
+    <!-- EXISTING FAB (Back to Dashboard inside app) -->
     <a href="index.html" class="fab-back" title="Kembali ke Dashboard"><i class="fas fa-home"></i></a>
 
     <!-- HERO -->
@@ -199,9 +235,9 @@
                             <h2 class="fw-bold mb-3"><i class="fas fa-globe me-2 text-primary"></i>Mengenal SIMAS KOESMA</h2>
                             
                             <div class="lead text-secondary mb-4" style="line-height: 1.8; font-size: 1.05rem;">
-                                <p>Selamat datang di <strong>Portal Tutorial SIMAS KOESMA</strong>.</p>
                                 <p><strong>Sistem Informasi Manajemen Arsip Surat (SIMAS)</strong> adalah platform digital terintegrasi yang dikembangkan khusus untuk lingkungan <strong>RSUD dr. R. Koesma Tuban</strong>. Sistem ini dirancang untuk mendigitalisasi seluruh alur persuratan, mulai dari pencatatan surat masuk, distribusi disposisi berjenjang secara elektronik, hingga pengarsipan dan penelusuran surat keluar.</p>
-                                <p>Dengan SIMAS KOESMA, proses birokrasi menjadi lebih transparan, akuntabel, dan efisien (<i>paperless</i>). Seluruh pegawai dapat mengakses, menindaklanjuti, dan memantau status surat kapan saja dan di mana saja melalui perangkat komputer maupun <i>mobile</i>.</p>
+                                <p>Aplikasi ini ditujukan untuk digunakan mulai seluruh level mulai dari pimpinan/Direktur sampai dengan staf/pelaksana.</p>
+                                <p>Dengan SIMAS KOESMA, proses birokrasi menjadi lebih transparan, akuntabel, dan efisien (<i>paperless</i>). Seluruh pegawai dapat mengakses, menindaklanjuti, dan memantau status surat kapan saja dan di mana saja melalui perangkat komputer maupun mobile.</p>
                             </div>
 
                             <div class="row g-3 mt-2">
@@ -440,19 +476,71 @@
 
     <script>
         $(document).ready(function() {
-            // Particles Effect
-            tsParticles.load("tsparticles", { 
-                fpsLimit: 60, 
-                particles: { 
-                    number: { value: 20, density: { enable: true, value_area: 800 } }, 
-                    color: { value: "#ffffff" }, 
-                    shape: { type: "circle" }, 
-                    opacity: { value: 0.2, random: true }, 
-                    size: { value: 3, random: true }, 
-                    move: { enable: true, speed: 0.5, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
+            // Particles Effect with Mail and Document Icons, connected by lines
+            tsParticles.load("tsparticles", {
+                fpsLimit: 60,
+                particles: {
+                    number: {
+                        value: 30, // Increased for better visualization
+                        density: { enable: true, value_area: 800 }
+                    },
+                    color: { value: "#ffffff" },
+                    shape: {
+                        type: "image",
+                        image: [
+                            {
+                                src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E",
+                                width: 32,
+                                height: 32
+                            },
+                            {
+                                src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z'/%3E%3C/svg%3E",
+                                width: 32,
+                                height: 32
+                            }
+                        ]
+                    },
+                    opacity: {
+                        value: 0.3,
+                        random: true,
+                        anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+                    },
+                    size: {
+                        value: 16, // Adjust size for icons
+                        random: true,
+                        anim: { enable: false, speed: 40, size_min: 0.1, sync: false }
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.2, // Fine lines
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1.5, // Dynamic speed
+                        direction: "none",
+                        random: false,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                        attract: { enable: false, rotateX: 600, rotateY: 1200 }
+                    }
                 },
-                interactivity: { detect_on: "canvas", events: { onhover: { enable: true, mode: "repulse" }, resize: true } }, 
-                retina_detect: true 
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" }, // Grab effect
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 0.5 } },
+                        push: { particles_nb: 4 }
+                    }
+                },
+                retina_detect: true
             });
 
             // Live Search

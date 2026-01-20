@@ -869,7 +869,9 @@
                 }, 300); 
             }); 
         }
-        
+
+        // 2. Ganti juga function activateTab dengan ini
+        // Tujuannya agar saat tombol "Beranda" diklik, data greeting & statistik selalu di-refresh
         function activateTab(t,e,cb){
             $('.nav-link').removeClass('active');
             if(e)$(e).addClass('active');
@@ -888,6 +890,7 @@
                 saveAppState(t, null);
             }
         }
+
         function updateSidebarBadges() {
              // 1. Basic Stats (Inboxku & Arsipku)
              fetch(`${GAS_URL}?action=get_dashboard_stats&email=${currentUserEmail}`)
@@ -1473,8 +1476,11 @@
                         // --- APPEND TO WA MESSAGE ---
                         waText += `🔹 ${h.timestamp} - ${h.stage}\n`;
                         waText += `   👤 Oleh: ${h.actor}\n`;
-                        waText += `   📝 Isi: "${h.desc}"\n`;
+                        
+                        // UPDATED ORDER: Action (Tujuan/Diterima) displayed BEFORE Isi (Content)
                         if(h.action && h.action !== 'Selesai') waText += `   ➡ (${h.action})\n`;
+                        waText += `   📝 Isi: "${h.desc}"\n`;
+                        
                         waText += `\n`;
                     });
                     

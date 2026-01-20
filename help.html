@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pusat Pengetahuan - SIMAS KOESMA</title>
+    <title>TUTORIAL SIMAS KOESMA</title>
     
-    <!-- FAVICON SVG EMBEDDED (Logo Baru) -->
+    <!-- FAVICON -->
     <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%20512%20512%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22100%22%20fill%3D%22url(%23grad1)%22%2F%3E%3Cpath%20d%3D%22M160%20120H300L392%20212V392C392%20414.1%20374.1%20432%20352%20432H160C137.9%20432%20120%20414.1%20120%20392V160C120%20137.9%20137.9%20120%20160%20120Z%22%20fill%3D%22white%22%2F%3E%3Cpath%20d%3D%22M300%20120V212H392%22%20fill%3D%22%23cbd5e1%22%2F%3E%3Crect%20x%3D%22226%22%20y%3D%22230%22%20width%3D%2260%22%20height%3D%22140%22%20rx%3D%2210%22%20fill%3D%22%23f97316%22%2F%3E%3Crect%20x%3D%22186%22%20y%3D%22270%22%20width%3D%22140%22%20height%3D%2260%22%20rx%3D%2210%22%20fill%3D%22%23f97316%22%2F%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22grad1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22512%22%20y2%3D%22512%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23F97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230F172A%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3C%2Fsvg%3E'>
     
     <!-- Libraries -->
@@ -22,18 +22,16 @@
         /* TEMA UTAMA */
         :root {
             --bg-gradient: linear-gradient(135deg, #9a3412 0%, #0f172a 100%);
-            
-            /* Glass Variables yang Ditingkatkan */
-            --glass-panel: rgba(255, 255, 255, 0.7); /* Lebih transparan */
+            --glass-panel: rgba(255, 255, 255, 0.85);
             --glass-blur: blur(20px);
             --glass-border: rgba(255, 255, 255, 0.5);
             --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-            
             --text-primary: #1e293b;
             --text-secondary: #475569;
             --accent-orange: #f97316;
             --accent-blue: #3b82f6;
             --telegram-color: #229ED9;
+            --wa-color: #25D366;
         }
 
         body {
@@ -49,126 +47,96 @@
         #tsparticles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         /* HERO SECTION */
-        .hero-header { position: relative; z-index: 10; padding: 80px 0 60px; text-align: center; color: white; }
-        .hero-title { font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: 'Playfair Display', serif; }
+        .hero-header { position: relative; z-index: 10; padding: 60px 0 40px; text-align: center; color: white; }
+        .hero-title { font-weight: 800; font-size: 2.8rem; margin-bottom: 0.5rem; text-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: 'Playfair Display', serif; letter-spacing: 1px; }
+        .hero-subtitle { font-weight: 300; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; letter-spacing: 0.5px; }
 
-        /* SEARCH BAR 3D */
+        /* SEARCH BAR */
         .search-wrapper { max-width: 700px; margin: 0 auto; position: relative; }
         .search-input { 
-            width: 100%; padding: 18px 30px 18px 55px; border-radius: 50px; 
+            width: 100%; padding: 15px 30px 15px 55px; border-radius: 50px; 
             border: 1px solid rgba(255,255,255,0.5); 
-            background: rgba(255,255,255,0.15); 
+            background: rgba(255,255,255,0.2); 
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             color: white; font-size: 1.1rem; 
             transition: all 0.3s; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .search-input:focus { background: rgba(255,255,255,0.85); color: #333; border-color: var(--accent-orange); outline: none; box-shadow: 0 15px 40px rgba(249, 115, 22, 0.4); }
+        .search-input:focus { background: rgba(255,255,255,0.95); color: #333; border-color: var(--accent-orange); outline: none; box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3); }
         .search-input::placeholder { color: rgba(255,255,255,0.8); }
         .search-input:focus::placeholder { color: #94a3b8; }
         .search-icon { position: absolute; left: 25px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: rgba(255,255,255,0.8); }
         .search-input:focus ~ .search-icon { color: var(--accent-orange); }
 
-        /* MAIN LAYOUT GLASS 3D */
+        /* MAIN DOC WRAPPER */
         .doc-wrapper { 
             background: var(--glass-panel); 
             backdrop-filter: var(--glass-blur);
             -webkit-backdrop-filter: var(--glass-blur);
             border: 1px solid var(--glass-border);
-            border-top: 2px solid rgba(255,255,255,0.8); /* Highlight atas */
-            border-radius: 24px 24px 0 0; 
+            border-radius: 24px; 
             min-height: 80vh; 
             position: relative; z-index: 10; 
             box-shadow: var(--glass-shadow); 
-            margin-top: 20px; overflow: hidden; 
+            margin: 20px auto; overflow: hidden; 
         }
         
         .doc-sidebar { 
-            background: rgba(248, 250, 252, 0.6); 
-            border-right: 1px solid rgba(255,255,255,0.5); 
+            background: rgba(248, 250, 252, 0.8); 
+            border-right: 1px solid rgba(0,0,0,0.05); 
             height: 100%; padding: 30px 20px; 
         }
         .sticky-menu { position: sticky; top: 30px; max-height: 90vh; overflow-y: auto; }
-        .doc-content { padding: 50px; }
+        .doc-content { padding: 40px; }
 
         /* NAV LINKS */
         .nav-doc .nav-link { color: var(--text-secondary); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; }
-        .nav-doc .nav-link:hover { background: rgba(255,255,255,0.8); color: var(--accent-orange); padding-left: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .nav-doc .nav-link.active { background: white; color: var(--accent-orange); font-weight: 700; border-left: 4px solid var(--accent-orange); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15); }
+        .nav-doc .nav-link:hover { background: rgba(255,255,255,0.8); color: var(--accent-orange); padding-left: 20px; }
+        .nav-doc .nav-link.active { background: white; color: var(--accent-orange); font-weight: 700; border-left: 4px solid var(--accent-orange); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .nav-group-title { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1.2px; color: #94a3b8; margin: 25px 0 10px 15px; font-weight: 800; }
 
-        /* SECTIONS & ACCORDION 3D STYLE */
+        /* ACCORDION STYLES */
         .topic-section { margin-bottom: 40px; scroll-margin-top: 20px; }
         
-        /* 3D Glass Accordion Item */
         .feature-accordion .accordion-item { 
-            background: rgba(255, 255, 255, 0.5); /* Semi transparan */
+            background: rgba(255, 255, 255, 0.6); 
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.6); 
-            border-top: 1px solid rgba(255, 255, 255, 0.9); /* Highlight */
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Shadow */
-            border-radius: 12px; 
-            margin-bottom: 8px; /* JARAK DIPERKECIL */
-            overflow: hidden; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border: 1px solid rgba(255,255,255,0.8); 
+            border-radius: 12px; margin-bottom: 10px; overflow: hidden; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             transition: transform 0.2s;
         }
-        .feature-accordion .accordion-item:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-
-        .feature-accordion .accordion-button { 
-            background: transparent; 
-            color: var(--text-primary); 
-            font-weight: 700; 
-            font-size: 1.05rem; 
-            padding: 15px 20px; /* Padding disesuaikan */
-            box-shadow: none; 
-        }
-        .feature-accordion .accordion-button:not(.collapsed) { 
-            background: rgba(255, 247, 237, 0.8); 
-            color: var(--accent-orange); 
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
-        }
-        .feature-accordion .accordion-body { padding: 25px; background-color: rgba(255,255,255,0.7); }
+        .feature-accordion .accordion-item:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .feature-accordion .accordion-button { background: transparent; color: var(--text-primary); font-weight: 700; font-size: 1.05rem; padding: 15px 20px; }
+        .feature-accordion .accordion-button:not(.collapsed) { background: rgba(255, 247, 237, 0.9); color: var(--accent-orange); box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05); }
+        .feature-accordion .accordion-body { padding: 25px; background-color: rgba(255,255,255,0.8); }
         
-        .feature-icon-wrapper { width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 1.1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .icon-masuk { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--accent-blue); }
-        .icon-keluar { background: linear-gradient(135deg, #fefce8, #fef9c3); color: #eab308; }
-        .icon-dispo { background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #16a34a; }
-        .icon-arsip { background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #ef4444; }
+        .feature-icon-wrapper { width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 1.1rem; }
+        .icon-masuk { background: #dbeafe; color: var(--accent-blue); }
+        .icon-keluar { background: #fef9c3; color: #eab308; }
+        .icon-dispo { background: #dcfce7; color: #16a34a; }
+        .icon-arsip { background: #fee2e2; color: #ef4444; }
 
-        /* CARDS GUIDE */
-        .card-guide { border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; padding: 20px; height: 100%; background: rgba(255,255,255,0.6); transition: transform 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card-guide:hover { transform: translateY(-3px); background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: var(--accent-orange); }
-        .card-guide h5 { font-weight: 700; margin-bottom: 10px; font-size: 1rem; }
-        .card-guide p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
-
-        /* STEP VISUAL */
+        /* CARDS & STEPS */
+        .card-guide { border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 20px; height: 100%; background: white; transition: transform 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .card-guide:hover { transform: translateY(-3px); border-color: var(--accent-orange); }
+        
         .step-visual { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
-        .step-node { flex: 1; min-width: 120px; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 12px; text-align: center; position: relative; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .step-node.active { background: #eff6ff; border-color: var(--accent-blue); border-style: solid; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        .step-node i { font-size: 1.2rem; margin-bottom: 5px; display: block; }
-        .step-node .arrow { position: absolute; right: -15px; top: 50%; transform: translateY(-50%); color: rgba(0,0,0,0.2); z-index: 2; }
+        .step-node { flex: 1; min-width: 100px; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; position: relative; font-size: 0.85rem; }
+        .step-node.active { background: #eff6ff; border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .step-node .arrow { position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: #cbd5e1; z-index: 2; }
         .step-node:last-child .arrow { display: none; }
 
-        /* FAQ STYLE */
-        .faq-accordion .accordion-item { border: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.6); margin-bottom: 5px; border-radius: 8px; }
-        .faq-accordion .accordion-button:not(.collapsed) { background-color: rgba(255,255,255,0.9); color: var(--text-primary); box-shadow: none; }
-        .faq-accordion .accordion-body { font-size: 0.95rem; line-height: 1.6; color: #334155; background: rgba(255,255,255,0.4); }
-
         /* FAB */
-        .fab-back { position: fixed; bottom: 30px; right: 30px; background: var(--accent-orange); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4); z-index: 100; text-decoration: none; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px); }
+        .fab-back { position: fixed; bottom: 30px; right: 30px; background: var(--accent-orange); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4); z-index: 100; text-decoration: none; transition: transform 0.2s; }
         .fab-back:hover { transform: scale(1.1); color: white; background: #ea580c; }
 
-        /* RESPONSIVE */
         @media (max-width: 991px) {
             .doc-sidebar { display: none; }
-            .doc-content { padding: 25px 15px; }
+            .doc-content { padding: 20px; }
             .hero-title { font-size: 2rem; }
         }
+        
     </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target="#doc-nav" data-bs-offset="100">
@@ -180,13 +148,12 @@
     <header class="hero-header">
         <div class="container">
             <div class="mb-3">
-                <span class="badge rounded-pill bg-white bg-opacity-25 border border-white border-opacity-50 px-3 py-2 fw-normal"><i class="fas fa-server me-2 text-success"></i>Server Status: <span class="fw-bold">Online</span></span>
-                <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold ms-2">v21.9</span>
+                <span class="badge rounded-pill bg-white bg-opacity-25 border border-white border-opacity-50 px-3 py-2 fw-normal"><i class="fas fa-server me-2 text-success"></i>System Status: <span class="fw-bold">Online</span></span>
             </div>
-            <h1 class="hero-title">SIMAS KOESMA Knowledge Base</h1>
-            <p class="text-white-50 mb-5 fs-5">Pusat Dokumentasi dan Bantuan Sistem Arsip RSUD dr. R. Koesma</p>
+            <h1 class="hero-title">TUTORIAL SIMAS KOESMA</h1>
+            <p class="hero-subtitle text-white-50">Sistem Informasi Manajemen Arsip Surat RSUD dr. R. Koesma</p>
             <div class="search-wrapper">
-                <input type="text" id="mainSearch" class="search-input" placeholder="Cari topik... (Contoh: 'lupa password', 'disposisi', 'upload gagal')">
+                <input type="text" id="mainSearch" class="search-input" placeholder="Apa yang ingin Anda pelajari? (Contoh: 'disposisi', 'cara login', 'arsip')">
                 <i class="fas fa-search search-icon"></i>
             </div>
         </div>
@@ -206,18 +173,18 @@
                                 <div class="lh-1"><div class="fw-bold small text-dark">SIMAS KOESMA</div><div class="text-muted" style="font-size:0.7rem">Dokumentasi</div></div>
                             </div>
                             <nav class="nav flex-column nav-doc">
-                                <div class="nav-group-title">PENDAHULUAN</div>
-                                <a class="nav-link active" href="#intro"><i class="fas fa-info-circle me-2"></i> Pengenalan</a>
+                                <div class="nav-group-title">PENGENALAN</div>
+                                <a class="nav-link active" href="#intro"><i class="fas fa-info-circle me-2"></i> Tentang SIMAS</a>
                                 
-                                <div class="nav-group-title">FITUR UTAMA</div>
-                                <a class="nav-link" href="#surat-masuk"><i class="fas fa-envelope-open-text me-2"></i> Surat Masuk</a>
-                                <a class="nav-link" href="#surat-keluar"><i class="fas fa-paper-plane me-2"></i> Surat Keluar</a>
+                                <div class="nav-group-title">PANDUAN PENGGUNA</div>
                                 <a class="nav-link" href="#disposisi"><i class="fas fa-share-alt me-2"></i> Disposisi & Delegasi</a>
+                                <a class="nav-link" href="#inbox"><i class="fas fa-inbox me-2"></i> Inbox & Penyelesaian</a>
                                 <a class="nav-link" href="#arsip"><i class="fas fa-archive me-2"></i> Arsip & Pencarian</a>
+                                <a class="nav-link" href="#surat-masuk"><i class="fas fa-envelope-open-text me-2"></i> Administrasi Surat</a>
                                 
-                                <div class="nav-group-title">TEKNIS & SUPPORT</div>
-                                <a class="nav-link" href="#faq"><i class="fas fa-question-circle me-2"></i> 10 FAQ Utama</a>
-                                <a class="nav-link" href="#support"><i class="fas fa-headset me-2"></i> Kontak Admin</a>
+                                <div class="nav-group-title">BANTUAN</div>
+                                <a class="nav-link" href="#faq"><i class="fas fa-question-circle me-2"></i> FAQ & Troubleshooting</a>
+                                <a class="nav-link" href="#support"><i class="fas fa-headset me-2"></i> Layanan Bantuan</a>
                             </nav>
                         </div>
                     </aside>
@@ -227,277 +194,213 @@
                 <div class="col-lg-9">
                     <main class="doc-content">
                         
-                        <!-- 1. INTRO (OPENED) -->
+                        <!-- 1. INTRO -->
                         <section id="intro" class="topic-section">
-                            <h2 class="fw-bold mb-3"><i class="fas fa-globe me-2 text-primary"></i>Tentang SIMAS KOESMA</h2>
-                            <p class="text-secondary">Sistem Informasi Manajemen Arsip Surat (SIMAS) adalah platform digital terintegrasi RSUD dr. R. Koesma untuk mengelola persuratan secara <i>paperless</i>, cepat, dan akuntabel.</p>
+                            <h2 class="fw-bold mb-3"><i class="fas fa-globe me-2 text-primary"></i>Mengenal SIMAS KOESMA</h2>
                             
-                            <div class="card p-4 border-0 bg-light mt-3 shadow-sm" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);">
-                                <h6 class="fw-bold mb-3 text-center small text-uppercase text-muted">ALUR DISPOSISI DIGITAL</h6>
-                                <div class="step-visual">
-                                    <div class="step-node"><i class="fas fa-desktop text-secondary"></i><strong>Admin</strong><br>Input<i class="fas fa-chevron-right arrow"></i></div>
-                                    <div class="step-node"><i class="fas fa-user-tie text-danger"></i><strong>Direktur</strong><br>Disposisi<i class="fas fa-chevron-right arrow"></i></div>
-                                    <div class="step-node active"><i class="fas fa-user-md text-primary"></i><strong>Wadir</strong><br>Teruskan<i class="fas fa-chevron-right arrow"></i></div>
-                                    <div class="step-node"><i class="fas fa-user-nurse text-info"></i><strong>Kabid</strong><br>Instruksi<i class="fas fa-chevron-right arrow"></i></div>
-                                    <div class="step-node"><i class="fas fa-check-circle text-success"></i><strong>Staf</strong><br>Eksekusi</div>
+                            <div class="lead text-secondary mb-4" style="line-height: 1.8; font-size: 1.05rem;">
+                                <p>Selamat datang di <strong>Portal Tutorial SIMAS KOESMA</strong>.</p>
+                                <p><strong>Sistem Informasi Manajemen Arsip Surat (SIMAS)</strong> adalah platform digital terintegrasi yang dikembangkan khusus untuk lingkungan <strong>RSUD dr. R. Koesma Tuban</strong>. Sistem ini dirancang untuk mendigitalisasi seluruh alur persuratan, mulai dari pencatatan surat masuk, distribusi disposisi berjenjang secara elektronik, hingga pengarsipan dan penelusuran surat keluar.</p>
+                                <p>Dengan SIMAS KOESMA, proses birokrasi menjadi lebih transparan, akuntabel, dan efisien (<i>paperless</i>). Seluruh pegawai dapat mengakses, menindaklanjuti, dan memantau status surat kapan saja dan di mana saja melalui perangkat komputer maupun <i>mobile</i>.</p>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <div class="p-4 border rounded bg-white h-100 shadow-sm text-center">
+                                        <div class="fs-1 text-primary mb-3"><i class="fas fa-sitemap"></i></div>
+                                        <h6 class="fw-bold text-dark">Alur Terintegrasi</h6>
+                                        <p class="small mb-0 text-muted">Menghubungkan Direktur, Manajemen, hingga Staf Pelaksana dalam satu ekosistem kerja digital.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border rounded bg-white h-100 shadow-sm text-center">
+                                        <div class="fs-1 text-warning"><i class="fas fa-mobile-alt"></i></div>
+                                        <h6 class="fw-bold text-dark">Akses Fleksibel</h6>
+                                        <p class="small mb-0 text-muted">Aplikasi berbasis web responsif yang dapat diakses melalui laptop, tablet, maupun smartphone.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border rounded bg-white h-100 shadow-sm text-center">
+                                        <div class="fs-1 text-success"><i class="fas fa-shield-alt"></i></div>
+                                        <h6 class="fw-bold text-dark">Aman & Terpantau</h6>
+                                        <p class="small mb-0 text-muted">Setiap disposisi dan tindakan tercatat dalam log aktivitas untuk keamanan dan transparansi data.</p>
+                                    </div>
                                 </div>
                             </div>
                         </section>
 
                         <hr class="my-5 border-light">
 
-                        <!-- FITUR UTAMA (COLLAPSIBLE / ACCORDION GLASS 3D) -->
+                        <!-- FITUR UTAMA ACCORDION -->
                         <div class="accordion feature-accordion" id="accordionFeatures">
                             
-                            <!-- 2. SURAT MASUK -->
-                            <section id="surat-masuk" class="topic-section">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMasuk">
-                                            <span class="feature-icon-wrapper icon-masuk"><i class="fas fa-envelope-open-text"></i></span>
-                                            Manajemen Surat Masuk
-                                        </button>
-                                    </h2>
-                                    <div id="collapseMasuk" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
-                                        <div class="accordion-body">
-                                            <div class="alert alert-info border-0 shadow-sm mb-4"><i class="fas fa-info-circle me-2"></i> Menu ini biasanya hanya dapat diakses oleh user dengan Role <strong>Admin</strong> atau Petugas Loket Surat.</div>
-                                            <div class="row g-3">
-                                                <div class="col-md-6"><div class="card-guide"><h5 class="text-primary">1. Input Data</h5><p>Isi form selengkap mungkin. <strong>Nomor Agenda</strong> akan terisi otomatis. Pastikan Tanggal Surat tidak lebih baru dari Tanggal Terima.</p></div></div>
-                                                <div class="col-md-6"><div class="card-guide"><h5 class="text-danger">2. Upload File</h5><p>Format: <strong>PDF, JPG, PNG</strong>. Maksimal <strong>5MB</strong>. Kompres file jika terlalu besar.</p></div></div>
-                                                <div class="col-md-6"><div class="card-guide"><h5 class="text-warning">3. Kode Klarifikasi</h5><p>Gunakan fitur <i>Autocomplete</i>. Ketik kode (misal "KM") dan pilih dari daftar.</p></div></div>
-                                                <div class="col-md-6"><div class="card-guide"><h5 class="text-success">4. Edit Data</h5><p>Salah input? Gunakan menu <strong>Arsip Masuk</strong>, klik tombol <i class="fas fa-pencil-alt"></i> (Edit). Hanya Admin yang berwenang.</p></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- 3. SURAT KELUAR -->
-                            <section id="surat-keluar" class="topic-section">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseKeluar">
-                                            <span class="feature-icon-wrapper icon-keluar"><i class="fas fa-paper-plane"></i></span>
-                                            Surat Keluar & Booking
-                                        </button>
-                                    </h2>
-                                    <div id="collapseKeluar" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
-                                        <div class="accordion-body">
-                                            <p>Modul ini digunakan untuk mencatat surat yang dibuat oleh internal RSUD.</p>
-                                            <div class="bg-light border rounded p-3 mt-2 shadow-sm">
-                                                <h6 class="fw-bold text-dark"><i class="fas fa-bookmark me-2 text-warning"></i>Fitur "Booking Nomor"</h6>
-                                                <p class="small mb-0">Surat fisik belum siap tapi butuh nomor agenda? Gunakan tombol <strong>Booking</strong>. Sistem akan "mengamankan" nomor urut untuk Anda. Lengkapi data nanti saat surat sudah ditandatangani.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- 4. DISPOSISI -->
+                            <!-- DISPOSISI & SETTING TUJUAN -->
                             <section id="disposisi" class="topic-section">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDisposisi">
                                             <span class="feature-icon-wrapper icon-dispo"><i class="fas fa-share-alt"></i></span>
-                                            Disposisi & Delegasi
+                                            Panduan Disposisi & Delegasi
                                         </button>
                                     </h2>
                                     <div id="collapseDisposisi" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
                                         <div class="accordion-body">
-                                            <h6 class="fw-bold text-accent-orange">Cara Disposisi</h6>
-                                            <ol class="small text-secondary mb-4">
-                                                <li>Masuk ke menu <strong>Inbox</strong>.</li>
-                                                <li>Klik tombol <strong>Proses</strong> (Kuning).</li>
-                                                <li>Centang tujuan bawahan (Bisa Multi-select).</li>
-                                                <li>Isi instruksi dan Klik <strong>Kirim</strong>.</li>
+                                            <p>Disposisi adalah fitur inti SIMAS KOESMA untuk mendistribusikan perintah atau informasi surat secara berjenjang.</p>
+
+                                            <h6 class="fw-bold mt-4 text-primary">A. Mengatur Daftar Tujuan Disposisi</h6>
+                                            <p class="small text-muted">Sebelum melakukan disposisi, Anda perlu mengatur siapa saja staf atau bawahan Anda agar muncul dalam daftar tujuan.</p>
+                                            <ol class="small text-secondary mb-3">
+                                                <li>Klik menu <strong><i class="fas fa-user-friends"></i> Setting Tujuan</strong> di sidebar sebelah kiri.</li>
+                                                <li>Cari nama staf atau bawahan Anda pada kolom pencarian.</li>
+                                                <li><strong>Centang</strong> nama-nama yang sesuai.</li>
+                                                <li>Klik <strong>Simpan Perubahan</strong>. Pengaturan ini hanya perlu dilakukan sekali atau saat ada perubahan personel.</li>
                                             </ol>
-                                            <div class="alert alert-warning border-start border-4 border-warning bg-white shadow-sm"><h6 class="fw-bold mb-1"><i class="fas fa-user-secret me-2"></i>Fitur Delegasi</h6><p class="small mb-0">Memungkinkan Sekretaris mengakses Inbox Pimpinan (misal: Sekretaris Direktur membuka Inbox Direktur). Menu <strong>Inbox Delegasi</strong> akan muncul di sidebar jika Anda memiliki akses ini.</p></div>
+
+                                            <h6 class="fw-bold mt-4 text-primary">B. Melakukan Disposisi Surat</h6>
+                                            <ol class="small text-secondary mb-3">
+                                                <li>Masuk ke menu <strong>Inbox</strong>.</li>
+                                                <li>Pilih surat yang statusnya masih aktif, lalu klik tombol <strong>Proses</strong> (Kuning).</li>
+                                                <li>Pada jendela popup, tentukan <strong>Tanggal Disposisi</strong> (biasanya hari ini).</li>
+                                                <li>Pilih satu atau lebih tujuan disposisi dan tuliskan instruksi/arahan Anda.</li>
+                                                <li>Klik <strong>Kirim</strong> untuk meneruskan surat.</li>
+                                            </ol>
+
+                                            <div class="alert alert-info border-0 bg-light shadow-sm mt-3">
+                                                <h6 class="fw-bold mb-1"><i class="fas fa-user-secret me-2"></i>Fitur Delegasi</h6>
+                                                <p class="small mb-0">Bagi pejabat yang memiliki sekretaris atau asisten, SIMAS menyediakan fitur <strong>Delegasi</strong>. Sekretaris dapat mengakses "Inbox Delegasi" untuk memproses surat masuk atas nama pimpinan.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </section>
 
-                            <!-- 5. ARSIP -->
+                            <!-- INBOX & PENYELESAIAN -->
+                            <section id="inbox" class="topic-section">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInbox">
+                                            <span class="feature-icon-wrapper icon-masuk"><i class="fas fa-check-double"></i></span>
+                                            Manajemen Inbox & Penyelesaian Tugas
+                                        </button>
+                                    </h2>
+                                    <div id="collapseInbox" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
+                                        <div class="accordion-body">
+                                            <p>Setiap surat yang didisposisikan kepada Anda akan masuk ke dalam <strong>Inbox</strong>. Berikut cara menindaklanjutinya.</p>
+                                            
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <div class="card-guide">
+                                                        <h5 class="text-success"><i class="fas fa-check me-2"></i>Menyelesaikan Tugas</h5>
+                                                        <p>Jika instruksi pada surat telah dilaksanakan, klik tombol <strong>Centang Hijau</strong> (Selesai). Sistem akan meminta Anda mengisi catatan tindak lanjut (contoh: "Sudah dibalas", "Sudah dikoordinasikan").</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="card-guide">
+                                                        <h5 class="text-success"><i class="fas fa-archive me-2"></i>Folder "Arsipku"</h5>
+                                                        <p>Surat yang telah ditandai selesai akan otomatis berpindah dari Inbox ke menu <strong>Arsipku</strong>. Folder ini berfungsi sebagai arsip kinerja pribadi Anda untuk memudahkan penelusuran tugas yang telah lampau.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- ARSIP & HISTORY -->
                             <section id="arsip" class="topic-section">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseArsip">
-                                            <span class="feature-icon-wrapper icon-arsip"><i class="fas fa-archive"></i></span>
-                                            Arsip & Pencarian
+                                            <span class="feature-icon-wrapper icon-arsip"><i class="fas fa-history"></i></span>
+                                            Arsip, Cetak & Riwayat Surat
                                         </button>
                                     </h2>
                                     <div id="collapseArsip" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
                                         <div class="accordion-body">
-                                            <p>Semua surat yang sudah diproses akan masuk ke menu Arsip.</p>
-                                            <ul>
-                                                <li><strong>Arsip Masuk:</strong> Daftar semua surat masuk RSUD.</li>
-                                                <li><strong>Arsip Keluar:</strong> Daftar surat keluar internal.</li>
-                                                <li><strong>Arsipku:</strong> Daftar surat yang spesifik pernah Anda tindak lanjuti (Selesai).</li>
+                                            <p>Menu Arsip Masuk memuat seluruh database surat yang masuk ke RSUD. Anda dapat menggunakan fitur-fitur berikut:</p>
+                                            <ul class="list-group list-group-flush small mb-3">
+                                                <li class="list-group-item bg-transparent"><i class="fas fa-print me-2 text-dark"></i><strong>Cetak Lembar Disposisi:</strong> Klik ikon Printer untuk mengunduh Lembar Disposisi dalam format PDF yang dilengkapi QR Code validasi.</li>
+                                                <li class="list-group-item bg-transparent"><i class="fas fa-eye me-2 text-info"></i><strong>Lihat Riwayat (Tracking):</strong> Klik ikon Mata untuk memantau posisi surat saat ini dan riwayat disposisi dari awal hingga akhir.</li>
+                                                <li class="list-group-item bg-transparent"><i class="fab fa-whatsapp me-2 text-success"></i><strong>Bagikan via WhatsApp:</strong> Di dalam jendela Riwayat Surat, terdapat tombol pintas untuk membagikan detail surat dan link dokumen ke WhatsApp rekan kerja.</li>
                                             </ul>
-                                            <p class="small text-muted mb-0">Gunakan menu <strong>Pencarian Lanjut</strong> di sidebar untuk mencari berdasarkan rentang tanggal atau kata kunci konten (OCR).</p>
                                         </div>
                                     </div>
                                 </div>
                             </section>
-                        </div>
 
-                        <hr class="my-5 border-light">
-
-                        <!-- 6. FAQ (DETAIL LENGKAP) -->
-                        <section id="faq" class="topic-section">
-                            <h2 class="fw-bold mb-4"><i class="fas fa-question-circle me-2 text-primary"></i>10 FAQ Utama</h2>
-                            <div class="accordion faq-accordion" id="accordionFAQ">
-                                
+                            <!-- SURAT MASUK (ADMIN) -->
+                            <section id="surat-masuk" class="topic-section">
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">1. Lupa password login?</button></h2>
-                                    <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdmin">
+                                            <span class="feature-icon-wrapper icon-keluar"><i class="fas fa-envelope-open-text"></i></span>
+                                            Administrasi Surat Masuk (Khusus Admin)
+                                        </button>
+                                    </h2>
+                                    <div id="collapseAdmin" class="accordion-collapse collapse" data-bs-parent="#accordionFeatures">
                                         <div class="accordion-body">
-                                            <p>Sistem SIMAS KOESMA menggunakan teknologi <strong>Single Sign-On (SSO) Google</strong>. Artinya, kami tidak menyimpan password Anda secara langsung dalam database aplikasi.</p>
-                                            <strong>Solusi:</strong>
-                                            <ul>
-                                                <li>Jika Anda lupa password, silakan lakukan reset password pada akun <strong>Gmail/Google</strong> Anda melalui halaman <a href="https://accounts.google.com/signin/recovery" target="_blank">Google Account Recovery</a>.</li>
-                                                <li>Setelah password Gmail berhasil diubah, silakan kembali ke halaman login aplikasi ini dan masuk menggunakan akun Google Anda seperti biasa.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">2. Menu "Surat Masuk" tidak muncul di sidebar saya?</button></h2>
-                                    <div id="q2" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Aplikasi ini menggunakan sistem <strong>Role-Based Access Control (RBAC)</strong>. Menu tertentu hanya ditampilkan untuk pengguna yang memiliki wewenang (Permissions) yang sesuai.</p>
-                                            <strong>Penyebab:</strong>
-                                            <ul>
-                                                <li>Anda terdaftar sebagai "Staf Pelaksana" biasa yang tidak memiliki hak input.</li>
-                                                <li>Admin belum mengaktifkan permission <code>input_masuk</code> pada akun Anda.</li>
-                                            </ul>
-                                            <strong>Solusi:</strong> Hubungi Admin Bagian Administrasi dan Umum untuk meminta penambahan hak akses jika memang diperlukan untuk tugas Anda.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">3. Saya salah kirim disposisi, bagaimana membatalkannya?</button></h2>
-                                    <div id="q3" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Demi menjaga integritas dan jejak audit (audit trail) surat, sistem sengaja <strong>tidak mengizinkan user biasa untuk menarik kembali disposisi</strong> yang sudah terkirim.</p>
-                                            <strong>Solusi:</strong>
-                                            <ul>
-                                                <li>Segera hubungi <strong>Admin Bagian Administrasi</strong>.</li>
-                                                <li>Berikan Nomor Agenda surat yang salah.</li>
-                                                <li>Admin akan menggunakan menu khusus <strong>"Edit Tujuan Disposisi"</strong> (ikon rantai merah di Arsip Masuk) untuk mengoreksi alur surat tersebut secara administratif.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">4. Upload file gagal atau loading terus menerus?</button></h2>
-                                    <div id="q4" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Kegagalan upload biasanya disebabkan oleh validasi sistem atau masalah koneksi.</p>
-                                            <strong>Cek Poin Berikut:</strong>
-                                            <ol>
-                                                <li><strong>Ukuran File:</strong> Maksimal 5MB. Jika file PDF hasil scan terlalu besar, gunakan tools kompresi PDF online terlebih dahulu.</li>
-                                                <li><strong>Nama File:</strong> Hindari karakter simbol aneh seperti <code>/ \ : * ? " < > |</code> pada nama file. Gunakan nama sederhana, misal <code>Surat_Dinas_Kesehatan.pdf</code>.</li>
-                                                <li><strong>Koneksi:</strong> Pastikan internet stabil. Upload file membutuhkan bandwidth upload yang cukup.</li>
-                                                <li><strong>Storage Penuh:</strong> Dalam kasus jarang, penyimpanan Google Drive admin mungkin penuh. Hubungi IT untuk mengecek status "Storage Node A/B/C".</li>
+                                            <p class="small text-muted">Bagian ini diperuntukkan bagi Petugas Loket Surat atau Administrator.</p>
+                                            <ol class="small text-secondary">
+                                                <li><strong>Input Data:</strong> Masukkan detail surat dengan lengkap. Nomor Agenda akan digenerate otomatis oleh sistem secara berurutan.</li>
+                                                <li><strong>Upload Dokumen:</strong> Unggah hasil scan surat (PDF/Gambar) dengan ukuran maksimal 5MB agar mudah diakses secara digital.</li>
+                                                <li><strong>Kode Klasifikasi:</strong> Gunakan fitur pencarian otomatis untuk memilih kode klasifikasi arsip yang sesuai.</li>
+                                                <li>Setelah disimpan, surat akan otomatis masuk ke Inbox Pimpinan Tertinggi (Direktur) untuk menunggu disposisi pertama.</li>
                                             </ol>
                                         </div>
                                     </div>
                                 </div>
+                            </section>
+
+                        </div>
+
+                        <hr class="my-5 border-light">
+
+                        <!-- FAQ -->
+                        <section id="faq" class="topic-section">
+                            <h2 class="fw-bold mb-4"><i class="fas fa-question-circle me-2 text-primary"></i>FAQ (Tanya Jawab)</h2>
+                            <div class="accordion faq-accordion" id="accordionFAQ">
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">Mengapa daftar staf di menu disposisi saya kosong?</button></h2>
+                                    <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
+                                        <div class="accordion-body">
+                                            <p>Hal ini terjadi karena Anda belum melakukan konfigurasi awal. Silakan akses menu <strong>Setting Tujuan</strong> di sidebar, pilih nama-nama staf Anda, lalu simpan. Daftar tersebut akan otomatis muncul saat Anda melakukan disposisi.</p>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">5. Bagaimana cara melihat siapa yang sudah membaca surat?</button></h2>
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">Bagaimana cara mencetak bukti disposisi?</button></h2>
+                                    <div id="q2" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                                        <div class="accordion-body">
+                                            <p>Anda tidak perlu membuatnya secara manual. Cukup buka menu <strong>Arsip Masuk</strong>, cari surat yang dimaksud, dan klik ikon <strong>Printer</strong>. Sistem akan mencetak Lembar Disposisi digital.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">Ke mana surat pergi setelah saya klik "Selesai"?</button></h2>
+                                    <div id="q3" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                                        <div class="accordion-body">
+                                            <p>Surat tersebut dipindahkan ke folder <strong>Arsipku</strong>. Hal ini bertujuan agar Inbox Anda tetap bersih dan hanya berisi tugas-tugas yang belum dikerjakan (<i>Pending</i>).</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">Apakah saya bisa membatalkan disposisi yang sudah terkirim?</button></h2>
+                                    <div id="q4" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                                        <div class="accordion-body">
+                                            <p>Untuk menjaga integritas data, pembatalan disposisi tidak dapat dilakukan oleh user. Jika terjadi kesalahan, segera hubungi <strong>Admin Bagian Umum</strong> untuk dilakukan koreksi melalui panel admin.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">Saya lupa password login, apa yang harus dilakukan?</button></h2>
                                     <div id="q5" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
                                         <div class="accordion-body">
-                                            <p>Sistem mencatat setiap pergerakan surat secara detail dalam log history.</p>
-                                            <strong>Caranya:</strong>
-                                            <ul>
-                                                <li>Buka menu <strong>Inbox</strong> atau <strong>Arsip Masuk</strong>.</li>
-                                                <li>Cari surat yang dimaksud.</li>
-                                                <li>Klik tombol ikon <strong>Mata (👁️)</strong> di kolom Aksi.</li>
-                                                <li>Akan muncul popup "History Surat" yang menampilkan kronologi lengkap: siapa pengirim, kapan diterima, kepada siapa didisposisi, dan status akhirnya.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6">6. Saya tidak menerima notifikasi WhatsApp?</button></h2>
-                                    <div id="q6" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Sistem mengirim notifikasi otomatis ke nomor yang terdaftar di profil pengguna.</p>
-                                            <strong>Langkah Pengecekan:</strong>
-                                            <ul>
-                                                <li>Klik menu <strong>Profil Saya</strong> di sidebar.</li>
-                                                <li>Cek kolom "Nomor WhatsApp".</li>
-                                                <li>Pastikan format nomor benar. Gunakan format Indonesia standar (contoh: <code>08123456789</code> atau <code>628123456789</code>). Jangan gunakan spasi atau strip.</li>
-                                                <li>Jika nomor sudah benar tapi belum masuk, kemungkinan server Gateway WA sedang sibuk/antri. Cek kembali beberapa saat lagi.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7">7. Bagaimana cara mencetak Lembar Disposisi?</button></h2>
-                                    <div id="q7" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Anda tidak perlu membuat lembar disposisi manual. Sistem akan men-generate otomatis lengkap dengan QR Code.</p>
-                                            <strong>Langkah:</strong>
-                                            <ul>
-                                                <li>Buka menu <strong>Arsip Masuk</strong>.</li>
-                                                <li>Cari surat yang ingin dicetak.</li>
-                                                <li>Klik tombol ikon <strong>Printer (<i class="fas fa-print"></i>)</strong> di kolom Aksi.</li>
-                                                <li>Tunggu sejenak, sistem akan mengunduh file PDF "Lembar Disposisi" yang siap dicetak.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8">8. Saya salah input "Nomor Agenda", bagaimana mengoreksinya?</button></h2>
-                                    <div id="q8" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Nomor agenda adalah <strong>Primary Key</strong> (kunci utama) dalam database surat yang bersifat unik dan berurutan. Mengubahnya sembarangan akan merusak urutan database.</p>
-                                            <strong>Solusi:</strong>
-                                            <ul>
-                                                <li>User biasa <strong>DILARANG</strong> dan tidak bisa mengubah nomor agenda.</li>
-                                                <li>Segera lapor ke Admin IT / Bagian Umum. Admin akan melakukan koreksi langsung melalui database backend jika memang terjadi kesalahan fatal (misal: lompat nomor).</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q9">9. Bagaimana cara menggunakan fitur Booking Nomor?</button></h2>
-                                    <div id="q9" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Fitur ini berguna saat Anda butuh nomor surat sekarang, tapi surat fisiknya belum siap atau belum ditandatangani.</p>
-                                            <strong>Langkah:</strong>
-                                            <ul>
-                                                <li>Buka menu <strong>Surat Keluar</strong>.</li>
-                                                <li>Klik tombol kuning <strong>"Booking"</strong> di samping kolom Agenda.</li>
-                                                <li>Isi catatan singkat (misal: "Untuk SK Direktur").</li>
-                                                <li>Sistem akan memberikan nomor urut. Nomor ini sekarang "milik Anda".</li>
-                                                <li>Saat surat fisik siap, buka <strong>Arsip Keluar</strong>, cari nomor booking tadi, lalu klik <strong>Edit</strong> untuk melengkapi data (upload file, perihal asli, dll).</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q10">10. Apakah aplikasi ini bisa dibuka di HP?</button></h2>
-                                    <div id="q10" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                                        <div class="accordion-body">
-                                            <p>Ya, SIMAS KOESMA adalah aplikasi berbasis web (Web App) yang <strong>Responsif</strong>. Tampilan akan otomatis menyesuaikan ukuran layar perangkat Anda.</p>
-                                            <strong>Cara Akses:</strong>
-                                            <ul>
-                                                <li>Buka browser (Google Chrome atau Safari) di HP/Tablet Anda.</li>
-                                                <li>Akses URL aplikasi.</li>
-                                                <li>Anda bisa melakukan disposisi, mengecek inbox, atau melihat arsip layaknya di komputer.</li>
-                                            </ul>
+                                            <p>SIMAS KOESMA menggunakan login akun Google (Gmail). Jika Anda lupa password, silakan lakukan pemulihan password melalui layanan Google/Gmail. Aplikasi ini tidak menyimpan password Anda.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -505,21 +408,20 @@
                             </div>
                         </section>
                         
-                        <!-- 7. KONTAK SUPPORT (TELEGRAM ONLY) -->
+                        <!-- CONTACT -->
                         <section id="support" class="topic-section mb-0">
-                            <div class="card bg-dark text-white p-5 text-center border-0 rounded-4" style="background: url('https://source.unsplash.com/random/1200x400/?office,work') no-repeat center; background-size: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
-                                <div style="background: rgba(0,0,0,0.85); position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 16px;"></div>
+                            <div class="card bg-dark text-white p-5 text-center border-0 rounded-4" style="background: url('https://source.unsplash.com/random/1200x400/?hospital,technology') no-repeat center; background-size: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+                                <div style="background: rgba(15, 23, 42, 0.9); position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 16px;"></div>
                                 <div style="position: relative; z-index: 2;">
-                                    <h3 class="fw-bold mb-3 text-white">Masih mengalami kendala?</h3>
-                                    <p class="mb-4 text-white-50">Silakan hubungi Admin di <strong>Bagian Administrasi dan Umum</strong> untuk bantuan teknis lebih lanjut.</p>
+                                    <h3 class="fw-bold mb-3 text-white">Layanan Bantuan Teknis</h3>
+                                    <p class="mb-4 text-white-50">Mengalami kendala sistem?kami siap membantu Anda.</p>
                                     
                                     <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                        <a href="mailto:admin@koesma.biz.id" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold hover-scale backdrop-blur">
-                                            <i class="fas fa-envelope me-2"></i> admin@koesma.biz.id
+                                        <a href="https://t.me/koesma1" target="_blank" class="btn btn-lg rounded-pill px-4 fw-bold text-white border-0 shadow-lg d-flex align-items-center" style="background-color: var(--telegram-color);">
+                                            <i class="fab fa-telegram fa-lg me-2"></i> Telegram Admin
                                         </a>
-                                        <!-- TELEGRAM BUTTON FIXED -->
-                                        <a href="https://t.me/koesma1" target="_blank" class="btn btn-lg rounded-pill px-5 fw-bold hover-scale text-white border-0 shadow-lg" style="background-color: var(--telegram-color); box-shadow: 0 0 20px rgba(34, 158, 217, 0.5);">
-                                            <i class="fab fa-telegram me-2"></i> Telegram Admin
+                                        <a href="mailto:admin@koesma.biz.id" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">
+                                            <i class="fas fa-envelope me-2"></i> Email Admin
                                         </a>
                                     </div>
                                 </div>
@@ -527,7 +429,7 @@
                         </section>
 
                         <footer class="mt-5 pt-4 border-top text-center text-muted small">
-                            <p>&copy; 2025 RSUD dr. R. Koesma Tuban. SIMAS KOESMA v21.9</p>
+                            <p>&copy; 2026 RSUD dr. R. Koesma Tuban</p>
                         </footer>
 
                     </main>
@@ -538,22 +440,22 @@
 
     <script>
         $(document).ready(function() {
+            // Particles Effect
             tsParticles.load("tsparticles", { 
                 fpsLimit: 60, 
                 particles: { 
-                    number: { value: 30, density: { enable: true, value_area: 800 } }, 
+                    number: { value: 20, density: { enable: true, value_area: 800 } }, 
                     color: { value: "#ffffff" }, 
                     shape: { type: "circle" }, 
-                    opacity: { value: 0.3, random: true }, 
+                    opacity: { value: 0.2, random: true }, 
                     size: { value: 3, random: true }, 
-                    move: { enable: true, speed: 1, direction: "none", random: false, straight: false, out_mode: "out", bounce: false },
-                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 }
+                    move: { enable: true, speed: 0.5, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
                 },
                 interactivity: { detect_on: "canvas", events: { onhover: { enable: true, mode: "repulse" }, resize: true } }, 
                 retina_detect: true 
             });
 
-            // LIVE SEARCH & FILTER ACCORDION
+            // Live Search
             $('#mainSearch').on('keyup', function() {
                 var value = $(this).val().toLowerCase();
                 
@@ -574,7 +476,7 @@
                 }
             });
 
-            // SCROLL SPY
+            // Scroll Spy Logic
             $(window).on('scroll', function() {
                 var scrollPos = $(document).scrollTop();
                 $('.nav-doc .nav-link').each(function() {

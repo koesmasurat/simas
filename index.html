@@ -845,21 +845,49 @@
 
         function showLoading(s){$('#loadingOverlay').css('display',s?'flex':'none')}
         
-        function showApp(){ $('#tsparticles').addClass('in-background'); $('#loginSection').fadeOut(500, ()=>{ $('#door-overlay').addClass('door-open'); setTimeout(()=>{ $('#appContent').fadeIn(500); $('#userDisplayName').text(sessionStorage.getItem('userName')); $('#userRoleBadge').text(sessionStorage.getItem('userRole')); $('#homeDisplayName').text(sessionStorage.getItem('userName')); $('#homeRoleBadge').text(sessionStorage.getItem('userRole')); if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); }, 300); }); }
+        function showApp(){ 
+            $('#tsparticles').addClass('in-background'); 
+            $('#loginSection').fadeOut(500, ()=>{ 
+                $('#door-overlay').addClass('door-open'); 
+                setTimeout(()=>{ 
+                    $('#appContent').fadeIn(500); 
+                    
+                    // Update Navbar (Sudah benar sebelumnya)
+                    $('#userDisplayName').text(sessionStorage.getItem('userName')); 
+                    $('#userRoleBadge').text(sessionStorage.getItem('userRole')); 
+                    
+                    // PERBAIKAN DI SINI:
+                    // Target ID Dashboard yang benar (#dashUser & #dashRole)
+                    $('#dashUser').text(sessionStorage.getItem('userName')); 
+                    $('#dashRole').text(sessionStorage.getItem('userRole')); 
+                    
+                    // Panggil fungsi ini agar ucapan "Selamat Pagi/Siang" & Tanggal muncul
+                    loadDashboardStats(); 
+
+                    // Klik otomatis tombol beranda jika belum ada state tersimpan
+                    if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); 
+                }, 300); 
+            }); 
+        }
         
         function activateTab(t,e,cb){
             $('.nav-link').removeClass('active');
             if(e)$(e).addClass('active');
             $('.tab-pane').removeClass('active');
             $('#'+t).addClass('active');
+            
+            // TAMBAHAN KHUSUS:
+            // Jika tab yang dibuka adalah 'home-content' (Beranda), load ulang stats/greeting
+            if(t === 'home-content') {
+                loadDashboardStats();
+            }
+
             if(cb)cb();
             
-            // Save state for non-dynamic tabs
             if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
                 saveAppState(t, null);
             }
-        }
-        
+        }        
         // --- NEW: FUNCTION TO UPDATE ALL BADGES IN SIDEBAR ---
         function updateSidebarBadges() {
              // 1. Basic Stats (Inboxku & Arsipku)

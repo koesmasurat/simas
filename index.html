@@ -1787,22 +1787,25 @@
             // ---------------------------------------------------------------
 
             let t = []; 
-            // Logic Prioritas: Jika sudah ada subs (hasil settingan sendiri), gunakan itu.
-            // Kecuali level 'direktur'/'wadir' yang punya jalur tetap, 
-            // TAPI, jika user level tersebut juga ingin custom (misal Direktur langsung ke Kabag), 
-            // kita bisa tambahkan logika: if subs.length > 0 use subs ELSE use default.
+            // --- LOGIKA UTAMA (FIXED) ---
+            // Prioritas 1: Cek Level Inbox (Strict Hierarchy)
+            // Ini menjawab request: Jika Direktur -> Muncul Wadir. Jika Wadir -> Muncul Kabag/Kabid.
             
-            // Untuk Amannya sesuai request: "User dapat memilih bawahan sendiri".
-            // Maka kita cek subs dulu. Jika kosong, baru fallback ke default structure.
-            
-            if (subs.length > 0) {
-                t = subs;
-            } else {
-                // Fallback Logic
-                if (currentInboxLevel === 'direktur') t = ['Wadir Umum & Keuangan', 'Wadir Pelayanan']; 
-                else if (currentInboxLevel === 'wadir_adm') t = ['Bagian Administrasi & Umum', 'Bagian Keuangan', 'Bagian Program & Pelaporan']; 
-                else if (currentInboxLevel === 'wadir_pel') t = ['Bidang Pelayanan Medik', 'Bidang Pelayanan Penunjang', 'Bidang Pelayanan Keperawatan']; 
+            if (currentInboxLevel === 'direktur') {
+                t = ['Wadir Umum & Keuangan', 'Wadir Pelayanan']; 
             }
+            else if (currentInboxLevel === 'wadir_adm') {
+                t = ['Bagian Administrasi & Umum', 'Bagian Keuangan', 'Bagian Program & Pelaporan'];
+            }
+            else if (currentInboxLevel === 'wadir_pel') {
+                t = ['Bidang Pelayanan Medik', 'Bidang Pelayanan Penunjang', 'Bidang Pelayanan Keperawatan'];
+            }
+            // Prioritas 2: Jika bukan level tinggi (misal Staf/Kabid), cek Custom Subordinates
+            else if (subs.length > 0) {
+                t = subs;
+            }
+            
+            // Prioritas 3: Fallback jika custom kosong (Biasanya tidak terpakai jika Setting Tujuan sudah diisi)
             
             if (t.length === 0) { container.html('<span class="text-muted small">Tidak ada tujuan tersedia. Gunakan menu "Setting Tujuan" di sidebar.</span>'); } 
             else { t.forEach(x => { container.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}" id="chk_${x.replace(/\s/g,'')}"><label class="form-check-label small" for="chk_${x.replace(/\s/g,'')}">${x}</label></div>`); }); } 

@@ -139,7 +139,31 @@
         #count-arsipku.has-data {
             background: #28a745 !important; /* Warna Hijau */
             box-shadow: 0 0 10px rgba(40, 167, 69, 0.5) !important; /* Efek cahaya hijau */
-        }        
+        }
+        
+        /* MULTI-SELECT STYLE FOR PEMBUAT SURAT */
+        .pembuat-list-container {
+            max-height: 150px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+        }
+        .pembuat-item {
+            display: flex;
+            align-items: center;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .pembuat-item:last-child { border-bottom: none; }
+        .pembuat-item label { 
+            color: #333 !important; 
+            margin-left: 0.5rem; 
+            font-size: 0.85rem; 
+            cursor: pointer;
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
@@ -200,7 +224,7 @@
 
                     <!-- INPUT DATA -->
                     <button class="nav-link w-100 text-start restricted-feature" data-perm="input_masuk" onclick="activateTab('input-masuk-content', this); autoFillAgendaMasuk(); setDefaultDatesMasuk();"><i class="fas fa-envelope-open-text"></i> Surat Masuk</button>
-                    <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this); autoFillAgendaKeluar();"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
+                    <button class="nav-link w-100 text-start restricted-feature" data-perm="input_keluar" onclick="activateTab('input-keluar-content', this); autoFillAgendaKeluar(); renderPembuatList();"><i class="fas fa-paper-plane"></i> Surat Keluar</button>
                     
                     <div class="my-2 border-top border-white-50"></div>
                     
@@ -396,7 +420,7 @@
                         </form>
                     </div>
 
-                    <!-- INPUT KELUAR -->
+                    <!-- INPUT KELUAR (UPDATED MULTI-SELECT) -->
                     <div class="tab-pane glass-form-card" id="input-keluar-content">
                         <h3 class="fw-bold mb-4 border-bottom pb-2 text-white">Catat Surat Keluar</h3>
                         <form id="formSuratKeluar">
@@ -412,22 +436,17 @@
                                 <div class="col-12"><label class="form-label fw-bold">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div>
                                 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Pembuat Surat (Bagian/Bidang)</label>
-                                    <select class="form-select" id="selectPembuat" onchange="togglePembuatManual(this)">
-                                        <option value="" disabled selected>Pilih Bidang/Bagian...</option>
-                                        <option value="Direktur">Direktur</option>
-                                        <option value="Wadir Umum & Keuangan">Wadir Umum & Keu</option>
-                                        <option value="Wadir Pelayanan">Wadir Pelayanan</option>
-                                        <!-- PERUBAHAN DI SINI JUGA AGAR KONSISTEN -->
-                                        <option value="Bagian Administrasi & Umum">Bagian Adm & Umum</option>
-                                        <option value="Bagian Keuangan">Bagian Keuangan</option>
-                                        <option value="Bagian Program & Pelaporan">Bagian Program</option>
-                                        <option value="Bidang Pelayanan Medik">Bidang Yanmed</option>
-                                        <option value="Bidang Pelayanan Penunjang">Bidang Penunjang</option>
-                                        <option value="Bidang Pelayanan Keperawatan">Bidang Keperawatan</option>
-                                        <option value="Lainnya">Lainnya (Ketik Manual)</option>
-                                    </select>
-                                    <input type="text" class="form-control mt-2" name="pembuat" id="inputPembuatManual" placeholder="Ketik Bagian/Bidang Lainnya..." style="display:none;">
+                                    <label class="form-label fw-bold">Pembuat Surat (Bisa Pilih Lebih dari 1)</label>
+                                    <div class="bg-white rounded p-2 mb-2">
+                                        <div class="input-group input-group-sm mb-2">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" class="form-control" id="searchPembuat" placeholder="Cari nama atau bagian..." onkeyup="filterPembuatList()">
+                                        </div>
+                                        <div id="listPembuatContainer" class="pembuat-list-container">
+                                            <!-- Checkboxes will be populated here -->
+                                            <div class="text-muted text-center small py-2">Memuat daftar...</div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="col-12"><label class="form-label fw-bold">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
@@ -788,6 +807,9 @@
                 renderSidebarPermissions(); 
                 loadRefCodes(); 
                 
+                // LOAD USER LIST EARLY FOR MULTI-SELECT
+                loadUsersListInternal(); 
+
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -1143,6 +1165,7 @@
                     showApp(); 
                     renderSidebarPermissions(); 
                     loadRefCodes(); 
+                    loadUsersListInternal(); // Load users for multi-select
                     if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); 
                     
                     // Trigger badge update on login
@@ -1526,10 +1549,10 @@
                     // --- BUILD WHATSAPP MESSAGE START (FIXED ICONS) ---
                     let waText = `*DETAIL SURAT MASUK*\n`;
                     waText += `--------------------\n`;
-                    waText += `ðŸ“Ž *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
-                    waText += `ðŸ“„ *Perihal:* ${r.data.perihal}\n`;
-                    waText += `ðŸ“… *Tgl Surat:* ${r.data.tglSurat}\n`;
-                    waText += `ðŸ“¥ *Tgl Terima:* ${tglTerima || '-'}\n\n`;
+                    waText += `📎 *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
+                    waText += `📄 *Perihal:* ${r.data.perihal}\n`;
+                    waText += `📅 *Tgl Surat:* ${r.data.tglSurat}\n`;
+                    waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n\n`;
                     waText += `*RIWAYAT DISPOSISI:*\n`;
                     // -----------------------------------
 
@@ -1537,12 +1560,12 @@
                         html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
                         
                         // --- APPEND TO WA MESSAGE ---
-                        waText += `ðŸ”¹ ${h.timestamp} - ${h.stage}\n`;
-                        waText += `   ðŸ‘¤ Oleh: ${h.actor}\n`;
+                        waText += `🔹 ${h.timestamp} - ${h.stage}\n`;
+                        waText += `   👤 Oleh: ${h.actor}\n`;
                         
                         // UPDATED ORDER: Action (Tujuan/Diterima) displayed BEFORE Isi (Content)
-                        if(h.action && h.action !== 'Selesai') waText += `   âž¡ (${h.action})\n`;
-                        waText += `   ðŸ“ Isi: "${h.desc}"\n`;
+                        if(h.action && h.action !== 'Selesai') waText += `   ➡ (${h.action})\n`;
+                        waText += `   📝 Isi: "${h.desc}"\n`;
                         
                         waText += `\n`;
                     });
@@ -1678,7 +1701,8 @@
         // --- UPDATED: LOAD ARSIP KELUAR (Non-Minified, Added 'Teruskan' Button) ---
         function loadArsipKeluar() {
             showLoading(true);
-            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`)
+            // Updated to pass currentUserEmail to enable 'Arsip Keluarku' filtering
+            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}&email=${currentUserEmail}`)
             .then(r => r.json())
             .then(r => {
                 showLoading(false);
@@ -1729,7 +1753,98 @@
 
         function openStatusApproval(agenda) {$('#esa_agenda').val(agenda);const today = new Date().toISOString().split('T')[0];$('#esa_tanggal').val(today);new bootstrap.Modal(document.getElementById('modalStatusApproval')).show();}
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
-        $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
+        
+        // --- UPDATED SUBMIT KELUAR (Multi-Select Support) ---
+        $('#formSuratKeluar').on('submit',async function(e){
+            e.preventDefault();
+            showLoading(true);
+            let f="",n="";
+            const fi=$('#fileSuratKeluar')[0].files[0];
+            if(fi){f=await readFile(fi);n=fi.name}
+            
+            const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};
+            
+            // Get Multi-Select Values
+            let pembuatVal = getCheckedPembuat();
+            if (!pembuatVal) {
+                // Fallback to current user if empty (or enforce validation)
+                pembuatVal = sessionStorage.getItem('userName'); 
+            }
+            d.pembuat = pembuatVal;
+            
+            $(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});
+            sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });
+        });
+        
+        // --- NEW FUNCTIONS FOR MULTI-SELECT PEMBUAT ---
+        
+        function loadUsersListInternal() {
+            if(allUsersList.length === 0) {
+                fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})})
+                .then(r=>r.json())
+                .then(r=>{
+                    if(r.status==='success') {
+                        allUsersList = r.data || [];
+                    }
+                });
+            }
+        }
+
+        function renderPembuatList() {
+            const container = $('#listPembuatContainer');
+            container.empty();
+            
+            // 1. Structural Positions (Static)
+            const positions = [
+                "Direktur", "Wadir Umum & Keuangan", "Wadir Pelayanan",
+                "Bagian Administrasi & Umum", "Bagian Keuangan", "Bagian Program & Pelaporan",
+                "Bidang Pelayanan Medik", "Bidang Pelayanan Penunjang", "Bidang Pelayanan Keperawatan"
+            ];
+            
+            positions.forEach(pos => {
+                const id = `cb_pemb_${pos.replace(/\s/g,'')}`;
+                const html = `
+                    <div class="pembuat-item">
+                        <input class="form-check-input pembuat-check" type="checkbox" value="${pos}" id="${id}">
+                        <label for="${id}" class="fw-bold text-primary">${pos}</label>
+                    </div>`;
+                container.append(html);
+            });
+
+            // 2. Users (Dynamic)
+            if(allUsersList.length > 0) {
+                allUsersList.forEach(u => {
+                    const id = `cb_pemb_u_${u.email.replace(/[^a-zA-Z0-9]/g,'')}`;
+                    const html = `
+                        <div class="pembuat-item">
+                            <input class="form-check-input pembuat-check" type="checkbox" value="${u.name}" id="${id}">
+                            <label for="${id}">${u.name} <span class="text-muted small">(${u.bidang||'-'})</span></label>
+                        </div>`;
+                    container.append(html);
+                });
+            } else {
+                container.append('<div class="text-muted small text-center">Memuat user... (Coba lagi nanti)</div>');
+                loadUsersListInternal(); // Retry load
+            }
+        }
+
+        function filterPembuatList() {
+            const term = $('#searchPembuat').val().toLowerCase();
+            $('#listPembuatContainer .pembuat-item').each(function() {
+                const text = $(this).text().toLowerCase();
+                $(this).toggle(text.includes(term));
+            });
+        }
+
+        function getCheckedPembuat() {
+            const selected = [];
+            $('.pembuat-check:checked').each(function() {
+                selected.push($(this).val());
+            });
+            return selected.join(', ');
+        }
+
+        // ----------------------------------------------
         
         // --- NEW: FUNCTION SETTING TUJUAN DISPOSISI (MODAL & LOGIC) ---
         function openSettingTujuan() {
@@ -2128,59 +2243,6 @@
             .catch(e => {
                 showLoading(false);
                 Swal.fire('Error', 'Terjadi kesalahan jaringan', 'error');
-            });
-        }
-
-        // --- UPDATE FUNGSI LOAD ARSIP KELUAR (Agar Tombol Muncul) ---
-        // Ganti fungsi loadArsipKeluar yang lama dengan ini:
-        function loadArsipKeluar() {
-            showLoading(true);
-            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`)
-            .then(r => r.json())
-            .then(r => {
-                showLoading(false);
-                const dt = $('#tableArsipKeluar').DataTable({destroy: true, order: [[0, 'desc']]});
-                dt.clear();
-
-                const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
-                const role = sessionStorage.getItem('userRole');
-                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');
-                const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');
-
-                if (r.data) {
-                    r.data.forEach(d => {
-                        let statusHtml = d.status;
-                        if (canApprove) {
-                            statusHtml = `<div class="d-flex justify-content-between align-items-center">
-                                <span>${d.status}</span>
-                                <button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button>
-                            </div>`;
-                        }
-
-                        // --- TOMBOL AKSI TERUSKAN (BARU) ---
-                        let btnAction = `<div class="d-flex gap-1">`;
-                        
-                        // Tombol Teruskan (Ikon Share/Panah)
-                        btnAction += `<button class="btn btn-sm btn-outline-primary" title="Teruskan ke Staf" onclick='openTeruskanKeluar(${JSON.stringify(d)})'><i class="fas fa-share"></i></button>`;
-
-                        if (canEdit) {
-                            btnAction += `<button class="btn btn-sm btn-warning" title="Edit" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;
-                        }
-                        btnAction += `</div>`;
-
-                        dt.row.add([
-                            d.agenda,
-                            d.tglSurat,
-                            d.tujuan,
-                            d.perihal,
-                            d.pembuat || '-',
-                            statusHtml,
-                            d.file ? `<a href="${d.file}" target="_blank">File</a>` : '-',
-                            btnAction
-                        ]);
-                    });
-                }
-                dt.draw();
             });
         }
     </script>

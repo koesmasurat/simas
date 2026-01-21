@@ -1526,10 +1526,10 @@
                     // --- BUILD WHATSAPP MESSAGE START (FIXED ICONS) ---
                     let waText = `*DETAIL SURAT MASUK*\n`;
                     waText += `--------------------\n`;
-                    waText += `📎 *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
-                    waText += `📄 *Perihal:* ${r.data.perihal}\n`;
-                    waText += `📅 *Tgl Surat:* ${r.data.tglSurat}\n`;
-                    waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n\n`;
+                    waText += `ðŸ“Ž *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
+                    waText += `ðŸ“„ *Perihal:* ${r.data.perihal}\n`;
+                    waText += `ðŸ“… *Tgl Surat:* ${r.data.tglSurat}\n`;
+                    waText += `ðŸ“¥ *Tgl Terima:* ${tglTerima || '-'}\n\n`;
                     waText += `*RIWAYAT DISPOSISI:*\n`;
                     // -----------------------------------
 
@@ -1537,12 +1537,12 @@
                         html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
                         
                         // --- APPEND TO WA MESSAGE ---
-                        waText += `🔹 ${h.timestamp} - ${h.stage}\n`;
-                        waText += `   👤 Oleh: ${h.actor}\n`;
+                        waText += `ðŸ”¹ ${h.timestamp} - ${h.stage}\n`;
+                        waText += `   ðŸ‘¤ Oleh: ${h.actor}\n`;
                         
                         // UPDATED ORDER: Action (Tujuan/Diterima) displayed BEFORE Isi (Content)
-                        if(h.action && h.action !== 'Selesai') waText += `   ➡ (${h.action})\n`;
-                        waText += `   📝 Isi: "${h.desc}"\n`;
+                        if(h.action && h.action !== 'Selesai') waText += `   âž¡ (${h.action})\n`;
+                        waText += `   ðŸ“ Isi: "${h.desc}"\n`;
                         
                         waText += `\n`;
                     });
@@ -1675,7 +1675,58 @@
             });
         }
 
-        function loadArsipKeluar(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipKeluar').DataTable({destroy:true, order:[[0,'desc']]}); dt.clear();const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");const role = sessionStorage.getItem('userRole');const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');if(r.data) r.data.forEach(d=>{let statusHtml = d.status;if(canApprove) {statusHtml = `<div class="d-flex justify-content-between align-items-center"><span>${d.status}</span><button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button></div>`;}let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';dt.row.add([d.agenda,d.tglSurat,d.tujuan,d.perihal,d.pembuat || '-',statusHtml,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-', btnEdit]);});dt.draw();});}
+        // --- UPDATED: LOAD ARSIP KELUAR (Non-Minified, Added 'Teruskan' Button) ---
+        function loadArsipKeluar() {
+            showLoading(true);
+            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`)
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                const dt = $('#tableArsipKeluar').DataTable({destroy: true, order: [[0, 'desc']]});
+                dt.clear();
+
+                const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
+                const role = sessionStorage.getItem('userRole');
+                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');
+                const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');
+
+                if (r.data) {
+                    r.data.forEach(d => {
+                        let statusHtml = d.status;
+                        if (canApprove) {
+                            statusHtml = `<div class="d-flex justify-content-between align-items-center">
+                                <span>${d.status}</span>
+                                <button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button>
+                            </div>`;
+                        }
+
+                        // --- TOMBOL AKSI TERUSKAN (BARU) ---
+                        let btnAction = `<div class="d-flex gap-1">`;
+                        
+                        // Tombol Teruskan (Ikon Share)
+                        btnAction += `<button class="btn btn-sm btn-outline-primary" title="Teruskan ke Staf" onclick='openTeruskanKeluar(${JSON.stringify(d)})'><i class="fas fa-share"></i></button>`;
+
+                        if (canEdit) {
+                            btnAction += `<button class="btn btn-sm btn-warning" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;
+                        }
+                        btnAction += `</div>`;
+
+                        dt.row.add([
+                            d.agenda,
+                            d.tglSurat,
+                            d.tujuan,
+                            d.perihal,
+                            d.pembuat || '-',
+                            statusHtml,
+                            d.file ? `<a href="${d.file}" target="_blank">File</a>` : '-',
+                            btnAction
+                        ]);
+                    });
+                }
+                dt.draw();
+            });
+        }
+
         function openStatusApproval(agenda) {$('#esa_agenda').val(agenda);const today = new Date().toISOString().split('T')[0];$('#esa_tanggal').val(today);new bootstrap.Modal(document.getElementById('modalStatusApproval')).show();}
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
@@ -1771,7 +1822,12 @@
         }
         // -------------------------------------------------------------
 
+        // --- UPDATED: OPEN DISPOSISI MODAL (With Safety Reset) ---
         function openDisposisiModal(id, p) { 
+            // SAFETY: Reset Modal Title & Button Function (In case modified by other functions)
+            $('#modalDisposisi .modal-title').text("Kirim Disposisi");
+            $('#modalDisposisi .btn-warning').attr('onclick', 'submitDisposisi()');
+
             $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val('');
             
             // --- NEW: SET DEFAULT TGL DISPOSISI TO TODAY ---
@@ -1990,6 +2046,143 @@
         function applyBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); if(val) { if(cat === 'keluar') $('#outNoAgenda').val(val); else $('#inNoAgenda').val(val); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); } }
         function saveBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); const note = $('#bookingNote').val(); if(!val) return Swal.fire('Warning', 'Isi Nomor Agenda', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_agenda', category: cat, targetAgenda: val, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.data.message, 'success'); if(cat === 'keluar') autoFillAgendaKeluar(); else autoFillAgendaMasuk(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
         function setDefaultDatesMasuk() { const today = new Date().toISOString().split('T')[0]; if(!$('input[name="tglSurat"]').val()) $('input[name="tglSurat"]').val(today); if(!$('input[name="tglTerima"]').val()) $('input[name="tglTerima"]').val(today); }
+
+        // --- NEW FUNCTIONS FOR FORWARDING OUTGOING MAIL ---
+
+        function openTeruskanKeluar(row) {
+            // 1. Siapkan Modal
+            $('#dispIdSurat').val(row.agenda); 
+            $('#dispPerihal').text("(Surat Keluar) " + row.perihal); 
+            $('#dispInstruksi').val(''); // Kosongkan pesan
+            
+            // Set Tanggal default
+            const today = new Date().toISOString().split('T')[0];
+            $('#dispTglDisposisi').val(today);
+
+            // 2. Load Daftar Staf (Target)
+            const container = $('#dispTargetContainer'); 
+            container.empty();
+            
+            // Ambil daftar bawahan yang sudah disetting user
+            const subs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]");
+            
+            if (subs.length === 0) {
+                container.html('<div class="alert alert-warning small">Anda belum mengatur daftar staf tujuan.<br><a href="#" onclick="openSettingTujuan(); return false;">Klik di sini untuk Setting Tujuan</a></div>');
+            } else {
+                subs.forEach(x => { 
+                    container.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}" id="chk_fwd_${x.replace(/\s/g,'')}"><label class="form-check-label small" for="chk_fwd_${x.replace(/\s/g,'')}">${x}</label></div>`); 
+                });
+            }
+
+            // 3. Ubah Tombol "Kirim" agar menjalankan fungsi khusus
+            const btnKirim = $('#modalDisposisi .btn-warning');
+            btnKirim.attr('onclick', '').off('click'); // Hapus event lama
+            
+            // Pasang event handler baru
+            btnKirim.on('click', function() {
+                submitTeruskanKeluar(row.agenda);
+            });
+            
+            // Ubah Judul Modal
+            $('#modalDisposisi .modal-title').text("Teruskan Surat Keluar");
+            
+            new bootstrap.Modal(document.getElementById('modalDisposisi')).show();
+        }
+
+        // FUNGSI BARU: Mengirim Data Terusan ke Backend
+        function submitTeruskanKeluar(agenda) {
+            const selected = []; 
+            $('.target-check:checked').each(function() { selected.push($(this).val()); }); 
+            
+            if (selected.length === 0) return Swal.fire('!', 'Pilih minimal satu staf tujuan', 'warning');
+            
+            const pesan = $('#dispInstruksi').val();
+            
+            showLoading(true);
+            
+            const payload = {
+                type: 'teruskan_surat_keluar',
+                agenda: agenda,
+                target: selected.join(', '),
+                pesan: pesan,
+                email: currentUserEmail,
+                senderName: sessionStorage.getItem('userName')
+            };
+
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide();
+                    Swal.fire('Berhasil', 'Surat telah diteruskan ke Inbox Staf.', 'success');
+                    
+                    // Kembalikan fungsi tombol modal ke default (agar aman untuk menu lain)
+                    const btnKirim = $('#modalDisposisi .btn-warning');
+                    btnKirim.off('click').attr('onclick', 'submitDisposisi()');
+                    $('#modalDisposisi .modal-title').text("Kirim Disposisi");
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Terjadi kesalahan jaringan', 'error');
+            });
+        }
+
+        // --- UPDATE FUNGSI LOAD ARSIP KELUAR (Agar Tombol Muncul) ---
+        // Ganti fungsi loadArsipKeluar yang lama dengan ini:
+        function loadArsipKeluar() {
+            showLoading(true);
+            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`)
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                const dt = $('#tableArsipKeluar').DataTable({destroy: true, order: [[0, 'desc']]});
+                dt.clear();
+
+                const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
+                const role = sessionStorage.getItem('userRole');
+                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');
+                const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');
+
+                if (r.data) {
+                    r.data.forEach(d => {
+                        let statusHtml = d.status;
+                        if (canApprove) {
+                            statusHtml = `<div class="d-flex justify-content-between align-items-center">
+                                <span>${d.status}</span>
+                                <button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button>
+                            </div>`;
+                        }
+
+                        // --- TOMBOL AKSI TERUSKAN (BARU) ---
+                        let btnAction = `<div class="d-flex gap-1">`;
+                        
+                        // Tombol Teruskan (Ikon Share/Panah)
+                        btnAction += `<button class="btn btn-sm btn-outline-primary" title="Teruskan ke Staf" onclick='openTeruskanKeluar(${JSON.stringify(d)})'><i class="fas fa-share"></i></button>`;
+
+                        if (canEdit) {
+                            btnAction += `<button class="btn btn-sm btn-warning" title="Edit" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;
+                        }
+                        btnAction += `</div>`;
+
+                        dt.row.add([
+                            d.agenda,
+                            d.tglSurat,
+                            d.tujuan,
+                            d.perihal,
+                            d.pembuat || '-',
+                            statusHtml,
+                            d.file ? `<a href="${d.file}" target="_blank">File</a>` : '-',
+                            btnAction
+                        ]);
+                    });
+                }
+                dt.draw();
+            });
+        }
     </script>
 </body>
 </html>

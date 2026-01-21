@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -158,6 +157,11 @@
             color: var(--accent-orange);
             transform: translateY(2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* QUOTE STYLE */
+        #daily-quote {
+            transition: opacity 1s ease-in-out;
         }
 
         @media (max-width: 991px) {
@@ -466,6 +470,11 @@
                         </section>
 
                         <footer class="mt-5 pt-4 border-top text-center text-muted small">
+                            <div class="container mb-3" style="max-width: 800px;">
+                                <p id="daily-quote" class="text-muted fst-italic" style="font-family: 'Playfair Display', serif; font-size: 0.8rem; min-height: 2em;">
+                                    Loading motivation...
+                                </p>
+                            </div>
                             <p>&copy; 2026 RSUD dr. R. Koesma Tuban</p>
                         </footer>
 
@@ -477,12 +486,58 @@
 
     <script>
         $(document).ready(function() {
-            // Particles Effect with Mail and Document Icons, connected by lines
+            // --- QUOTES LOGIC ---
+            const workQuotes = [
+                "Orang yang berhenti belajar akan menjadi pemilik masa lalu. Orang yang masih terus belajar, akan menjadi pemilik masa depan.",
+                "Tugas kita bukanlah untuk berhasil. Tugas kita adalah untuk mencoba, karena didalam mencoba itulah kita menemukan dan belajar membangun kesempatan untuk berhasil.",
+                "Bersabarlah, tak ada orang hebat yang tidak diuji. Semakin besar ujiannya, semakin besar pula kualitas diri yang sedang dibangun.",
+                "Jangan menunggu waktu yang tepat untuk melakukan hal yang baik. Segala waktu adalah tepat untuk melakukan hal yang baik.",
+                "Bekerjalah dengan hati, karena apa yang datang dari hati akan sampai ke hati.",
+                "Kesungguhan adalah kunci pintu keajaiban. Jika Anda sungguh-sungguh, jalan akan terbuka.",
+                "Jangan bekerja hanya untuk uang, bekerjalah untuk menjadi ahli. Uang akan datang kepada keahlian.",
+                "Kualitas pekerjaanmu adalah gambaran kualitas dirimu. Lakukan yang terbaik, atau tidak sama sekali.",
+                "Lelah itu biasa. Kecewa itu biasa. Tapi menyerah itu dilarang. Istirahatlah, lalu bangkit lagi dengan lebih kuat.",
+                "Rezeki itu tidak pernah tertukar. Jika itu milikmu, ia akan datang. Tugasmu adalah memantaskan diri untuk menerimanya.",
+                "Orang optimis melihat peluang dalam setiap kesulitan. Orang pesimis melihat kesulitan dalam setiap peluang.",
+                "Jangan hanya sibuk, tapi produktiflah. Sibuk belum tentu menghasilkan, produktif pasti ada hasilnya.",
+                "Disiplin adalah jembatan antara cita-cita dan pencapaian. Tanpa disiplin, mimpi hanya akan tetap menjadi mimpi.",
+                "Jadilah pribadi yang solutif, bukan yang hanya pandai mengeluh. Di mana ada masalah, di situ ada peluang bagi mereka yang berpikir.",
+                "Keberhasilan tidak datang dari apa yang Anda lakukan sesekali, tapi dari apa yang Anda lakukan secara konsisten.",
+                "Hargai prosesnya. Sukses yang instan seringkali tidak bertahan lama. Sukses yang dibangun dengan keringat akan kokoh berdiri.",
+                "Fokuslah pada perbaikan diri sendiri, bukan pada kelebihan orang lain. Rumput tetangga tampak lebih hijau karena Anda lupa menyiram rumput sendiri.",
+                "Jujurlah dalam bekerja. Kejujuran adalah mata uang yang berlaku di mana saja dan dihargai oleh siapa saja.",
+                "Jangan takut salah. Kesalahan adalah bukti bahwa Anda sedang mencoba sesuatu yang baru. Belajarlah darinya.",
+                "Syukurilah pekerjaanmu saat ini. Di luar sana, banyak orang yang sedang berdoa untuk memiliki apa yang Anda miliki sekarang."
+            ];
+
+            function showRandomQuote() {
+                const quoteElement = $('#daily-quote');
+                // Fade out
+                quoteElement.css('opacity', 0);
+
+                setTimeout(function() {
+                    const randomIndex = Math.floor(Math.random() * workQuotes.length);
+                    quoteElement.text('"' + workQuotes[randomIndex] + '"');
+                    // Fade in
+                    quoteElement.css('opacity', 1);
+                }, 1000); // 1s wait for fade out
+            }
+
+            // Initial random load (immediate)
+            const initialIndex = Math.floor(Math.random() * workQuotes.length);
+            $('#daily-quote').text('"' + workQuotes[initialIndex] + '"');
+
+            // Change every 15 seconds
+            setInterval(showRandomQuote, 15000);
+
+
+            // --- EXISTING PARTICLES & LOGIC ---
+            // Particles Effect with Mail and Document Icons
             tsParticles.load("tsparticles", {
                 fpsLimit: 60,
                 particles: {
                     number: {
-                        value: 30, // Increased for better visualization
+                        value: 30, 
                         density: { enable: true, value_area: 800 }
                     },
                     color: { value: "#ffffff" },
@@ -507,7 +562,7 @@
                         anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
                     },
                     size: {
-                        value: 16, // Adjust size for icons
+                        value: 16, 
                         random: true,
                         anim: { enable: false, speed: 40, size_min: 0.1, sync: false }
                     },
@@ -515,12 +570,12 @@
                         enable: true,
                         distance: 150,
                         color: "#ffffff",
-                        opacity: 0.2, // Fine lines
+                        opacity: 0.2, 
                         width: 1
                     },
                     move: {
                         enable: true,
-                        speed: 1.5, // Dynamic speed
+                        speed: 1.5,
                         direction: "none",
                         random: false,
                         straight: false,
@@ -532,7 +587,7 @@
                 interactivity: {
                     detect_on: "canvas",
                     events: {
-                        onhover: { enable: true, mode: "grab" }, // Grab effect
+                        onhover: { enable: true, mode: "grab" },
                         onclick: { enable: true, mode: "push" },
                         resize: true
                     },

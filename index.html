@@ -274,6 +274,10 @@
 
                     <a class="nav-link w-100 text-start text-success restricted-feature" id="btnArsipKeluarParent" data-bs-toggle="collapse" href="#menuArsipKeluar" role="button"><i class="fas fa-archive"></i> Arsip Keluar <i class="fas fa-chevron-down ms-auto small"></i></a>
                     <div class="collapse submenu" id="menuArsipKeluar">
+                        <!-- BUTTON BARU: ARSIP KELUAR SAYA -->
+                        <button class="nav-link w-100 text-start text-warning fw-bold" id="btnMyArsipKeluar" onclick="openArsipPage('keluar', 'all', this)">Arsip Keluar Saya</button>
+                        <!-- END BUTTON BARU -->
+                        <div class="my-1 border-top border-white-50"></div>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_all" onclick="openArsipPage('keluar', 'all', this)">All (Semua)</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_direktur" onclick="openArsipPage('keluar', 'direktur', this)">Direktur</button>
                         <button class="nav-link w-100 text-start restricted-feature" data-perm="arsip_keluar_wadir_adm" onclick="openArsipPage('keluar', 'wadir_adm', this)">Wadir Umum & Keu</button>
@@ -948,11 +952,21 @@
                     
                     // Panggil fungsi ini agar ucapan "Selamat Pagi/Siang" & Tanggal muncul
                     loadDashboardStats(); 
+                    
+                    // UPDATE TOMBOL ARSIP KELUAR SAYA
+                    updateMyArsipKeluarButton();
 
                     // Klik otomatis tombol beranda jika belum ada state tersimpan
                     if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); 
                 }, 300); 
             }); 
+        }
+
+        // NEW FUNCTION: UPDATE BUTTON TEXT WITH FIRST NAME
+        function updateMyArsipKeluarButton() {
+            const fullName = sessionStorage.getItem('userName') || "Saya";
+            const firstName = fullName.split(' ')[0]; // Ambil kata pertama
+            $('#btnMyArsipKeluar').html(`<i class="fas fa-folder text-warning me-2"></i> Arsip Keluar ${firstName}`);
         }
 
         // 2. Ganti juga function activateTab dengan ini

@@ -761,6 +761,156 @@
     <div class="mb-3"><label class="fw-bold small mb-1">Tanggal Disposisi:</label><input type="date" class="form-control" id="dispTglDisposisi"></div>
     <div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><div id="dispTargetContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"></div></div><div class="mb-3"><label class="fw-bold small mb-1">Instruksi:</label><textarea class="form-control" id="dispInstruksi" rows="4"></textarea></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
 
+    <!-- ===== MISSING MODALS ADDED HERE ===== -->
+
+    <!-- 1. MODAL EDIT SURAT MASUK (Fix for Pencil Button in Arsip Masuk) -->
+    <div class="modal fade" id="modalEditSuratMasuk" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">Edit Surat Masuk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditSuratMasuk">
+                        <div class="mb-3">
+                            <label class="form-label">No Agenda</label>
+                            <input type="text" class="form-control" id="em_displayAgenda" disabled>
+                            <input type="hidden" id="em_noAgenda" name="noAgenda">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><label class="form-label">Tgl Surat</label><input type="date" class="form-control" id="em_tglSurat" name="tglSurat"></div>
+                            <div class="col-6"><label class="form-label">Tgl Terima</label><input type="date" class="form-control" id="em_tglTerima" name="tglTerima"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">No Surat</label>
+                            <input type="text" class="form-control" id="em_noSurat" name="noSurat">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pengirim</label>
+                            <input type="text" class="form-control" id="em_pengirim" name="pengirim">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kode Klarifikasi</label>
+                            <input type="text" class="form-control" id="em_kodeKlarifikasi" name="kodeKlarifikasi">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Perihal</label>
+                            <textarea class="form-control" id="em_perihal" name="perihal" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ganti File (Opsional)</label>
+                            <input type="file" class="form-control" id="em_file">
+                        </div>
+                        <button type="button" class="btn btn-warning w-100" onclick="saveEditMasuk()">Simpan Perubahan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL SEARCH ADVANCED (Fix for Advanced Search Button) -->
+    <div class="modal fade" id="modalSearchAdvanced" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Pencarian Lanjut</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="event.preventDefault(); submitSearchAdvanced();">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="sa_category">
+                                <option value="masuk">Surat Masuk</option>
+                                <option value="keluar">Surat Keluar</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kata Kunci</label>
+                            <input type="text" class="form-control" id="sa_keyword" placeholder="Cari perihal, nomor, dll...">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><label class="form-label">Dari Tanggal</label><input type="date" class="form-control" id="sa_start"></div>
+                            <div class="col-6"><label class="form-label">Sampai Tanggal</label><input type="date" class="form-control" id="sa_end"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Cari</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL EDIT SURAT KELUAR (Proactive Fix) -->
+    <div class="modal fade" id="modalEditSuratKeluar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">Edit Surat Keluar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditSuratKeluar">
+                        <div class="mb-3">
+                            <label class="form-label">No Agenda</label>
+                            <input type="text" class="form-control" id="ek_displayAgenda" disabled>
+                            <input type="hidden" id="ek_noAgenda" name="noAgenda">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tgl Surat</label>
+                            <input type="date" class="form-control" id="ek_tglSurat" name="tglSurat">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">No Surat</label>
+                            <input type="text" class="form-control" id="ek_noSurat" name="noSurat">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tujuan</label>
+                            <input type="text" class="form-control" id="ek_tujuan" name="tujuan">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Perihal</label>
+                            <textarea class="form-control" id="ek_perihal" name="perihal" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ganti File (Opsional)</label>
+                            <input type="file" class="form-control" id="ek_file">
+                        </div>
+                        <button type="button" class="btn btn-warning w-100" onclick="saveEditKeluar()">Simpan Perubahan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL BOOKING AGENDA (Proactive Fix) -->
+    <div class="modal fade" id="modalBooking" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Booking Agenda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="bookingCategory">
+                    <div class="alert alert-info">Agenda Terakhir: <strong id="lastAgendaDisplay">...</strong></div>
+                    <div class="mb-3">
+                        <label class="form-label">Nomor Agenda Booking</label>
+                        <input type="number" class="form-control" id="bookingValue">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Catatan (Untuk Siapa/Perihal)</label>
+                        <input type="text" class="form-control" id="bookingNote">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary flex-grow-1" onclick="applyBooking()">Gunakan Tanpa Simpan</button>
+                        <button type="button" class="btn btn-primary flex-grow-1" onclick="saveBooking()">Simpan Booking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -1526,10 +1676,10 @@
                     // --- BUILD WHATSAPP MESSAGE START (FIXED ICONS) ---
                     let waText = `*DETAIL SURAT MASUK*\n`;
                     waText += `--------------------\n`;
-                    waText += `ðŸ“Ž *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
-                    waText += `ðŸ“„ *Perihal:* ${r.data.perihal}\n`;
-                    waText += `ðŸ“… *Tgl Surat:* ${r.data.tglSurat}\n`;
-                    waText += `ðŸ“¥ *Tgl Terima:* ${tglTerima || '-'}\n\n`;
+                    waText += `📎 *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
+                    waText += `📄 *Perihal:* ${r.data.perihal}\n`;
+                    waText += `📅 *Tgl Surat:* ${r.data.tglSurat}\n`;
+                    waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n\n`;
                     waText += `*RIWAYAT DISPOSISI:*\n`;
                     // -----------------------------------
 
@@ -1537,12 +1687,12 @@
                         html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
                         
                         // --- APPEND TO WA MESSAGE ---
-                        waText += `ðŸ”¹ ${h.timestamp} - ${h.stage}\n`;
-                        waText += `   ðŸ‘¤ Oleh: ${h.actor}\n`;
+                        waText += `🔹 ${h.timestamp} - ${h.stage}\n`;
+                        waText += `   👤 Oleh: ${h.actor}\n`;
                         
                         // UPDATED ORDER: Action (Tujuan/Diterima) displayed BEFORE Isi (Content)
-                        if(h.action && h.action !== 'Selesai') waText += `   âž¡ (${h.action})\n`;
-                        waText += `   ðŸ“ Isi: "${h.desc}"\n`;
+                        if(h.action && h.action !== 'Selesai') waText += `   ➡ (${h.action})\n`;
+                        waText += `   📝 Isi: "${h.desc}"\n`;
                         
                         waText += `\n`;
                     });
@@ -1891,8 +2041,7 @@
             // POPULATE NEW FIELDS
             $('#editUserBidang').val(u.bidang || '');
             $('#editUserWA').val(u.wa || '');
-
-            // CHECK PERMISSION TO EDIT PROFILE (SUPER ADMIN ONLY)
+// CHECK PERMISSION TO EDIT PROFILE (SUPER ADMIN ONLY)
             const isSuper = sessionStorage.getItem('userRole') === 'Super Admin';
             if(isSuper) {
                 $('#editUserName').prop('readonly', false);

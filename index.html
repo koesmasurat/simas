@@ -496,28 +496,8 @@
 
                     <!-- ARSIP KELUAR -->
                     <div class="tab-pane white-panel p-4" id="arsip-keluar-container">
-                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                            <h3 class="fw-bold m-0">Arsip Keluar</h3>
-                            <button class="btn btn-outline-success btn-sm" onclick="loadArsipKeluar()">Refresh</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table id="tableArsipKeluar" class="table table-hover table-bordered w-100 align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <!-- Edited widths and columns -->
-                                        <th style="width: 1%; white-space: nowrap;">Agenda</th>
-                                        <th style="width: 1%; white-space: nowrap;">Tgl Surat</th>
-                                        <th>Tujuan</th>
-                                        <th style="width: 40%;">Perihal</th> <!-- Made wider -->
-                                        <th>Pembuat</th>
-                                        <th>Status</th>
-                                        <!-- File column removed -->
-                                        <th width="10%">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"><h3 class="fw-bold m-0">Arsip Keluar</h3><button class="btn btn-outline-success btn-sm" onclick="loadArsipKeluar()">Refresh</button></div>
+                        <div class="table-responsive"><table id="tableArsipKeluar" class="table table-hover table-bordered w-100 align-middle"><thead class="table-light"><tr><th>Agenda</th><th>Tgl Surat</th><th>Tujuan</th><th>Perihal</th><th>Pembuat</th><th>Status</th><th>File</th><th width="5%">Aksi</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <!-- SETTINGS -->
@@ -1813,60 +1793,7 @@
             });
         }
 
-        function loadArsipKeluar(){
-            showLoading(true);
-            fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`)
-            .then(r=>r.json())
-            .then(r=>{
-                showLoading(false);
-                const dt=$('#tableArsipKeluar').DataTable({
-                    destroy:true, 
-                    order:[[0,'desc']],
-                    autoWidth: false
-                }); 
-                dt.clear();
-                
-                const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
-                const role = sessionStorage.getItem('userRole');
-                const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');
-                const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');
-                
-                if(r.data) r.data.forEach(d=>{
-                    let statusHtml = d.status;
-                    if(canApprove) {
-                        statusHtml = `<div class="d-flex justify-content-between align-items-center"><span>${d.status}</span><button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button></div>`;
-                    }
-                    
-                    // MODIFIKASI: Perihal jadi link file
-                    let perihalHtml = d.perihal;
-                    if(d.file) {
-                        perihalHtml = `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal} <i class="fas fa-paperclip small ms-1"></i></a>`;
-                    }
-                    
-                    // MODIFIKASI: Tombol WhatsApp
-                    let waText = `No agenda : ${d.agenda}\nperihal : ${d.perihal}\nlink surat : ${d.file || 'Belum tersedia'}`;
-                    let waLink = `https://wa.me/?text=${encodeURIComponent(waText)}`;
-                    let btnWA = `<a href="${waLink}" target="_blank" class="btn btn-sm btn-success ms-1" title="Share WA"><i class="fab fa-whatsapp"></i></a>`;
-
-                    let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';
-                    
-                    // Gabungkan aksi
-                    let aksiHtml = `<div class="d-flex">${btnWA}${btnEdit}</div>`;
-
-                    dt.row.add([
-                        d.agenda,
-                        d.tglSurat,
-                        d.tujuan,
-                        perihalHtml, // Kolom Perihal baru
-                        d.pembuat || '-',
-                        statusHtml,
-                        aksiHtml // Kolom Aksi baru (File dihapus)
-                    ]);
-                });
-                dt.draw();
-            });
-        }
-
+        function loadArsipKeluar(){showLoading(true);fetch(`${GAS_URL}?action=read_arsip_keluar&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{showLoading(false);const dt=$('#tableArsipKeluar').DataTable({destroy:true, order:[[0,'desc']]}); dt.clear();const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");const role = sessionStorage.getItem('userRole');const canEdit = role === 'Super Admin' || perms.includes('edit_surat_keluar');const canApprove = role === 'Super Admin' || perms.includes('edit_status_approval');if(r.data) r.data.forEach(d=>{let statusHtml = d.status;if(canApprove) {statusHtml = `<div class="d-flex justify-content-between align-items-center"><span>${d.status}</span><button class="btn btn-sm btn-link text-success p-0 ms-2" title="Update Status Approval" onclick='openStatusApproval(${d.agenda})'><i class="fas fa-pencil-alt"></i></button></div>`;}let btnEdit = canEdit ? `<button class="btn btn-sm btn-warning ms-1" onclick='openEditKeluar(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>` : '';dt.row.add([d.agenda,d.tglSurat,d.tujuan,d.perihal,d.pembuat || '-',statusHtml,d.file?`<a href="${d.file}" target="_blank">File</a>`:'-', btnEdit]);});dt.draw();});}
         function openStatusApproval(agenda) {$('#esa_agenda').val(agenda);const today = new Date().toISOString().split('T')[0];$('#esa_tanggal').val(today);new bootstrap.Modal(document.getElementById('modalStatusApproval')).show();}
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
@@ -2045,6 +1972,7 @@
         async function saveEditMasuk(){const f = $('#em_file')[0].files[0]; let fData="",fName="";if(f){fData=await readFile(f);fName=f.name;}const d = { type:'edit_surat_masuk', email:currentUserEmail, noAgenda:$('#em_noAgenda').val(), noSurat:$('#em_noSurat').val(), tglSurat:$('#em_tglSurat').val(), tglTerima:$('#em_tglTerima').val(), pengirim:$('#em_pengirim').val(), perihal:$('#em_perihal').val(), kodeKlarifikasi:$('#em_kodeKlarifikasi').val(), fileData:fData, fileName:fName };bootstrap.Modal.getInstance(document.getElementById('modalEditSuratMasuk')).hide();sendData(d, ()=>{Swal.fire('OK','Data Diupdate','success'); loadArsipMasuk();});}
         
         async function saveEditKeluar(){const f = $('#ek_file')[0].files[0]; let fData="",fName="";if(f){fData=await readFile(f);fName=f.name;}const d = { type:'edit_surat_keluar', email:currentUserEmail, noAgenda:$('#ek_noAgenda').val(), noSurat:$('#ek_noSurat').val(), tglSurat:$('#ek_tglSurat').val(), tujuan:$('#ek_tujuan').val(), perihal:$('#ek_perihal').val(), fileData:fData, fileName:fName };bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide();sendData(d, ()=>{Swal.fire('OK','Data Diupdate','success'); loadArsipKeluar();});}
+        
         function formatDateInput(dStr){ if(!dStr || dStr==='-') return ''; const parts=dStr.split('/'); if(parts.length===3) return `${parts[2]}-${parts[1]}-${parts[0]}`; return ''; }
         
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList = r.data || []; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}

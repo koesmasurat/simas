@@ -1824,7 +1824,6 @@
             try { mySubs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); } catch(e){ mySubs=[]; }
 
             allUsersList.forEach(user => {
-                if(user.email === currentUserEmail) return;
 
                 const isChecked = mySubs.includes(user.name) ? 'checked' : '';
                 const html = `

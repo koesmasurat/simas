@@ -930,7 +930,7 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -938,17 +938,16 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzuRKsINcUfY9tku6r1K7T-UBNOO054M9iiJdrgoIjqOf3jKfPeuBq1YX9moB9iJIMOvQ/exec"; 
         let currentUserEmail = "", currentInboxLevel = "", currentArsipScope = "";
-        let currentInboxContextEmail = ""; // To track whose inbox we are viewing
+        let currentInboxContextEmail = ""; 
         let currentInboxContextName = "";
-        let currentContextSubordinates = []; // NEW: Store subordinates of current context (Me or Delegated)
+        let currentContextSubordinates = []; 
         let allUsersList = []; 
-        let dashboardChart = null; // Store chart instance
+        let dashboardChart = null; 
         
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ 
                 currentUserEmail=sessionStorage.getItem('userEmail');
                 
-                // Initialize default subordinates
                 try {
                     currentContextSubordinates = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]");
                 } catch(e) { currentContextSubordinates = []; }
@@ -962,7 +961,6 @@
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
                     else if(lastState.tabId.includes('arsip-keluar')) openArsipPage('keluar', lastState.context, null);
                     else if(lastState.tabId.includes('disposisi')) {
-                        // FIX: Restore delegation context if exists
                         if(lastState.contextEmail && lastState.contextEmail !== currentUserEmail) {
                             openDisposisiPage(lastState.context, null, lastState.contextEmail, lastState.contextName);
                         } else {
@@ -972,21 +970,16 @@
                     else if(lastState.tabId.includes('arsipku')) openArsipku(null); 
                     else activateTab(lastState.tabId, null);
                 } else {
-                    // Default to dashboard
                     loadDashboardStats();
                 }
                 
-                // NEW: Update Sidebar Badges on Load
                 updateSidebarBadges();
             } 
             
-            // SIDEBAR TOGGLE LOGIC
             $('#sidebarCollapse').on('click', function(){
-                // Manual toggle overrides mobile auto-hide logic momentarily
                 $('#sidebar, #content').toggleClass('toggled');
             });
             
-            // UPDATED TSPARTICLES CONFIGURATION (BOOK, DOCUMENT, MAIL, LINKS)
             tsParticles.load("tsparticles", { 
                 fpsLimit: 60, 
                 particles: { 
@@ -995,35 +988,28 @@
                     shape: { 
                         type: "image", 
                         image: [ 
-                            // Mail Icon
                             { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z'/%3E%3C/svg%3E", width: 32, height: 32 },
-                            // Book Icon
                             { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 5.6-32 26.7-32 26.7H48s-10.1-21.1-32-26.7V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V192.6c21.9 5.6 32 26.7 32 26.7h416s10.1-21.1 32-26.7v127.4c0 8.8-7.2 16 16 16z'/%3E%3C/svg%3E", width: 32, height: 32 },
-                            // Document Icon
                             { src: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z'/%3E%3C/svg%3E", width: 32, height: 32 }
                         ] 
                     }, 
                     opacity: { value: 0.6, random: true }, 
                     size: { value: 20, random: true }, 
                     move: { enable: true, speed: 2 },
-                    // ADDED LINES
                     links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 }
                 } 
             });
 
-            // Initialize Mobile Features
             initMobileFeatures();
             $(window).resize(initMobileFeatures);
         });
 
-        // MOBILE OPTIMIZATION & AUTO-HIDE NAVBAR
         function initMobileFeatures() {
             const isMobile = $(window).width() <= 768;
             const sidebar = $('#sidebar');
             const content = $('#content');
             let sidebarTimer;
 
-            // 1. Initial State for Mobile - Hide sidebar by default
             if (isMobile) {
                 if (!sidebar.hasClass('toggled')) {
                     sidebar.addClass('toggled');
@@ -1031,7 +1017,6 @@
                 }
             }
 
-            // 2. Auto-hide Logic
             function resetSidebarTimer() {
                 if ($(window).width() <= 768 && !sidebar.hasClass('toggled')) {
                     clearTimeout(sidebarTimer);
@@ -1040,27 +1025,21 @@
                             sidebar.addClass('toggled');
                             content.addClass('toggled'); 
                         }
-                    }, 3000); // 3 Seconds
+                    }, 3000); 
                 }
             }
 
-            // Detect activity on sidebar to reset timer
             sidebar.off('mousemove touchstart click scroll').on('mousemove touchstart click scroll', function() {
                 resetSidebarTimer();
             });
 
-            // Trigger timer start when sidebar is manually opened
             $('#sidebarCollapse').off('click.mobileTimer').on('click.mobileTimer', function() {
                 setTimeout(resetSidebarTimer, 300);
             });
 
-            // 3. Click Outside to Close (NEW FEATURE: Close sidebar when clicking outside)
             $(document).off('click.mobileOutside').on('click.mobileOutside', function(e) {
-                // Logika hanya berjalan di tampilan Mobile
                 if ($(window).width() <= 768) {
-                    // Jika Sidebar sedang TERBUKA (artinya tidak ada class 'toggled')
                     if (!sidebar.hasClass('toggled')) {
-                        // Cek apakah yang diklik BUKAN sidebar dan BUKAN tombol menu
                         if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length) {
                             sidebar.addClass('toggled');
                             content.addClass('toggled');
@@ -1070,7 +1049,6 @@
             });
         }
 
-        // STATE PERSISTENCE HELPER (Modified to include Context Email)
         function saveAppState(tabId, context = null, contextEmail = null, contextName = null) {
             sessionStorage.setItem('simas_last_state', JSON.stringify({ tabId: tabId, context: context, contextEmail: contextEmail, contextName: contextName }));
         }
@@ -1083,48 +1061,31 @@
                 $('#door-overlay').addClass('door-open'); 
                 setTimeout(()=>{ 
                     $('#appContent').fadeIn(500); 
-                    
-                    // Update Navbar (Sudah benar sebelumnya)
                     $('#userDisplayName').text(sessionStorage.getItem('userName')); 
                     $('#userRoleBadge').text(sessionStorage.getItem('userRole')); 
-                    
-                    // PERBAIKAN DI SINI:
-                    // Target ID Dashboard yang benar (#dashUser & #dashRole)
                     $('#dashUser').text(sessionStorage.getItem('userName')); 
                     $('#dashRole').text(sessionStorage.getItem('userRole')); 
-                    
-                    // Panggil fungsi ini agar ucapan "Selamat Pagi/Siang" & Tanggal muncul
                     loadDashboardStats(); 
-
-                    // Klik otomatis tombol beranda jika belum ada state tersimpan
                     if(!sessionStorage.getItem('simas_last_state') && $('#btn-home').length) $('#btn-home').click(); 
                 }, 300); 
             }); 
         }
 
-        // 2. Ganti juga function activateTab dengan ini
-        // Tujuannya agar saat tombol "Beranda" diklik, data greeting & statistik selalu di-refresh
         function activateTab(t,e,cb){
             $('.nav-link').removeClass('active');
             if(e)$(e).addClass('active');
             $('.tab-pane').removeClass('active');
             $('#'+t).addClass('active');
-            
-            // TAMBAHAN KHUSUS:
-            // Jika tab yang dibuka adalah 'home-content' (Beranda), load ulang stats/greeting
             if(t === 'home-content') {
                 loadDashboardStats();
             }
-
             if(cb)cb();
-            
             if(!['disposisi-container', 'arsip-masuk-container', 'arsip-keluar-container'].includes(t)) {
                 saveAppState(t, null);
             }
         }
 
         function updateSidebarBadges() {
-             // 1. Basic Stats (Inboxku & Arsipku)
              fetch(`${GAS_URL}?action=get_dashboard_stats&email=${currentUserEmail}`)
             .then(r=>r.json())
             .then(r => {
@@ -1132,19 +1093,15 @@
                     const d = r.data;
                     updateBadge('#count-staf', d.inbox);
                     updateBadge('#count-arsipku', d.arsipku);
-                    // Also update dashboard numbers if on dashboard
                     animateValue("dashInboxVal", parseInt($('#dashInboxVal').text())||0, d.inbox, 1000);
                     animateValue("dashArsipVal", parseInt($('#dashArsipVal').text())||0, d.arsipku, 1000);
                     animateValue("dashMasukVal", parseInt($('#dashMasukVal').text())||0, d.suratMasukMonth, 1000);
                 }
             });
 
-            // 2. Advanced Counts (Only if Admin/Super)
             const role = sessionStorage.getItem('userRole');
             const perms = JSON.parse(sessionStorage.getItem('userPermissions')||"[]");
-            // Check if user sees any admin inboxes (permission starts with 'inbox_')
             if(role === 'Super Admin' || perms.some(p => p.startsWith('inbox_') && p !== 'inbox_staf')) {
-                // Fetch ALL active letters to count them client-side
                 fetch(`${GAS_URL}?action=read_arsip_masuk&scope=all`) 
                 .then(r=>r.json())
                 .then(r => {
@@ -1174,7 +1131,6 @@
                             }
                         });
 
-                        // Update badges
                         updateBadge('#count-direktur', counts.direktur);
                         updateBadge('#count-wadir_adm', counts.wadir_adm);
                         updateBadge('#count-wadir_pel', counts.wadir_pel);
@@ -1193,15 +1149,13 @@
             const el = $(selector);
             el.text(count);
             if(count > 0) {
-                el.addClass('has-data').css('display', 'inline-block'); // Force display
+                el.addClass('has-data').css('display', 'inline-block'); 
             } else {
                 el.removeClass('has-data').hide();
             }
         }
 
-        // NEW DASHBOARD LOGIC
         function loadDashboardStats() {
-            // Update Greeting & Date
             const now = new Date();
             const hour = now.getHours();
             let greeting = "Selamat Pagi";
@@ -1216,11 +1170,8 @@
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             $('#dashDate').text(now.toLocaleDateString('id-ID', options));
 
-            // Use the new centralized function
             updateSidebarBadges();
             
-            // Also fetch for chart (uses same endpoint internally in updateSidebarBadges, but chart needs the full object)
-            // Ideally updateSidebarBadges handles text, we handle chart here.
             fetch(`${GAS_URL}?action=get_dashboard_stats&email=${currentUserEmail}`)
             .then(r=>r.json())
             .then(r => {
@@ -1250,7 +1201,7 @@
             const ctx = document.getElementById('dashboardChart').getContext('2d');
             
             if(dashboardChart) {
-                dashboardChart.destroy(); // Destroy old chart instance
+                dashboardChart.destroy(); 
             }
 
             dashboardChart = new Chart(ctx, {
@@ -1287,7 +1238,6 @@
 
         function logout(){sessionStorage.clear();location.reload()}
         
-        // ... (Credential & Profile functions maintained) ...
         function handleCredentialResponse(r){ 
             showLoading(true); 
             fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'google_login',credential:r.credential})})
@@ -1301,15 +1251,12 @@
                     sessionStorage.setItem('userPermissions',JSON.stringify(res.data.permissions)); 
                     sessionStorage.setItem('userSubordinates',JSON.stringify(res.data.subordinates)); 
                     
-                    // NEW: Init current subordinates
                     currentContextSubordinates = res.data.subordinates || [];
                     
-                    // Save Delegations
                     sessionStorage.setItem('userDelegations', JSON.stringify(res.data.delegations || []));
                     sessionStorage.setItem('userName',res.data.name); 
                     sessionStorage.setItem('userBidang', res.data.bidang); 
                     
-                    // [MODIFIED] Save Jabatan Struktural
                     sessionStorage.setItem('userJabatan', res.data.jabatan || "");
 
                     currentUserEmail=res.data.email; 
@@ -1318,7 +1265,6 @@
                     loadRefCodes(); 
                     if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); 
                     
-                    // Trigger badge update on login
                     updateSidebarBadges();
                 } else { Swal.fire('Login Gagal',res.message,'error') } 
             }).catch(e=>{ showLoading(false); Swal.fire('Error','Koneksi','error') }) 
@@ -1329,7 +1275,6 @@
         
         function openArsipku(e) { activateTab('arsipku-container', e, loadArsipku); saveAppState('arsipku-container', null); }
         
-        // PERBAIKAN: Mengganti action menjadi 'read_arsipku' dan menambahkan catch error
         function loadArsipku() { 
             showLoading(true); 
             fetch(`${GAS_URL}?action=read_arsipku&email=${currentUserEmail}`)
@@ -1339,21 +1284,19 @@
                 const dt = $('#tableArsipku').DataTable({destroy: true, order: [[1, 'desc']]}); 
                 dt.clear(); 
                 if(r.data) r.data.forEach(d => { 
-                    // Perihal menjadi link jika ada file
                     let perihalHtml = d.file 
                         ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
                         : d.perihal;
                     
-                    // Tombol Aksi: Icon Mata (History)
                     let aksi = `<button class="btn btn-sm btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tglTerima}')"><i class="fas fa-eye"></i></button>`;
 
                     dt.row.add([
                         d.tglTerima, 
                         d.agenda, 
-                        perihalHtml, // Kolom Perihal sudah jadi link
+                        perihalHtml, 
                         d.pengirim, 
                         d.keterangan || '-', 
-                        aksi // Kolom Aksi pengganti File
+                        aksi 
                     ]); 
                 }); 
                 dt.draw(); 
@@ -1375,11 +1318,10 @@
             bootstrap.Modal.getInstance(document.getElementById('modalFinishDisposition')).hide();
             showLoading(true);
             
-            // Logic Selesai: Kirim Email (Staf B) sebagai executor, tapi jika konteks delegasi, kirim onBehalfOf
             const payload = { type: 'finish_disposition', agenda: agenda, email: currentUserEmail, note: note };
             
             if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) {
-                payload.onBehalfOf = currentInboxContextEmail; // Owner
+                payload.onBehalfOf = currentInboxContextEmail; 
             }
 
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
@@ -1387,18 +1329,14 @@
             .then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', 'Tugas diselesaikan.', 'success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else { Swal.fire('Gagal', r.message, 'error'); } });
         }
 
-        // --- UPDATED DISPOSISI PAGE (Delegation Support) ---
         function openDisposisiPage(l, e, overrideEmail = null, overrideName = null) {
             currentInboxLevel = l;
             
-            // Set context email (default to self if not provided)
             currentInboxContextEmail = overrideEmail || currentUserEmail;
             currentInboxContextName = overrideName || "";
 
-            // --- FIX: CONTEXT AWARE SUBORDINATES ---
-            // Jika mode Delegasi (email berbeda), fetch bawahan milik pemilik inbox (Staf B)
             if (overrideEmail && overrideEmail !== currentUserEmail) {
-                currentContextSubordinates = []; // Reset agar tidak salah pakai bawahan lama
+                currentContextSubordinates = []; 
                 fetch(`${GAS_URL}?action=get_my_profile&email=${overrideEmail}`)
                 .then(r=>r.json())
                 .then(r=>{
@@ -1407,15 +1345,12 @@
                     }
                 });
             } else {
-                // Mode Normal: Gunakan bawahan saya sendiri dari session (yang mungkin baru diupdate via Setting Tujuan)
-                // Kita ambil langsung dari sessionStorage karena mungkin baru diupdate
                 currentContextSubordinates = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]");
             }
-            // ---------------------------------------
             
             let title = l.replace(/_/g, ' ').toUpperCase();
             if (overrideName) {
-                title += `: ${overrideName}`; // Show Delegated Name
+                title += `: ${overrideName}`; 
                 $('#dispDelegationBanner').show();
             } else {
                 $('#dispDelegationBanner').hide();
@@ -1424,14 +1359,11 @@
             $('#dispPageTitle').text(title);
             activateTab('disposisi-container', e, refreshCurrentDisposisi);
             
-            // Save state with context
             saveAppState('disposisi-container', l, currentInboxContextEmail, overrideName);
         }
 
-        // UPDATED: Render Table Inbox with File Link, Instruction Column, and History Icon
         function refreshCurrentDisposisi(){
             showLoading(true);
-            // Fetch inbox for contextEmail (either me or delegated user)
             fetch(`${GAS_URL}?action=read_inbox&level=${currentInboxLevel}&email=${currentInboxContextEmail}`)
             .then(r=>r.json())
             .then(r=>{
@@ -1440,45 +1372,34 @@
                     destroy:true,
                     language:{url:"//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"}, 
                     order: [[ 1, 'desc' ]],
-                    // Adjust column widths via DataTables settings for robustness
-                    autoWidth: false, // Important for custom widths
+                    autoWidth: false, 
                     columnDefs: [
-                        { width: "1%", targets: [0, 1, 5] }, // Tgl, Agenda, Aksi
-                        { width: "15%", targets: 2 },        // Pengirim
-                        { width: "25%", targets: 4 }         // Disposisi
+                        { width: "1%", targets: [0, 1, 5] }, 
+                        { width: "15%", targets: 2 },        
+                        { width: "25%", targets: 4 }         
                     ]
                 });
                 dt.clear();
                 if(r.data) r.data.forEach(d=>{
                     let btnAction = '';
-                    
-                    // SECURITY FIX: Escape the perihal content so quotes don't break the HTML attribute
                     const safePerihal = d.perihal.replace(/"/g, '&quot;');
 
-                    // Action Buttons Logic
                     btnAction = `<div class="btn-group btn-group-sm">`;
-                    // 1. Tombol History (Mata) - Added WA Params here
                     btnAction += `<button class="btn btn-outline-info" title="Lihat History" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`;
 
                     if(currentInboxLevel === 'staf') {
-                        // Staf B acting as Staf A can perform actions
-                        // Updated to use data attribute for safety
                         btnAction += `<button class="btn btn-warning" title="Disposisi Lanjut" data-id="${d.id}" data-perihal="${safePerihal}" onclick="openDisposisiModal(this.dataset.id, this.dataset.perihal)"><i class="fas fa-share"></i></button>`;
                         btnAction += `<button class="btn btn-success" title="Selesaikan Tugas" onclick="openFinishModal('${d.agenda}')"><i class="fas fa-check"></i></button>`;
                     } else {
-                        // Updated to use data attribute for safety
                         btnAction += `<button class="btn btn-warning" data-id="${d.id}" data-perihal="${safePerihal}" onclick="openDisposisiModal(this.dataset.id, this.dataset.perihal)">Proses</button>`;
                     }
                     btnAction += `</div>`;
 
-                    // Perihal Link Logic (Assuming backend sends file url in d.file)
                     let perihalHtml = d.perihal;
                     if(d.file) { 
                         perihalHtml = `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Buka File">${d.perihal} <i class="fas fa-paperclip small"></i></a>`;
                     }
 
-                    // Disposisi / Instruction Text Logic
-                    // Fallback to '-' if undefined
                     let dispContent = d.instruksi || d.disposisi || '-';
 
                     dt.row.add([
@@ -1492,7 +1413,6 @@
                 });
                 dt.draw();
                 
-                // ALSO UPDATE BADGES
                 updateSidebarBadges();
             });
         }
@@ -1510,13 +1430,8 @@
             }).then(r => r.json()).then(r => {
                 showLoading(false);
                 if (r.status === 'success') {
-                    // LOGIC BARU: Menerima Base64 string dari backend (Tahap 2) dan convert ke Blob
                     try {
-                        // Perhatikan: Backend nanti harus mengirim data base64 di properti r.data atau r.base64
-                        // Kita asumsikan backend mengirim string base64 di r.data
                         const base64Data = r.data;
-
-                        // Konversi Base64 ke Blob
                         const byteCharacters = atob(base64Data);
                         const byteNumbers = new Array(byteCharacters.length);
                         for (let i = 0; i < byteCharacters.length; i++) {
@@ -1525,12 +1440,11 @@
                         const byteArray = new Uint8Array(byteNumbers);
                         const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-                        // Download File
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
                         const date = new Date().toISOString().slice(0, 10);
-                        a.download = `FULL_BACKUP_SIMAS_${date}.xlsx`; // Nama file output
+                        a.download = `FULL_BACKUP_SIMAS_${date}.xlsx`; 
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -1539,7 +1453,6 @@
                         Swal.fire('Berhasil', 'Full Backup berhasil didownload', 'success');
                     } catch (e) {
                         console.error(e);
-                        // Pesan ini muncul jika backend belum diupdate (masih kirim array JSON, bukan string base64)
                         Swal.fire('Peringatan', 'Format data backend belum sesuai (Lanjutkan ke Tahap 2)', 'warning');
                     }
                 } else {
@@ -1555,23 +1468,24 @@
             const r=sessionStorage.getItem('userRole'); 
             const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); 
             const delegations = JSON.parse(sessionStorage.getItem('userDelegations')||"[]");
-            const userJabatan = sessionStorage.getItem('userJabatan'); // [MODIFIED] Get Jabatan
+            const userJabatan = sessionStorage.getItem('userJabatan'); 
 
-            // RESET ALL FIRST
             $('.restricted-feature').addClass('restricted-feature'); 
             $('#btnArsipMasukParent').addClass('restricted-feature'); 
             $('#btnArsipKeluarParent').addClass('restricted-feature'); 
             
-            // DEFAULT STAF MENU VISIBILITY (Only visible if NO Jabatan Struktural)
-            if (userJabatan && userJabatan !== "") {
-                // Jika punya jabatan, sembunyikan menu staf
-                $('#btnInboxStaf').parent().hide(); // Parent is the nav-link wrapper usually? Here it's the button itself if direct
-                $('#btnInboxStaf').hide();
-                $('#btnArsipku').hide();
+            // --- UPDATED: PERSONALISASI NAMA TOMBOL STAF BIASA ---
+            const userFirstName = (sessionStorage.getItem('userName') || 'User').split(' ')[0];
+            
+            // --- UPDATED: LOGIKA JABATAN & ARSIP OTOMATIS ---
+            if (userJabatan && userJabatan !== "" && userJabatan !== "null") {
+                // Jika Punya Jabatan: Sembunyikan Inbox Biasa
+                $('#btnInboxStaf').hide(); 
+                $('#btnArsipku').hide();   
             } else {
-                // Jika staf biasa, tampilkan
-                $('#btnInboxStaf').show();
-                $('#btnArsipku').show();
+                // Jika Staf Biasa: Tampilkan Inbox Biasa dengan Nama
+                $('#btnInboxStaf').show().html(`<i class="fas fa-inbox"></i> Inbox ${userFirstName} <span class="badge-count" id="count-staf">0</span>`);
+                $('#btnArsipku').show().html(`<i class="fas fa-archive"></i> Arsip ${userFirstName} <span class="badge-count" id="count-arsipku">0</span>`);
             }
 
             let hasAnyArsipMasuk = false; let hasAnyArsipKeluar = false; 
@@ -1582,100 +1496,77 @@
                 $('#btnArsipKeluarParent').removeClass('restricted-feature'); 
                 $('#btnInboxKabagParent').show(); 
             } else { 
-                // [MODIFIED] HYBRID LOGIC: Force Show Menus based on Jabatan
+                // A. Force Show Menu berdasarkan Jabatan (AUTO UNLOCK INBOX, ARSIP MASUK & ARSIP KELUAR)
                 if (userJabatan) {
                     if (userJabatan.includes("Direktur")) {
-                        $('[data-perm="inbox_direktur"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_direktur"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_direktur"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
+                        $('[data-perm="inbox_direktur"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_masuk_direktur"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_keluar_direktur"]').removeClass('restricted-feature');
                     }
-                    else if (userJabatan.includes("Wadir Umum")) {
-                        $('[data-perm="inbox_wadir_adm"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_wadir_adm"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_wadir_adm"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
+                    if (userJabatan.includes("Wadir Umum")) {
+                        $('[data-perm="inbox_wadir_adm"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_masuk_wadir_adm"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_keluar_wadir_adm"]').removeClass('restricted-feature');
                     }
-                    else if (userJabatan.includes("Wadir Pelayanan")) {
-                        $('[data-perm="inbox_wadir_pel"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_wadir_pel"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_wadir_pel"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
+                    if (userJabatan.includes("Wadir Pelayanan")) {
+                        $('[data-perm="inbox_wadir_pel"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_masuk_wadir_pel"]').removeClass('restricted-feature');
+                        $('[data-perm="arsip_keluar_wadir_pel"]').removeClass('restricted-feature');
                     }
-                    else if (userJabatan.includes("Kabag Umum")) {
-                        $('[data-perm="inbox_kabag_umum"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabag_umum"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabag_umum"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
+                    if (userJabatan.includes("Kabag") || userJabatan.includes("Bagian")) {
+                        if(userJabatan.includes("Umum")) {
+                            $('[data-perm="inbox_kabag_umum"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabag_umum"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabag_umum"]').removeClass('restricted-feature');
+                        }
+                        if(userJabatan.includes("Keuangan")) {
+                            $('[data-perm="inbox_kabag_keu"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabag_keu"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabag_keu"]').removeClass('restricted-feature');
+                        }
+                        if(userJabatan.includes("Program")) {
+                            $('[data-perm="inbox_kabag_prog"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabag_prog"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabag_prog"]').removeClass('restricted-feature');
+                        }
                     }
-                    else if (userJabatan.includes("Kabag Keuangan")) {
-                        $('[data-perm="inbox_kabag_keu"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabag_keu"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabag_keu"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
-                    }
-                    else if (userJabatan.includes("Kabag Program")) {
-                        $('[data-perm="inbox_kabag_prog"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabag_prog"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabag_prog"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
-                    }
-                    else if (userJabatan.includes("Kabid Yanmed")) {
-                        $('[data-perm="inbox_kabid_yanmed"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabid_yanmed"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabid_yanmed"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
-                    }
-                    else if (userJabatan.includes("Kabid Penunjang")) {
-                        $('[data-perm="inbox_kabid_penunjang"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabid_penunjang"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabid_penunjang"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
-                    }
-                    else if (userJabatan.includes("Kabid Keperawatan")) {
-                        $('[data-perm="inbox_kabid_kep"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_masuk_kabid_kep"]').removeClass('restricted-feature').show();
-                        $('[data-perm="arsip_keluar_kabid_kep"]').removeClass('restricted-feature').show();
-                        hasAnyArsipMasuk = true; hasAnyArsipKeluar = true;
+                    if (userJabatan.includes("Kabid") || userJabatan.includes("Bidang")) {
+                        if(userJabatan.includes("Medik") || userJabatan.includes("Yanmed")) {
+                            $('[data-perm="inbox_kabid_yanmed"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabid_yanmed"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabid_yanmed"]').removeClass('restricted-feature');
+                        }
+                        if(userJabatan.includes("Penunjang")) {
+                            $('[data-perm="inbox_kabid_penunjang"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabid_penunjang"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabid_penunjang"]').removeClass('restricted-feature');
+                        }
+                        if(userJabatan.includes("Keperawatan")) {
+                            $('[data-perm="inbox_kabid_kep"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_masuk_kabid_kep"]').removeClass('restricted-feature');
+                            $('[data-perm="arsip_keluar_kabid_kep"]').removeClass('restricted-feature');
+                        }
                     }
                 }
 
-                // Regular Permission Check (Legacy/Manual)
-                p.forEach(x => { 
-                    $(`[data-perm="${x}"]`).removeClass('restricted-feature').show(); 
-                    if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true; 
-                    if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true; 
-                }); 
+                // B. Manual Permission Check (Legacy)
+                p.forEach(x => { $(`[data-perm="${x}"]`).removeClass('restricted-feature'); if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true; if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true; }); 
                 
-                if(hasAnyArsipMasuk) $('#btnArsipMasukParent').removeClass('restricted-feature').show(); 
-                if(hasAnyArsipKeluar) $('#btnArsipKeluarParent').removeClass('restricted-feature').show(); 
+                if(hasAnyArsipMasuk || userJabatan) $('#btnArsipMasukParent').removeClass('restricted-feature'); 
+                if(hasAnyArsipKeluar || userJabatan) $('#btnArsipKeluarParent').removeClass('restricted-feature'); 
                 
-                const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; 
-                if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } 
+                const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } 
             }
 
-            // RENDER DELEGATION MENU (FIXED DISPLAY NAME)
             const delContainer = $('#delegationLinks');
             delContainer.empty();
             if(delegations.length > 0) {
                 $('#delegationMenuContainer').show();
                 delegations.forEach(user => {
-                    // Pastikan nama tidak undefined. Jika user string (versi lama), pakai stringnya. Jika object, pakai .name atau .email
-                    let displayName = "Delegasi";
-                    let targetEmail = "";
-                    
-                    if (typeof user === 'string') {
-                        displayName = user;
-                        targetEmail = user;
-                    } else if (typeof user === 'object') {
-                        displayName = user.name || user.email;
-                        targetEmail = user.email;
-                    }
-
+                    let displayName = (typeof user === 'string') ? user : (user.name || user.email);
+                    let targetEmail = (typeof user === 'string') ? user : user.email;
                     const btn = $(`<button class="nav-link w-100 text-start text-warning"><i class="fas fa-user-check"></i> ${displayName}</button>`);
-                    btn.on('click', function() {
-                        openDisposisiPage('staf', this, targetEmail, displayName);
-                    });
+                    btn.on('click', function() { openDisposisiPage('staf', this, targetEmail, displayName); });
                     delContainer.append(btn);
                 });
             } else {
@@ -1685,7 +1576,6 @@
         
         function togglePembuatManual(sel) { const val = sel.value; if(val === 'Lainnya') { $('#inputPembuatManual').show().focus().prop('required', true); } else { $('#inputPembuatManual').hide().prop('required', false); } }
         
-        // --- UPDATED LOAD ARSIP MASUK (Hidden Columns & Clickable Perihal) ---
         function loadArsipMasuk(){
             showLoading(true);
             fetch(`${GAS_URL}?action=read_arsip_masuk&scope=${currentArsipScope}`).then(r=>r.json()).then(r=>{
@@ -1699,26 +1589,22 @@
                 const canEditDispo = role === 'Super Admin' || perms.includes('edit_tujuan_disposisi');
                 
                 if(r.data) r.data.forEach(d=>{
-                    // Create Perihal Link logic with Blue Text
                     let perihalHtml = d.file 
                         ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary" title="Klik untuk lihat file">${d.perihal} <i class="fas fa-paperclip text-muted small ms-1"></i></a>` 
-                        : `<span class="fw-bold text-primary">${d.perihal}</span>`; // Still make it blue if no file, for consistency, or text-dark if preferred. Assuming blue for content per request.
+                        : `<span class="fw-bold text-primary">${d.perihal}</span>`; 
 
                     let aksi = `<div class="d-flex gap-1">`;
-                    // Added print icon button here
                     aksi += `<button class="btn btn-sm btn-outline-dark" title="Cetak Disposisi" onclick="printDisposisi('${d.agenda}')"><i class="fas fa-print"></i></button>`;
-                    // UPDATE: Pass extra parameters for WA logic
                     aksi += `<button class="btn btn-sm btn-outline-info" title="Lihat History Lengkap" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tglTerima}')"><i class="fas fa-eye"></i></button>`;
                     if(canEditDispo) {aksi += `<button class="btn btn-sm btn-outline-danger" title="Perbaiki Tujuan & Isi Disposisi" onclick='openEditDisposisi(${JSON.stringify(d)})'><i class="fas fa-link"></i></button>`;}
                     if(canEdit) {aksi += `<button class="btn btn-sm btn-outline-warning" title="Edit Data Surat" onclick='openEditMasuk(${JSON.stringify(d)})'><i class="fas fa-pencil-alt"></i></button>`;}
                     aksi += `</div>`;
                     
-                    // Added columns based on updated header (removed File & Kode)
                     dt.row.add([
                         d.tglTerima,
                         d.agenda,
                         d.pengirim,
-                        perihalHtml, // New Logic
+                        perihalHtml, 
                         d.status,
                         aksi
                     ]);
@@ -1727,7 +1613,6 @@
             });
         }
 
-        // Add print function logic
         function printDisposisi(agenda) {
             showLoading(true);
             fetch(`${GAS_URL}?action=print_disposisi&agenda=${agenda}`)
@@ -1735,7 +1620,6 @@
             .then(r => {
                 showLoading(false);
                 if (r.status === 'success') {
-                    // Convert Base64 to Blob
                     const byteCharacters = atob(r.base64);
                     const byteNumbers = new Array(byteCharacters.length);
                     for (let i = 0; i < byteCharacters.length; i++) {
@@ -1744,7 +1628,6 @@
                     const byteArray = new Uint8Array(byteNumbers);
                     const blob = new Blob([byteArray], {type: 'application/pdf'});
                     
-                    // Create URL and open/download
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -1763,19 +1646,17 @@
             });
         }
 
-        // --- UPDATED VIEW HISTORY (ADD TGL SURAT & WHATSAPP GENERATOR) ---
         function viewHistory(agenda, fileUrl, tglTerima) {
             new bootstrap.Modal(document.getElementById('modalHistory')).show();
             $('#historyLoading').show(); 
             $('#historyContent').hide();
-            $('#btnShareWA').hide(); // Hide button initially
+            $('#btnShareWA').hide(); 
             
             fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`).then(r => r.json()).then(r => {
                 $('#historyLoading').hide();
                 if(r.status === 'success') {
                     $('#historyContent').fadeIn();
                     
-                    // Modified Header Content
                     $('#histPerihal').html(`
                         <div>${r.data.perihal}</div>
                         <div class="small text-muted fw-normal mt-1"><i class="far fa-calendar-alt me-1"></i>Tgl Surat: ${r.data.tglSurat}</div>
@@ -1783,7 +1664,6 @@
                     
                     let html = '';
                     
-                    // --- BUILD WHATSAPP MESSAGE START (FIXED ICONS) ---
                     let waText = `*DETAIL SURAT MASUK*\n`;
                     waText += `--------------------\n`;
                     waText += `📎 *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
@@ -1791,16 +1671,13 @@
                     waText += `📅 *Tgl Surat:* ${r.data.tglSurat}\n`;
                     waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n\n`;
                     waText += `*RIWAYAT DISPOSISI:*\n`;
-                    // -----------------------------------
 
                     r.data.history.forEach(h => {
                         html += `<div class="timeline-item ${h.status}"><div class="timeline-date">${h.timestamp}</div><div class="timeline-content"><div class="timeline-title">${h.stage}</div><div class="timeline-actor">${h.actor}</div><div class="small text-muted mb-1">${h.action}</div><div class="small fst-italic border-top pt-1 mt-1 text-secondary">${h.desc}</div></div></div>`;
                         
-                        // --- APPEND TO WA MESSAGE ---
                         waText += `🔹 ${h.timestamp} - ${h.stage}\n`;
                         waText += `   👤 Oleh: ${h.actor}\n`;
                         
-                        // UPDATED ORDER: Action (Tujuan/Diterima) displayed BEFORE Isi (Content)
                         if(h.action && h.action !== 'Selesai') waText += `   ➡ (${h.action})\n`;
                         waText += `   📝 Isi: "${h.desc}"\n`;
                         
@@ -1809,7 +1686,6 @@
                     
                     $('#timelineContainer').html(html);
 
-                    // --- ACTIVATE WA BUTTON ---
                     let finalWaUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
                     $('#btnShareWA').attr('href', finalWaUrl).show();
 
@@ -1818,34 +1694,25 @@
                 }
             });
         }
-            // --- UPDATED OPEN EDIT DISPOSISI (POPULATE CHECKBOXES & TEXTAREAS) ---
         function openEditDisposisi(row) {
             $('#ed_agenda').val(row.agenda);
             
-            // Define Standard Structure
-            // UPDATE: Change "Wadir Administrasi & Keuangan" to "Wadir Umum & Keuangan"
             const listWadir = ["Wadir Umum & Keuangan", "Wadir Pelayanan"];
-            // UPDATE: Change listKabid to use Bagian/Bidang nomenclature
             const listKabid = ["Bagian Administrasi & Umum", "Bagian Keuangan", "Bagian Program & Pelaporan", "Bidang Pelayanan Medik", "Bidang Pelayanan Penunjang", "Bidang Pelayanan Keperawatan"];
             
-            // Render High Levels
             generateCheckboxList('#box_ed_direktur', listWadir, row.tujuanDirektur || '');
             generateCheckboxList('#box_ed_wadir', listKabid, row.tujuanWadir || '');
             
-            // Populate Textareas with existing instructions
             $('#val_ed_isi_direktur').val(row.isiDirektur || '');
             $('#val_ed_isi_wadir').val(row.isiWadir || '');
             $('#val_ed_isi_kabid').val(row.isiKabid || '');
             
-            // Render Staf Level (Need to ensure users loaded)
             const staffContainer = $('#box_ed_kabid');
             if(allUsersList.length > 0) {
-                // Filter only role 'User' or all except Admins? Usually Staff have 'User' role.
                 const staffList = allUsersList.filter(u => u.role === 'User');
                 generateCheckboxList('#box_ed_kabid', staffList, row.tujuanKabid || '');
             } else {
                 staffContainer.html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div> Memuat User...</div>');
-                // Fetch users then populate
                 fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})})
                 .then(r=>r.json())
                 .then(r=>{
@@ -1862,21 +1729,18 @@
             new bootstrap.Modal(document.getElementById('modalEditDisposisi')).show();
         }
 
-        // Helper to generate checkboxes
         function generateCheckboxList(containerSelector, items, currentValStr) {
             const container = $(containerSelector);
             container.empty();
             const currentValues = currentValStr.split(',').map(s => s.trim());
             
             items.forEach(item => {
-                // Handle if item is object (user from allUsersList) or string (fixed role)
                 const val = typeof item === 'object' ? item.name : item;
                 const display = typeof item === 'object' ? `${item.name} <small class='text-muted'>(${item.bidang||'-'})</small>` : item;
                 
                 const isChecked = currentValues.includes(val) ? 'checked' : '';
-                // ID must be unique
                 const safeVal = val.replace(/[^a-zA-Z0-9]/g, '');
-                const id = `cb_ed_${containerSelector.substring(5)}_${safeVal}`; // e.g. cb_ed_wadir_KabagKeuangan
+                const id = `cb_ed_${containerSelector.substring(5)}_${safeVal}`; 
                 
                 const html = `
                     <div class="form-check edit-dispo-item">
@@ -1890,7 +1754,6 @@
             });
         }
 
-        // Helper to get checked values
         function getCheckedValuesFromContainer(containerSelector) {
             const selected = [];
             $(`${containerSelector} input:checked`).each(function() {
@@ -1899,7 +1762,6 @@
             return selected.join(', ');
         }
 
-        // Filter function for Staf list in Edit Disposisi
         function filterEditDispoStaf(input) {
             const term = input.value.toLowerCase();
             $('#box_ed_kabid .edit-dispo-item').each(function() {
@@ -1913,11 +1775,9 @@
                 type: 'update_disposisi_tujuan',
                 email: currentUserEmail,
                 agenda: $('#ed_agenda').val(),
-                // Capture Checked Targets
                 tujuanDirektur: getCheckedValuesFromContainer('#box_ed_direktur'),
                 tujuanWadir: getCheckedValuesFromContainer('#box_ed_wadir'),
                 tujuanKabid: getCheckedValuesFromContainer('#box_ed_kabid'),
-                // Capture Edited Instructions
                 isiDirektur: $('#val_ed_isi_direktur').val(),
                 isiWadir: $('#val_ed_isi_wadir').val(),
                 isiKabid: $('#val_ed_isi_kabid').val()
@@ -1930,7 +1790,7 @@
                 if(r.status==='success') { 
                     Swal.fire('Sukses', 'Tujuan dan isi disposisi diperbarui', 'success'); 
                     loadArsipMasuk(); 
-                    updateSidebarBadges(); // Refresh count
+                    updateSidebarBadges(); 
                 } else Swal.fire('Gagal', r.message, 'error');
             });
         }
@@ -1940,9 +1800,7 @@
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status surat telah diupdate menjadi Ditandatangani', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         $('#formSuratKeluar').on('submit',async function(e){e.preventDefault();showLoading(true);let f="",n="";const fi=$('#fileSuratKeluar')[0].files[0];if(fi){f=await readFile(fi);n=fi.name}const d={type:'simpan_keluar',fileData:f,fileName:n,email:currentUserEmail};let pembuatVal = $('#selectPembuat').val();if(pembuatVal === 'Lainnya') {pembuatVal = $('#inputPembuatManual').val();}d.pembuat = pembuatVal;$(this).serializeArray().forEach(x=>{if(x.name !== 'pembuat') d[x.name]=x.value;});sendData(d,()=> {Swal.fire('OK','Keluar Tersimpan','success');autoFillAgendaKeluar(); });});
         
-        // --- NEW: FUNCTION SETTING TUJUAN DISPOSISI (MODAL & LOGIC) ---
         function openSettingTujuan() {
-            // Load Users First if empty
             if(allUsersList.length === 0) {
                 $('#listSettingTujuan').html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> Memuat User...</div>');
                 fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})})
@@ -1964,16 +1822,10 @@
         function renderSettingTujuanList() {
             const container = $('#listSettingTujuan');
             container.empty();
-            
-            // Get Current Subordinates from Session
-            // Note: currentContextSubordinates stores what is currently active.
-            // If user opens this setting, they want to edit THEIR OWN subordinates.
-            // So we use sessionStorage.getItem('userSubordinates') which is my own setting.
             let mySubs = [];
             try { mySubs = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); } catch(e){ mySubs=[]; }
 
             allUsersList.forEach(user => {
-                // Skip myself
                 if(user.email === currentUserEmail) return;
 
                 const isChecked = mySubs.includes(user.name) ? 'checked' : '';
@@ -1992,19 +1844,15 @@
         function openDisposisiModal(id, p) { 
             $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val('');
             
-            // Set Default Tgl Disposisi Hari Ini
             const today = new Date().toISOString().split('T')[0];
             $('#dispTglDisposisi').val(today);
             
             const container = $('#dispTargetContainer'); container.empty(); 
             
-            // Gunakan Bawahan Kontekstual (Hybrid)
-            // Ini mengambil data bawahan sesuai user yang sedang aktif (bisa diri sendiri atau delegasi)
             const subs = currentContextSubordinates; 
 
             let t = []; 
             
-            // Prioritas 1: Cek Level Inbox (Strict Hierarchy untuk Struktural)
             if (currentInboxLevel === 'direktur') {
                 t = ['Wadir Umum & Keuangan', 'Wadir Pelayanan']; 
             }
@@ -2014,8 +1862,6 @@
             else if (currentInboxLevel === 'wadir_pel') {
                 t = ['Bidang Pelayanan Medik', 'Bidang Pelayanan Penunjang', 'Bidang Pelayanan Keperawatan'];
             }
-            // Prioritas 2: Bawahan Custom (Personal / Setting Tujuan)
-            // Jika bukan level struktural di atas, gunakan daftar bawahan yang sudah disetting user
             else if (subs.length > 0) {
                 t = subs;
             }
@@ -2040,7 +1886,6 @@
                 senderName: sessionStorage.getItem('userName') 
             }; 
 
-            // Jika sedang dalam mode delegasi, tambahkan info onBehalfOf
             if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) {
                 p.onBehalfOf = currentInboxContextEmail;
                 p.onBehalfOfName = currentInboxContextName;
@@ -2091,7 +1936,6 @@
         
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList = r.data || []; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
         
-        // --- UPDATED OPEN EDIT USER (HANDLE JABATAN FIELD) ---
         function openEditUser(u){ 
             $('#editUserEmail').val(u.email); 
             $('#editUserName').val(u.name); 
@@ -2100,8 +1944,7 @@
             $('#editUserBidang').val(u.bidang || '');
             $('#editUserWA').val(u.wa || '');
             
-            // POPULATE JABATAN
-            $('#editUserJabatan').val(u.jabatan || ''); // Load jabatan value
+            $('#editUserJabatan').val(u.jabatan || ''); 
 
             const isSuper = sessionStorage.getItem('userRole') === 'Super Admin';
             if(isSuper) {
@@ -2120,7 +1963,6 @@
             $('#searchSubs').val('');
             $('#searchDelegations').val('');
 
-            // Render Subordinates
             const listDiv = $('#listCandidates'); listDiv.empty(); 
             const currentSubs = JSON.parse(u.subordinates || "[]"); 
             allUsersList.forEach(user => { if(user.email !== u.email) { 
@@ -2128,7 +1970,6 @@
                 listDiv.append(`<div class="user-list-item"><input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${isChecked}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); 
             } }); 
             
-            // Render Delegations
             const delegDiv = $('#listDelegations'); delegDiv.empty();
             let currentDelegations = [];
             try {
@@ -2150,7 +1991,6 @@
         
         function filterDelegations() { const term = $('#searchDelegations').val().toLowerCase(); $('#listDelegations .user-list-item').each(function() { const text = $(this).text().toLowerCase(); $(this).toggle(text.includes(term)); }); }
 
-        // --- UPDATED SAVE PERMISSIONS (SAVE JABATAN) ---
         function saveUserPermissions(){
             const p=[]; $('.perm-check:checked').each(function(){p.push($(this).val())});
             const subsList = []; $('.sub-check:checked').each(function(){ subsList.push($(this).val()); });
@@ -2168,7 +2008,7 @@
                 name: $('#editUserName').val(),
                 bidang: $('#editUserBidang').val(),
                 wa: $('#editUserWA').val(),
-                jabatan: $('#editUserJabatan').val() // Kirim Jabatan Baru
+                jabatan: $('#editUserJabatan').val() 
             };
             
             bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide();
@@ -2188,90 +2028,6 @@
         function applyBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); if(val) { if(cat === 'keluar') $('#outNoAgenda').val(val); else $('#inNoAgenda').val(val); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); } }
         function saveBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); const note = $('#bookingNote').val(); if(!val) return Swal.fire('Warning', 'Isi Nomor Agenda', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_agenda', category: cat, targetAgenda: val, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.data.message, 'success'); if(cat === 'keluar') autoFillAgendaKeluar(); else autoFillAgendaMasuk(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
         function setDefaultDatesMasuk() { const today = new Date().toISOString().split('T')[0]; if(!$('input[name="tglSurat"]').val()) $('input[name="tglSurat"]').val(today); if(!$('input[name="tglTerima"]').val()) $('input[name="tglTerima"]').val(today); }
-
-        // --- UPDATED RENDER SIDEBAR (LOGIKA UTAMA JABATAN) ---
-        function renderSidebarPermissions(){ 
-            const r=sessionStorage.getItem('userRole'); 
-            const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); 
-            const delegations = JSON.parse(sessionStorage.getItem('userDelegations')||"[]");
-            const userJabatan = sessionStorage.getItem('userJabatan'); // Ambil Jabatan dari Session
-
-            // 1. Reset Semua ke Default Hidden
-            $('.restricted-feature').addClass('restricted-feature'); 
-            $('#btnArsipMasukParent').addClass('restricted-feature'); 
-            $('#btnArsipKeluarParent').addClass('restricted-feature'); 
-            
-            // 2. LOGIKA JABATAN (Hybrid)
-            // Jika punya jabatan, SEMBUNYIKAN Inboxku & Arsipku
-            if (userJabatan && userJabatan !== "" && userJabatan !== "null") {
-                $('#btnInboxStaf').hide(); // Sembunyikan Tombol Inboxku
-                $('#btnArsipku').hide();   // Sembunyikan Tombol Arsipku
-            } else {
-                $('#btnInboxStaf').show(); // Tampilkan jika tidak punya jabatan
-                $('#btnArsipku').show();
-            }
-
-            let hasAnyArsipMasuk = false; let hasAnyArsipKeluar = false; 
-            
-            // 3. Render Permission
-            if(r==='Super Admin'){ 
-                $('.restricted-feature').removeClass('restricted-feature'); 
-                $('#btnArsipMasukParent').removeClass('restricted-feature'); 
-                $('#btnArsipKeluarParent').removeClass('restricted-feature'); 
-                $('#btnInboxKabagParent').show(); 
-            } else { 
-                // A. Force Show Menu berdasarkan Jabatan
-                if (userJabatan) {
-                    if (userJabatan.includes("Direktur")) {
-                        $('[data-perm="inbox_direktur"]').removeClass('restricted-feature');
-                        $('[data-perm="arsip_masuk_direktur"]').removeClass('restricted-feature');
-                    }
-                    if (userJabatan.includes("Wadir Umum")) {
-                        $('[data-perm="inbox_wadir_adm"]').removeClass('restricted-feature');
-                        $('[data-perm="arsip_masuk_wadir_adm"]').removeClass('restricted-feature');
-                    }
-                    if (userJabatan.includes("Wadir Pelayanan")) {
-                        $('[data-perm="inbox_wadir_pel"]').removeClass('restricted-feature');
-                        $('[data-perm="arsip_masuk_wadir_pel"]').removeClass('restricted-feature');
-                    }
-                    if (userJabatan.includes("Kabag") || userJabatan.includes("Bagian")) {
-                        if(userJabatan.includes("Umum")) $('[data-perm="inbox_kabag_umum"]').removeClass('restricted-feature');
-                        if(userJabatan.includes("Keuangan")) $('[data-perm="inbox_kabag_keu"]').removeClass('restricted-feature');
-                        if(userJabatan.includes("Program")) $('[data-perm="inbox_kabag_prog"]').removeClass('restricted-feature');
-                    }
-                    if (userJabatan.includes("Kabid") || userJabatan.includes("Bidang")) {
-                        if(userJabatan.includes("Medik") || userJabatan.includes("Yanmed")) $('[data-perm="inbox_kabid_yanmed"]').removeClass('restricted-feature');
-                        if(userJabatan.includes("Penunjang")) $('[data-perm="inbox_kabid_penunjang"]').removeClass('restricted-feature');
-                        if(userJabatan.includes("Keperawatan")) $('[data-perm="inbox_kabid_kep"]').removeClass('restricted-feature');
-                    }
-                }
-
-                // B. Manual Permission Check (Legacy)
-                p.forEach(x => { $(`[data-perm="${x}"]`).removeClass('restricted-feature'); if(x.includes('arsip_masuk')) hasAnyArsipMasuk = true; if(x.includes('arsip_keluar')) hasAnyArsipKeluar = true; }); 
-                
-                // Logic visibility parent menu
-                if(hasAnyArsipMasuk || userJabatan) $('#btnArsipMasukParent').removeClass('restricted-feature'); 
-                if(hasAnyArsipKeluar || userJabatan) $('#btnArsipKeluarParent').removeClass('restricted-feature'); 
-                
-                const kabagVisible = $('#subKabag .nav-link').not('.restricted-feature').length > 0; if (!kabagVisible) { $('#btnInboxKabagParent').hide(); } else { $('#btnInboxKabagParent').show(); } 
-            }
-
-            // RENDER DELEGATION MENU
-            const delContainer = $('#delegationLinks');
-            delContainer.empty();
-            if(delegations.length > 0) {
-                $('#delegationMenuContainer').show();
-                delegations.forEach(user => {
-                    let displayName = (typeof user === 'string') ? user : (user.name || user.email);
-                    let targetEmail = (typeof user === 'string') ? user : user.email;
-                    const btn = $(`<button class="nav-link w-100 text-start text-warning"><i class="fas fa-user-check"></i> ${displayName}</button>`);
-                    btn.on('click', function() { openDisposisiPage('staf', this, targetEmail, displayName); });
-                    delContainer.append(btn);
-                });
-            } else {
-                $('#delegationMenuContainer').hide();
-            }
-        }
     </script>
 </body>
 </html>

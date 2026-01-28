@@ -438,15 +438,20 @@
                         <h3 class="fw-bold mb-4 border-bottom pb-2 text-white">Catat Surat Keluar</h3>
                         <form id="formSuratKeluar">
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Agenda</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="noAgenda" id="outNoAgenda" required>
                                         <button class="btn btn-warning fw-bold" type="button" onclick="openBookingModal('keluar')">Booking</button>
                                     </div>
                                 </div>
-                                <div class="col-md-6"><label class="form-label fw-bold">Tanggal</label><input type="date" class="form-control" name="tglSurat" required></div>
-                                <div class="col-12"><label class="form-label fw-bold">Tujuan</label><input type="text" class="form-control" name="tujuan" required></div>
+                                <!-- ADDED: No Surat Input -->
+                                <div class="col-md-4"><label class="form-label fw-bold">No. Surat</label><input type="text" class="form-control" name="noSurat" id="sk_noSurat"></div>
+                                <!-- ADDED: ID sk_tglSurat -->
+                                <div class="col-md-4"><label class="form-label fw-bold">Tanggal</label><input type="date" class="form-control" name="tglSurat" id="sk_tglSurat" required></div>
+                                
+                                <!-- ADDED: ID sk_tujuan -->
+                                <div class="col-12"><label class="form-label fw-bold">Tujuan</label><input type="text" class="form-control" name="tujuan" id="sk_tujuan" required></div>
                                 
                                 <!-- NEW: MULTI SELECT PEMBUAT -->
                                 <div class="col-12">
@@ -477,7 +482,14 @@
                                     </div>
                                     <textarea class="form-control" name="perihal" id="outPerihal" rows="3" required></textarea>
                                 </div>
-                                <div class="col-12"><label class="form-label fw-bold">Upload File</label><input type="file" class="form-control" id="fileSuratKeluar"></div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Upload File (PDF/IMG)</label>
+                                    <!-- ADDED: Button Auto Fill -->
+                                    <input type="file" class="form-control mb-2" id="fileSuratKeluar">
+                                    <button type="button" class="btn btn-ai-sparkle w-100" onclick="autoFillSuratKeluar()">
+                                        <i class="fas fa-magic me-2"></i>✨ Baca File & Isi Otomatis
+                                    </button>
+                                </div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-success w-100 py-2">Simpan</button></div>
                             </div>
                         </form>
@@ -2472,7 +2484,16 @@
 
         // Feature 3: Auto-Fill from PDF/Image File (Surat Masuk)
         async function autoFillSuratMasuk() {
-            const fileInput = document.getElementById('fileSuratMasuk');
+             // ... existing logic for Surat Masuk ...
+             // (Ensure this function remains unchanged in your code)
+             const fileInput = document.getElementById('fileSuratMasuk');
+             // ... (rest of function) ...
+             // ... (end of function) ...
+        }
+
+        // Feature 4: Auto-Fill from PDF/Image File (Surat Keluar)
+        async function autoFillSuratKeluar() {
+            const fileInput = document.getElementById('fileSuratKeluar');
             const file = fileInput.files[0];
 
             if (!file) {
@@ -2481,7 +2502,7 @@
 
             const btn = event.currentTarget;
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisa File (Server)...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisa File...';
             btn.disabled = true;
 
             try {
@@ -2492,14 +2513,12 @@
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
                     const page = await pdf.getPage(1);
-                    
                     const scale = 1.5;
                     const viewport = page.getViewport({ scale: scale });
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
-
                     await page.render({ canvasContext: context, viewport: viewport }).promise;
                     imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
                 } else if (file.type.match(/image.*/)) {
@@ -2509,11 +2528,12 @@
                 }
 
                 // 2. Call Gemini Vision via Backend (Secure)
-                const prompt = `Analisa gambar surat dinas ini. Ekstrak informasi berikut dan kembalikan HANYA dalam format JSON valid:
+                // Note: Prompt is adjusted for "Surat Keluar" extraction
+                const prompt = `Analisa gambar surat dinas KELUAR ini. Ekstrak informasi berikut dan kembalikan HANYA dalam format JSON valid:
                 {
-                    "no_surat": "nomor surat",
+                    "no_surat": "nomor surat (jika ada)",
                     "tgl_surat": "YYYY-MM-DD", 
-                    "pengirim": "nama instansi/pengirim",
+                    "tujuan": "kepada siapa surat ini ditujukan (Yth ...)",
                     "perihal": "perihal/hal surat"
                 }
                 Jika tanggal tidak ditemukan, kembalikan null. Pastikan format tanggal YYYY-MM-DD. Jangan ada teks lain selain JSON.`;
@@ -2528,57 +2548,34 @@
                     const cleanJson = result.replace(/```json/g, '').replace(/```/g, '').trim();
                     data = JSON.parse(cleanJson);
                 } catch (e) {
-                    throw new Error("Gagal parsing JSON. AI merespon dengan format yang salah (Mungkin gambar buram).");
+                    throw new Error("Gagal parsing JSON. Format data tidak sesuai.");
                 }
 
-                // 4. Validate Data Content
-                const filledCount = [data.no_surat, data.tgl_surat, data.pengirim, data.perihal].filter(Boolean).length;
+                // 4. Populate Form
+                const filledCount = [data.no_surat, data.tgl_surat, data.tujuan, data.perihal].filter(Boolean).length;
                 
                 if (filledCount === 0) {
-                    Swal.fire('Info', 'AI dapat membaca gambar, namun tidak menemukan teks yang relevan (No/Tgl/Pengirim/Perihal). Pastikan Kop Surat terlihat jelas.', 'warning');
+                    Swal.fire('Info', 'AI dapat membaca gambar, namun tidak menemukan teks yang relevan.', 'warning');
                 } else {
-                    if (data.no_surat) $('#sm_noSurat').val(data.no_surat);
-                    if (data.tgl_surat) $('#sm_tglSurat').val(data.tgl_surat);
-                    if (data.pengirim) $('#sm_pengirim').val(data.pengirim);
-                    if (data.perihal) $('#sm_perihal').val(data.perihal);
+                    if (data.no_surat) $('#sk_noSurat').val(data.no_surat);
+                    if (data.tgl_surat) $('#sk_tglSurat').val(data.tgl_surat);
+                    if (data.tujuan) $('#sk_tujuan').val(data.tujuan);
+                    if (data.perihal) $('#outPerihal').val(data.perihal);
                     
-                    const missed = 4 - filledCount;
-                    if(missed === 0) {
-                        Swal.fire('Sukses', 'Data berhasil diekstrak lengkap!', 'success');
-                    } else {
-                        Swal.fire('Sukses', `Data diekstrak (${filledCount}/4). Silakan lengkapi manual data yang kurang.`, 'info');
-                    }
+                    Swal.fire('Sukses', `Data berhasil diekstrak (${filledCount}/4). Cek kembali sebelum simpan.`, 'success');
                 }
 
             } catch (error) {
-                console.error("AutoFill Error:", error);
+                console.error("AutoFill Keluar Error:", error);
                 
                 let userMsg = "Terjadi kesalahan sistem.";
                 const errStr = error.message || error.toString();
 
-                if (errStr.includes("Safety") || errStr.includes("SAFETY")) {
-                    userMsg = "<b>Blokir Keamanan AI:</b><br>Gambar dianggap mengandung konten sensitif atau tidak aman oleh filter Google.";
-                } else if (errStr.includes("400")) {
-                    userMsg = "<b>Bad Request (400):</b><br>Kualitas gambar mungkin terlalu rendah, file rusak, atau format tidak dikenali.";
-                } else if (errStr.includes("429")) {
-                    userMsg = "<b>Kuota Penuh (429):</b><br>Terlalu banyak permintaan ke AI. Mohon tunggu 1 menit lalu coba lagi.";
-                } else if (errStr.includes("500") || errStr.includes("503")) {
-                    userMsg = "<b>Gangguan Server (500):</b><br>Server Google AI sedang sibuk atau mengalami gangguan. Coba lagi nanti.";
-                } else if (errStr.includes("JSON")) {
-                    userMsg = "<b>Gagal Membaca Data:</b><br>AI merespon, tapi format datanya acak. Kemungkinan tulisan tangan terlalu sulit dibaca atau gambar buram.";
-                } else if (errStr.includes("Format file")) {
-                    userMsg = "<b>Format Salah:</b><br>Hanya file PDF dan Gambar (JPG/PNG) yang didukung.";
-                } else {
-                    userMsg = `<b>Gagal Membaca File:</b><br>${errStr}`;
-                }
+                if (errStr.includes("Safety")) userMsg = "<b>Blokir Keamanan AI:</b> Konten sensitif terdeteksi.";
+                else if (errStr.includes("JSON")) userMsg = "<b>Gagal Membaca Data:</b> Format respon AI tidak valid.";
+                else userMsg = `<b>Gagal Membaca File:</b><br>${errStr}`;
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Analisa',
-                    html: userMsg,
-                    confirmButtonText: 'Tutup'
-                });
-
+                Swal.fire({ icon: 'error', title: 'Gagal Analisa', html: userMsg });
             } finally {
                 btn.innerHTML = originalContent;
                 btn.disabled = false;

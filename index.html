@@ -12,6 +12,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     
+    <!-- PDF.js for AI Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -146,6 +150,22 @@
         #count-arsipku.has-data {
             background: #28a745 !important; /* Warna Hijau */
         }        
+
+        /* GEMINI AI ANIMATION */
+        .btn-ai-sparkle {
+            background: linear-gradient(45deg, #6b21a8, #d946ef);
+            color: white;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-ai-sparkle:hover {
+            background: linear-gradient(45deg, #581c87, #c026d3);
+            color: white;
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.5);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -395,13 +415,19 @@
                         <form id="formSuratMasuk">
                             <div class="row g-3">
                                 <div class="col-md-4"><label class="form-label fw-bold">No. Agenda</label><input type="number" class="form-control" name="noAgenda" id="inNoAgenda" required><small class="text-white-50">Otomatis terisi</small></div>
-                                <div class="col-md-4"><label class="form-label fw-bold">Tgl Surat</label><input type="date" class="form-control" name="tglSurat" required></div>
+                                <div class="col-md-4"><label class="form-label fw-bold">Tgl Surat</label><input type="date" class="form-control" id="sm_tglSurat" name="tglSurat" required></div>
                                 <div class="col-md-4"><label class="form-label fw-bold">Tgl Terima</label><input type="date" class="form-control" name="tglTerima" required></div>
-                                <div class="col-md-6"><label class="form-label fw-bold">No. Surat</label><input type="text" class="form-control" name="noSurat" required></div>
-                                <div class="col-md-6"><label class="form-label fw-bold">Pengirim</label><input type="text" class="form-control" name="pengirim" required></div>
+                                <div class="col-md-6"><label class="form-label fw-bold">No. Surat</label><input type="text" class="form-control" id="sm_noSurat" name="noSurat" required></div>
+                                <div class="col-md-6"><label class="form-label fw-bold">Pengirim</label><input type="text" class="form-control" id="sm_pengirim" name="pengirim" required></div>
                                 <div class="col-12"><label class="form-label fw-bold">Kode Klarifikasi</label><input type="text" class="form-control" name="kodeKlarifikasi" list="listKodeKlarifikasi" placeholder="Ketik kode..."></div>
-                                <div class="col-12"><label class="form-label fw-bold">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
-                                <div class="col-12"><label class="form-label fw-bold">Upload File (PDF/IMG)</label><input type="file" class="form-control" id="fileSuratMasuk"></div>
+                                <div class="col-12"><label class="form-label fw-bold">Perihal</label><textarea class="form-control" id="sm_perihal" name="perihal" rows="3" required></textarea></div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Upload File (PDF/IMG)</label>
+                                    <input type="file" class="form-control mb-2" id="fileSuratMasuk">
+                                    <button type="button" class="btn btn-ai-sparkle w-100" onclick="autoFillSuratMasuk()">
+                                        <i class="fas fa-magic me-2"></i>✨ Baca File & Isi Otomatis
+                                    </button>
+                                </div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-2">Simpan</button></div>
                             </div>
                         </form>
@@ -442,7 +468,15 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12"><label class="form-label fw-bold">Perihal</label><textarea class="form-control" name="perihal" rows="3" required></textarea></div>
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-end mb-1">
+                                        <label class="form-label fw-bold mb-0">Perihal</label>
+                                        <button type="button" class="btn btn-sm btn-ai-sparkle py-0 px-2" onclick="aiRefinePerihal()" style="font-size: 0.75rem; border-radius: 20px;">
+                                            <i class="fas fa-magic me-1"></i>Perhalus Bahasa
+                                        </button>
+                                    </div>
+                                    <textarea class="form-control" name="perihal" id="outPerihal" rows="3" required></textarea>
+                                </div>
                                 <div class="col-12"><label class="form-label fw-bold">Upload File</label><input type="file" class="form-control" id="fileSuratKeluar"></div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-success w-100 py-2">Simpan</button></div>
                             </div>
@@ -811,7 +845,19 @@
     <div class="modal fade" id="modalDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Kirim Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formDisposisi"><input type="hidden" id="dispIdSurat"><div class="alert alert-light border shadow-sm mb-3"><small class="text-muted d-block fw-bold">Perihal:</small><span id="dispPerihal" class="fs-6 text-dark">...</span></div>
     <!-- NEW DATE INPUT -->
     <div class="mb-3"><label class="fw-bold small mb-1">Tanggal Disposisi:</label><input type="date" class="form-control" id="dispTglDisposisi"></div>
-    <div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><div id="dispTargetContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"></div></div><div class="mb-3"><label class="fw-bold small mb-1">Instruksi:</label><textarea class="form-control" id="dispInstruksi" rows="4"></textarea></div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
+    <div class="mb-3"><label class="fw-bold small mb-1">Teruskan Ke:</label><div id="dispTargetContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"></div></div>
+    
+    <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="fw-bold small mb-0">Instruksi:</label>
+            <button type="button" class="btn btn-sm btn-ai-sparkle py-0 px-2" onclick="aiSuggestDisposition()" style="font-size: 0.7rem; border-radius: 10px;">
+                <i class="fas fa-robot me-1"></i>Saran AI
+            </button>
+        </div>
+        <textarea class="form-control" id="dispInstruksi" rows="4"></textarea>
+    </div>
+    
+    <button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitDisposisi()">Kirim</button></form></div></div></div></div>
 
     <!-- ===== MISSING MODALS ADDED HERE ===== -->
 
@@ -2320,6 +2366,225 @@
         function applyBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); if(val) { if(cat === 'keluar') $('#outNoAgenda').val(val); else $('#inNoAgenda').val(val); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); } }
         function saveBooking() { const val = $('#bookingValue').val(); const cat = $('#bookingCategory').val(); const note = $('#bookingNote').val(); if(!val) return Swal.fire('Warning', 'Isi Nomor Agenda', 'warning'); bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide(); showLoading(true); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'booking_agenda', category: cat, targetAgenda: val, email: currentUserEmail, note: note }) }).then(r => r.json()).then(r => { showLoading(false); if(r.status === 'success') { Swal.fire('Sukses', r.data.message, 'success'); if(cat === 'keluar') autoFillAgendaKeluar(); else autoFillAgendaMasuk(); } else { Swal.fire('Gagal', r.message, 'error'); } }); }
         function setDefaultDatesMasuk() { const today = new Date().toISOString().split('T')[0]; if(!$('input[name="tglSurat"]').val()) $('input[name="tglSurat"]').val(today); if(!$('input[name="tglTerima"]').val()) $('input[name="tglTerima"]').val(today); }
+    
+        // ==========================================
+        // GEMINI AI INTEGRATION (SECURE - VIA BACKEND)
+        // ==========================================
+        
+        // MODIFIED: No Hardcoded API Key here anymore!
+        // The API Key is safely stored in 28simas.gs
+
+        async function callGeminiAPI(promptText, inlineData = null, silentMode = false) {
+            
+            // Construct Payload for Backend
+            const payload = {
+                type: 'ai_task',
+                prompt: promptText,
+                image: inlineData // Full DataURL (data:image/...) sent to backend
+            };
+
+            try {
+                // Call Google Apps Script Backend
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    // Default CORS behavior for GAS Web App usually handles text/plain or raw body best
+                    // But standard JSON stringify is what we handle in doPost
+                    body: JSON.stringify(payload)
+                });
+
+                const r = await response.json();
+
+                if (r.status === 'success') {
+                    return r.data.text; // Return the text from AI
+                } else {
+                    // Backend returned an error
+                    throw new Error(r.message || "Unknown AI Error from Server");
+                }
+
+            } catch (error) {
+                console.error("Gemini AI Error (Backend):", error);
+                
+                if (silentMode) {
+                    throw error; // Re-throw to caller for specific handling
+                }
+                
+                Swal.fire('AI Error', 'Gagal memproses permintaan AI via Server. Coba lagi nanti.', 'error');
+                return null;
+            }
+        }
+
+        // Feature 1: Suggest Disposition based on Perihal
+        async function aiSuggestDisposition() {
+            const perihal = $('#dispPerihal').text();
+            if (!perihal || perihal === '...') return Swal.fire('Info', 'Perihal surat belum dimuat.', 'info');
+
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Berpikir...';
+            btn.disabled = true;
+
+            const userRole = sessionStorage.getItem('userRole') || 'Pejabat';
+            
+            const prompt = `Bertindaklah sebagai asisten administrasi rumah sakit yang profesional. 
+            Saya adalah ${userRole}. Ada surat masuk dengan perihal: "${perihal}".
+            Buatkan kalimat instruksi disposisi yang singkat, tegas, dan dapat ditindaklanjuti untuk bawahan.
+            Contoh output: "Tindak lanjuti sesuai prosedur." atau "Pelajari dan laporkan."
+            Berikan SATU saja kalimat saran terbaik tanpa tanda kutip.`;
+
+            const result = await callGeminiAPI(prompt);
+            
+            if (result) {
+                const currentVal = $('#dispInstruksi').val();
+                $('#dispInstruksi').val(currentVal ? currentVal + " " + result.trim() : result.trim());
+            }
+
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+
+        // Feature 2: Refine "Surat Keluar" Perihal
+        async function aiRefinePerihal() {
+            const inputField = $('#outPerihal');
+            const rawText = inputField.val();
+
+            if (!rawText || rawText.trim().length < 3) {
+                return Swal.fire('Info', 'Ketik draft perihal terlebih dahulu (minimal 3 huruf).', 'info');
+            }
+
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            const prompt = `Ubah kalimat berikut menjadi gaya bahasa surat dinas resmi (baku, formal, sopan) untuk instansi Rumah Sakit Pemerintah (RSUD).
+            Kalimat asli: "${rawText}"
+            Hanya berikan hasil revisinya saja tanpa pembuka/penutup.`;
+
+            const result = await callGeminiAPI(prompt);
+
+            if (result) {
+                inputField.val(result.trim());
+            }
+
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+
+        // Feature 3: Auto-Fill from PDF/Image File (Surat Masuk)
+        async function autoFillSuratMasuk() {
+            const fileInput = document.getElementById('fileSuratMasuk');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                return Swal.fire('Info', 'Silakan pilih file surat (PDF atau Gambar) terlebih dahulu.', 'info');
+            }
+
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisa File (Server)...';
+            btn.disabled = true;
+
+            try {
+                let imageBase64 = null;
+
+                // 1. Convert File to Base64 Image
+                if (file.type === 'application/pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    const page = await pdf.getPage(1);
+                    
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale: scale });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                } else if (file.type.match(/image.*/)) {
+                    imageBase64 = await readFile(file);
+                } else {
+                    throw new Error("Format file tidak didukung. Gunakan PDF atau Gambar (JPG/PNG).");
+                }
+
+                // 2. Call Gemini Vision via Backend (Secure)
+                const prompt = `Analisa gambar surat dinas ini. Ekstrak informasi berikut dan kembalikan HANYA dalam format JSON valid:
+                {
+                    "no_surat": "nomor surat",
+                    "tgl_surat": "YYYY-MM-DD", 
+                    "pengirim": "nama instansi/pengirim",
+                    "perihal": "perihal/hal surat"
+                }
+                Jika tanggal tidak ditemukan, kembalikan null. Pastikan format tanggal YYYY-MM-DD. Jangan ada teks lain selain JSON.`;
+
+                const result = await callGeminiAPI(prompt, imageBase64, true);
+
+                if (!result) throw new Error("AI tidak memberikan respon teks (Empty Response).");
+
+                // 3. Parse Result
+                let data;
+                try {
+                    const cleanJson = result.replace(/```json/g, '').replace(/```/g, '').trim();
+                    data = JSON.parse(cleanJson);
+                } catch (e) {
+                    throw new Error("Gagal parsing JSON. AI merespon dengan format yang salah (Mungkin gambar buram).");
+                }
+
+                // 4. Validate Data Content
+                const filledCount = [data.no_surat, data.tgl_surat, data.pengirim, data.perihal].filter(Boolean).length;
+                
+                if (filledCount === 0) {
+                    Swal.fire('Info', 'AI dapat membaca gambar, namun tidak menemukan teks yang relevan (No/Tgl/Pengirim/Perihal). Pastikan Kop Surat terlihat jelas.', 'warning');
+                } else {
+                    if (data.no_surat) $('#sm_noSurat').val(data.no_surat);
+                    if (data.tgl_surat) $('#sm_tglSurat').val(data.tgl_surat);
+                    if (data.pengirim) $('#sm_pengirim').val(data.pengirim);
+                    if (data.perihal) $('#sm_perihal').val(data.perihal);
+                    
+                    const missed = 4 - filledCount;
+                    if(missed === 0) {
+                        Swal.fire('Sukses', 'Data berhasil diekstrak lengkap!', 'success');
+                    } else {
+                        Swal.fire('Sukses', `Data diekstrak (${filledCount}/4). Silakan lengkapi manual data yang kurang.`, 'info');
+                    }
+                }
+
+            } catch (error) {
+                console.error("AutoFill Error:", error);
+                
+                let userMsg = "Terjadi kesalahan sistem.";
+                const errStr = error.message || error.toString();
+
+                if (errStr.includes("Safety") || errStr.includes("SAFETY")) {
+                    userMsg = "<b>Blokir Keamanan AI:</b><br>Gambar dianggap mengandung konten sensitif atau tidak aman oleh filter Google.";
+                } else if (errStr.includes("400")) {
+                    userMsg = "<b>Bad Request (400):</b><br>Kualitas gambar mungkin terlalu rendah, file rusak, atau format tidak dikenali.";
+                } else if (errStr.includes("429")) {
+                    userMsg = "<b>Kuota Penuh (429):</b><br>Terlalu banyak permintaan ke AI. Mohon tunggu 1 menit lalu coba lagi.";
+                } else if (errStr.includes("500") || errStr.includes("503")) {
+                    userMsg = "<b>Gangguan Server (500):</b><br>Server Google AI sedang sibuk atau mengalami gangguan. Coba lagi nanti.";
+                } else if (errStr.includes("JSON")) {
+                    userMsg = "<b>Gagal Membaca Data:</b><br>AI merespon, tapi format datanya acak. Kemungkinan tulisan tangan terlalu sulit dibaca atau gambar buram.";
+                } else if (errStr.includes("Format file")) {
+                    userMsg = "<b>Format Salah:</b><br>Hanya file PDF dan Gambar (JPG/PNG) yang didukung.";
+                } else {
+                    userMsg = `<b>Gagal Membaca File:</b><br>${errStr}`;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Analisa',
+                    html: userMsg,
+                    confirmButtonText: 'Tutup'
+                });
+
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+    
     </script>
 </body>
 </html>

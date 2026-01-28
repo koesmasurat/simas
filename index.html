@@ -2150,6 +2150,14 @@
             });
         }
 
+        function filterSettingTujuan() {
+            const term = $('#searchSettingTujuan').val().toLowerCase();
+            $('#listSettingTujuan .setting-tujuan-item').each(function() {
+                const text = $(this).text().toLowerCase();
+                $(this).toggle(text.includes(term));
+            });
+        }
+
         function openDisposisiModal(id, p) { 
             $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val('');
             

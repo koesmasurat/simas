@@ -428,6 +428,11 @@
                                         <i class="fas fa-magic me-2"></i>✨ Baca File & Isi Otomatis
                                     </button>
                                 </div>
+                                <!-- NEW: KOLOM RINGKASAN MASUK -->
+                                <div class="col-12" id="divRingkasanMasuk" style="display:none;">
+                                    <label class="form-label fw-bold">Ringkasan (AI)</label>
+                                    <textarea class="form-control bg-light" name="ringkasan" id="sm_ringkasan" rows="3" placeholder="Ringkasan akan muncul otomatis di sini..."></textarea>
+                                </div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-2">Simpan</button></div>
                             </div>
                         </form>
@@ -489,6 +494,11 @@
                                     <button type="button" class="btn btn-ai-sparkle w-100" onclick="autoFillSuratKeluar()">
                                         <i class="fas fa-magic me-2"></i>✨ Baca File & Isi Otomatis
                                     </button>
+                                </div>
+                                <!-- NEW: KOLOM RINGKASAN KELUAR -->
+                                <div class="col-12" id="divRingkasanKeluar" style="display:none;">
+                                    <label class="form-label fw-bold">Ringkasan (AI)</label>
+                                    <textarea class="form-control bg-light" name="ringkasan" id="sk_ringkasan" rows="3" placeholder="Ringkasan akan muncul otomatis di sini..."></textarea>
                                 </div>
                                 <div class="col-12 mt-4"><button type="submit" class="btn btn-success w-100 py-2">Simpan</button></div>
                             </div>
@@ -2537,7 +2547,8 @@
                     "no_surat": "nomor surat",
                     "tgl_surat": "YYYY-MM-DD", 
                     "pengirim": "nama instansi/pengirim",
-                    "perihal": "perihal/hal surat"
+                    "perihal": "perihal/hal surat",
+                    "ringkasan": "ringkasan padat isi surat (maksimal 3 kalimat) dalam bahasa Indonesia"
                 }
                 Jika tanggal tidak ditemukan, kembalikan null. Pastikan format tanggal YYYY-MM-DD. Jangan ada teks lain selain JSON.`;
 
@@ -2565,6 +2576,12 @@
                     if (data.pengirim) $('#sm_pengirim').val(data.pengirim);
                     if (data.perihal) $('#sm_perihal').val(data.perihal);
                     
+                    // NEW: Isi Ringkasan dan Tampilkan
+                    if (data.ringkasan) {
+                        $('#sm_ringkasan').val(data.ringkasan);
+                        $('#divRingkasanMasuk').slideDown();
+                    }
+
                     const missed = 4 - filledCount;
                     if(missed === 0) {
                         Swal.fire('Sukses', 'Data berhasil diekstrak lengkap!', 'success');
@@ -2651,7 +2668,8 @@
                     "tujuan": "kepada siapa surat ini ditujukan (Yth ...)",
                     "perihal": "perihal/hal surat",
                     "tgl_surat": "YYYY-MM-DD",
-                    "format_nomor": "Cari teks Nomor Surat di bagian atas. Biasanya ada bagian yang dikosongkan/titik-titik untuk nomor urut (contoh: '800/   /404.1/2025' atau '005/..../404.2/2025'). Ambil teks tersebut persis seperti yang tertulis di kertas termasuk spasi/titiknya."
+                    "format_nomor": "Cari teks Nomor Surat di bagian atas. Biasanya ada bagian yang dikosongkan/titik-titik untuk nomor urut (contoh: '800/   /404.1/2025' atau '005/..../404.2/2025'). Ambil teks tersebut persis seperti yang tertulis di kertas termasuk spasi/titiknya.",
+                    "ringkasan": "ringkasan padat isi surat (maksimal 3 kalimat) dalam bahasa Indonesia"
                 }
                 Jika tanggal tidak ditemukan, kembalikan null. Pastikan format tanggal YYYY-MM-DD. Jangan ada teks lain selain JSON.`;
 
@@ -2673,6 +2691,12 @@
                 if (data.tujuan) $('#sk_tujuan').val(data.tujuan);
                 if (data.perihal) $('#outPerihal').val(data.perihal);
                 
+                // NEW: Isi Ringkasan dan Tampilkan
+                if (data.ringkasan) {
+                    $('#sk_ringkasan').val(data.ringkasan);
+                    $('#divRingkasanKeluar').slideDown();
+                }
+
                 // SMART MERGE LOGIC
                 let finalNoSurat = data.format_nomor || "";
                 const currentAgenda = $('#outNoAgenda').val();

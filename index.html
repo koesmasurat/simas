@@ -1905,7 +1905,8 @@
                     waText += `📎 *Link File:* ${fileUrl ? fileUrl : '(Tidak ada file)'}\n`;
                     waText += `📄 *Perihal:* ${r.data.perihal}\n`;
                     waText += `📅 *Tgl Surat:* ${r.data.tglSurat}\n`;
-                    waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n\n`;
+                    waText += `📥 *Tgl Terima:* ${tglTerima || '-'}\n`;
+                    waText += `📝 *Ringkasan:* ${r.data.ringkasan || '-'}\n\n`; // Updated with ringkasan
                     waText += `*RIWAYAT DISPOSISI:*\n`;
 
                     r.data.history.forEach(h => {
@@ -2056,7 +2057,9 @@
                     }
 
                     // --- NEW: WHATSAPP BUTTON ---
-                    let waText = `No Agenda : ${d.agenda}\nPerihal : ${d.perihal}\nLink : ${d.file || '-'}`;
+                    // Added ringkasan logic here
+                    let ringkasanText = d.ringkasan && d.ringkasan !== '-' ? `\nRingkasan: ${d.ringkasan}` : '';
+                    let waText = `No Agenda : ${d.agenda}\nPerihal : ${d.perihal}\nLink : ${d.file || '-'}${ringkasanText}`;
                     let waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
                     let btnWa = `<a href="${waUrl}" target="_blank" class="btn btn-sm btn-success ms-1" title="Share WA"><i class="fab fa-whatsapp"></i></a>`;
 

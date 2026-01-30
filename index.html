@@ -468,7 +468,7 @@
             }
         }
 
-        // FUNGSI SEND AI CHAT YANG DIPERBARUI
+        // FUNGSI SEND AI CHAT YANG DIPERBARUI (HANDLE DOWNLOAD)
         function sendAIChat() {
             const txt = $('#aiInput').val().trim();
             if(!txt) return;
@@ -500,20 +500,24 @@
                     const rawText = r.data.text;
                     let displayContent = "";
                     let chartConfig = null;
+                    let isDownloadAction = false;
 
-                    // 1. Cek apakah respon adalah JSON Chart
+                    // 1. Cek apakah respon adalah JSON Chart atau Download
                     try {
                         const jsonData = JSON.parse(rawText);
+                        
                         if (jsonData.type === "CHART_RESPONSE") {
-                            // Jika Chart, ambil narasi dan config
                             displayContent = jsonData.ai_narrative;
                             chartConfig = jsonData.chart_config;
-                        } else {
-                            // Jika JSON tapi bukan chart (kasus langka), anggap text
+                        } 
+                        else if (jsonData.type === "DOWNLOAD_RESPONSE") {
+                            displayContent = jsonData.ai_narrative;
+                            isDownloadAction = true;
+                        }
+                        else {
                             displayContent = rawText; 
                         }
                     } catch (e) {
-                        // Jika bukan JSON valid, berarti Text biasa (Markdown)
                         displayContent = rawText;
                     }
 
@@ -524,19 +528,22 @@
                     // 3. Render Chart (Jika ada)
                     if (chartConfig) {
                         const chartId = 'ai-chart-' + Date.now();
-                        // Container canvas dengan background putih sedikit transparan agar chart terbaca
                         const chartContainer = `
                             <div class="ai-msg bot" style="width: 95%; background: rgba(255,255,255,0.05);">
                                 <canvas id="${chartId}" style="max-height: 250px;"></canvas>
                             </div>`;
                         
                         $('#aiChatBody').append(chartContainer);
-                        
-                        // Tambahkan styling text agar cocok dengan dark theme
                         Chart.defaults.color = '#cbd5e1'; 
                         Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
-                        
                         new Chart(document.getElementById(chartId), chartConfig);
+                    }
+
+                    // 4. Trigger Download (Jika ada)
+                    if (isDownloadAction) {
+                        setTimeout(() => {
+                            backupDatabase(); // Panggil fungsi backup yang sudah ada
+                        }, 1000);
                     }
 
                     // Update History (Simpan teks saja untuk konteks)

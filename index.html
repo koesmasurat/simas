@@ -385,6 +385,9 @@
         let currentInboxContextEmail = "", currentInboxContextName = "", currentContextSubordinates = []; 
         let allUsersList = [], dashboardChart = null; 
         
+        // VARIABEL BARU UNTUK MEMORI AI
+        let aiHistory = []; 
+        
         $(document).ready(function() { 
             if(sessionStorage.getItem('isLoggedIn')==='true'){ 
                 currentUserEmail=sessionStorage.getItem('userEmail');
@@ -442,23 +445,28 @@
             
             // Loading
             const loadId = 'ai-load-' + Date.now();
-            $('#aiChatBody').append(`<div class="ai-msg bot" id="${loadId}"><i class="fas fa-spinner fa-spin"></i> Sedang berpikir...</div>`);
+            $('#aiChatBody').append(`<div class="ai-msg bot" id="${loadId}"><i class="fas fa-spinner fa-spin"></i> Mencari data...</div>`);
             $('#aiChatBody').scrollTop($('#aiChatBody')[0].scrollHeight);
 
-            // API Call
+            // API Call dengan HISTORY
             fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     type: 'ai_chat_smart',
                     email: currentUserEmail,
                     senderName: sessionStorage.getItem('userName'),
-                    prompt: txt
+                    prompt: txt,
+                    history: aiHistory // KIRIM HISTORY KE SERVER
                 })
             })
             .then(r => r.json())
             .then(r => {
                 $(`#${loadId}`).remove();
                 if(r.status === 'success') {
+                    // Update History Lokal (Simpan max 3 pasang terakhir)
+                    aiHistory.push({ user: txt, ai: r.data.text });
+                    if (aiHistory.length > 3) aiHistory.shift(); // Hapus yang terlama
+
                     // Use Marked.js to parse markdown safely
                     const html = marked.parse(r.data.text);
                     $('#aiChatBody').append(`<div class="ai-msg bot">${html}</div>`);

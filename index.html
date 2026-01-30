@@ -159,7 +159,11 @@
     <div id="ai-chat-window">
         <div class="ai-header">
             <span><i class="fas fa-mosque me-2"></i>SIMAS AI Assistant</span>
-            <button class="btn btn-sm btn-link text-white p-0" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
+            <div>
+                <!-- BUTTON RESET ADDED HERE -->
+                <button class="btn btn-sm btn-link text-white p-0 me-3" onclick="resetAIChat()" title="Reset / Hapus Memori" data-bs-toggle="tooltip"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-sm btn-link text-white p-0" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
+            </div>
         </div>
         <div class="ai-body" id="aiChatBody">
             <!-- Pesan awal diisi Javascript -->
@@ -466,6 +470,30 @@
             } else {
                 win.hide();
             }
+        }
+
+        // --- NEW RESET FUNCTION ---
+        function resetAIChat() {
+            // 1. Clear Memory
+            aiHistory = [];
+            isChatInitialized = false;
+
+            // 2. Clear UI
+            $('#aiChatBody').empty();
+
+            // 3. Re-initialize Greeting (Copying logic from toggleAIChat)
+            const namaUser = sessionStorage.getItem('userName') || "Hamba Allah";
+            const firstName = namaUser.split(' ')[0]; 
+
+            const greeting = `
+                <div class="ai-msg bot">
+                    Assalamu'alaikum <b>${firstName}</b>! 🙏<br><br>
+                    Memori telah direset. Silakan tanya topik baru.
+                </div>`;
+            $('#aiChatBody').html(greeting);
+            
+            // 4. Focus Input
+            $('#aiInput').focus();
         }
 
         // FUNGSI SEND AI CHAT YANG DIPERBARUI (HANDLE DOWNLOAD)

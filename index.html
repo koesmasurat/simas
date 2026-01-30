@@ -109,7 +109,7 @@
         .ai-chat-btn:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6); }
         .ai-chat-window { position: fixed; bottom: 100px; right: 30px; width: 380px; height: 500px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 9991; display: none; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.5); animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .ai-header { background: linear-gradient(90deg, #f97316, #ec4899); padding: 15px; color: white; display: flex; justify-content: between; align-items: center; }
+        .ai-header { background: linear-gradient(90deg, #f97316, #ec4899); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
         .ai-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
         .ai-msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; position: relative; word-wrap: break-word; }
         .ai-msg.user { align-self: flex-end; background: #3b82f6; color: white; border-bottom-right-radius: 2px; }
@@ -121,6 +121,8 @@
         .ai-markdown table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 5px 0; }
         .ai-markdown th, .ai-markdown td { border: 1px solid #ddd; padding: 4px; }
         .ai-markdown th { background-color: #f1f5f9; }
+        /* Markdown Links in AI Chat */
+        .ai-markdown a { color: #2563eb; text-decoration: underline; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -534,7 +536,7 @@
         function saveSettingTujuan() { const s=[]; $('.st-check:checked').each(function(){s.push($(this).val())}); fetch(GAS_URL, {method:'POST', body:JSON.stringify({type: 'update_my_subordinates', email: currentUserEmail, subordinates: JSON.stringify(s)})}).then(r=>r.json()).then(r=>{ if(r.status==='success') { Swal.fire('Berhasil', 'Tujuan disimpan', 'success'); sessionStorage.setItem('userSubordinates', JSON.stringify(s)); currentContextSubordinates = s; bootstrap.Modal.getInstance(document.getElementById('modalSettingTujuan')).hide(); } }); }
         function filterSettingTujuan() { const t=$('#searchSettingTujuan').val().toLowerCase(); $('#listSettingTujuan .setting-tujuan-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
         function openDisposisiModal(id, p) { $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val(''); $('#dispTglDisposisi').val(new Date().toISOString().split('T')[0]); const c=$('#dispTargetContainer'); c.empty(); let t=[]; if(currentInboxLevel==='direktur') t=['Wadir Umum & Keuangan','Wadir Pelayanan']; else if(currentInboxLevel==='wadir_adm') t=['Bagian Administrasi & Umum','Bagian Keuangan','Bagian Program & Pelaporan']; else if(currentInboxLevel==='wadir_pel') t=['Bidang Pelayanan Medik','Bidang Pelayanan Penunjang','Bidang Pelayanan Keperawatan']; else if(currentContextSubordinates.length>0) t=currentContextSubordinates; if(t.length===0) c.html('<span class="text-muted small">Tidak ada tujuan. Gunakan Setting Tujuan.</span>'); else t.forEach(x=>{ c.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}"><label class="form-check-label small">${x}</label></div>`); }); new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); }
-        function submitDisposisi() { const s=[]; $('.target-check:checked').each(function(){s.push($(this).val())}); if(s.length===0) return Swal.fire('!','Pilih tujuan','warning'); const p={type:'submit_disposisi', idSurat:$('#dispIdSurat').val(), levelAsal:currentInboxLevel, target:s.join(', '), instruksi:$('#dispInstruksi').val(), tglDisposisi:$('#dispTglDisposisi').val(), sender:currentUserEmail, senderName:sessionStorage.getItem('userName')}; if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) { p.onBehalfOf=currentInboxContextEmail; p.onBehalfOfName=currentInboxContextName; } bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('OK','Terkirim','success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else Swal.fire('Err',r.message,'error'); }); }
+        function submitDisposisi() { const s=[]; $('.target-check:checked').each(function(){s.push($(this).val())}); if(s.length===0) return Swal.fire('!','Pilih tujuan','warning'); const p={type:'submit_disposisi', idSurat:$('#dispIdSurat').val(), levelAsal:currentInboxLevel, target:s.join(', '), instruksi:$('#dispInstruksi').val(), tglDisposisi:$('#dispTglDisposisi').val(), sender:currentUserEmail, senderName:sessionStorage.getItem('userName')}; if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) { p.onBehalfOf=currentInboxContextEmail; p.onBehalfOfName=currentInboxContextName; } bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('OK','Terkirim','success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else { Swal.fire('Err',r.message,'error'); } }); }
         
         function openAdvancedSearch(){ new bootstrap.Modal(document.getElementById('modalSearchAdvanced')).show(); }
         function submitSearchAdvanced(){ const d={type:'search_advanced', category:$('#sa_category').val(), keyword:$('#sa_keyword').val(), startDate:$('#sa_start').val(), endDate:$('#sa_end').val()}; bootstrap.Modal.getInstance(document.getElementById('modalSearchAdvanced')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success'){ activateTab('search-content',null); const dt=$('#tableSearch').DataTable({destroy:true}); dt.clear(); r.data.results.forEach(d=>{ let perihalHtml = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal}</a>` : d.perihal; dt.row.add([d.tgl, d.agenda, d.ref, perihalHtml, `<button class="btn btn-sm btn-outline-info" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`]); }); dt.draw(); } }); }
@@ -622,7 +624,12 @@
                     if (d.ringkasan) { $('#sm_ringkasan').val(d.ringkasan); $('#divRingkasanMasuk').slideDown(); }
                     Swal.fire('Selesai', 'Data diekstrak.', 'success');
                 }
-            } catch (e) { Swal.fire('Gagal', 'Tidak dapat membaca file.', 'error'); }
+            } catch (e) { 
+                console.error(e);
+                let msg = 'Tidak dapat membaca file.';
+                if (e.message) msg += ' (' + e.message + ')';
+                Swal.fire('Gagal', msg, 'error'); 
+            }
             btn.innerHTML = org; btn.disabled = false;
         }
 
@@ -650,7 +657,12 @@
                     if (d.format_nomor) $('#sk_noSurat').val(d.format_nomor.replace(/\/[\s\.]*\//, `/${$('#outNoAgenda').val()}/`));
                     Swal.fire('Selesai', 'Data diekstrak.', 'success');
                 }
-            } catch (e) { Swal.fire('Gagal', 'Tidak dapat membaca file.', 'error'); }
+            } catch (e) {
+                console.error(e);
+                let msg = 'Tidak dapat membaca file.';
+                if (e.message) msg += ' (' + e.message + ')';
+                Swal.fire('Gagal', msg, 'error'); 
+            }
             btn.innerHTML = org; btn.disabled = false;
         }
 
@@ -707,7 +719,7 @@
             const container = $('#aiMessages');
             // Render Markdown jika bot
             let content = text;
-            if(sender === 'bot') {
+            if(sender === 'bot' && typeof marked !== 'undefined') {
                 content = marked.parse(text); // Gunakan library marked.js
             }
             

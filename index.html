@@ -443,28 +443,19 @@
 
         let isChatInitialized = false;
 
-        function getTimeGreeting() {
-            const hour = new Date().getHours();
-            if (hour >= 0 && hour < 10) return "Selamat Pagi";
-            if (hour >= 10 && hour < 15) return "Selamat Siang";
-            if (hour >= 15 && hour < 18) return "Selamat Sore";
-            return "Selamat Malam";
-        }
-
         function toggleAIChat() {
             const win = $('#ai-chat-window');
             if (win.css('display') === 'none') {
                 win.css('display', 'flex');
                 
-                // Set Sapaan Islami + Waktu Dinamis
+                // Set Sapaan Islami Simple
                 if (!isChatInitialized) {
                     const namaUser = sessionStorage.getItem('userName') || "Hamba Allah";
                     const firstName = namaUser.split(' ')[0]; 
-                    const timeGreeting = getTimeGreeting();
                     
                     const greeting = `
                         <div class="ai-msg bot">
-                            ${timeGreeting}, Assalamu'alaikum <b>${firstName}</b>! 🙏<br><br>
+                            Assalamu'alaikum <b>${firstName}</b>! 🙏<br><br>
                             Saya Asisten Virtual SIMAS. Ada yang bisa saya bantu terkait pencarian surat atau data arsip hari ini?
                         </div>`;
                     $('#aiChatBody').html(greeting);

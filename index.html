@@ -23,6 +23,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Markdown Parser Simple -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
@@ -100,12 +102,57 @@
         /* AI Button */
         .btn-ai-sparkle { background: linear-gradient(45deg, #6b21a8, #d946ef); color: white; border: none; transition: all 0.3s ease; }
         .btn-ai-sparkle:hover { background: linear-gradient(45deg, #581c87, #c026d3); color: white; box-shadow: 0 0 15px rgba(217, 70, 239, 0.5); transform: translateY(-1px); }
+
+        /* --- AI FLOATING BUTTON & CHAT --- */
+        #ai-fab {
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 50%; display: none; /* Default Hidden */
+            justify-content: center; align-items: center;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+            cursor: pointer; z-index: 9999; transition: transform 0.3s;
+        }
+        #ai-fab:hover { transform: scale(1.1); }
+        #ai-fab i { color: white; font-size: 28px; }
+
+        #ai-chat-window {
+            position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px;
+            background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+            display: none; flex-direction: column; z-index: 9999;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
+        }
+        .ai-header { background: linear-gradient(90deg, #6366f1, #a855f7); padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .ai-body { flex: 1; padding: 15px; overflow-y: auto; color: #e2e8f0; font-size: 0.9rem; }
+        .ai-footer { padding: 15px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; }
+        .ai-msg { margin-bottom: 12px; max-width: 85%; padding: 10px; border-radius: 12px; word-wrap: break-word; }
+        .ai-msg.user { background: #3b82f6; color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+        .ai-msg.bot { background: #334155; color: #f1f5f9; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
+        .ai-msg.bot ul { padding-left: 20px; margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div id="tsparticles"></div>
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
+
+    <!-- AI FLOATING ELEMENTS -->
+    <div id="ai-fab" onclick="toggleAIChat()" title="Tanya AI Assistant">
+        <i class="fas fa-robot"></i>
+    </div>
+    <div id="ai-chat-window">
+        <div class="ai-header">
+            <span><i class="fas fa-sparkles me-2"></i>SIMAS AI Assistant</span>
+            <button class="btn btn-sm btn-link text-white p-0" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="ai-body" id="aiChatBody">
+            <div class="ai-msg bot">Halo! Saya asisten pintar SIMAS. Anda bisa tanya soal surat masuk/keluar, misal: <br><i>"Cari surat dari Dinas Kesehatan bulan lalu"</i></div>
+        </div>
+        <div class="ai-footer">
+            <input type="text" id="aiInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Ketik tanya..." onkeypress="if(event.key==='Enter') sendAIChat()">
+            <button class="btn btn-sm btn-primary" onclick="sendAIChat()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
 
     <datalist id="listKodeKlarifikasi"></datalist>
     <datalist id="listBagian">
@@ -342,7 +389,7 @@
             if(sessionStorage.getItem('isLoggedIn')==='true'){ 
                 currentUserEmail=sessionStorage.getItem('userEmail');
                 try { currentContextSubordinates = JSON.parse(sessionStorage.getItem('userSubordinates') || "[]"); } catch(e) { currentContextSubordinates = []; }
-                showApp(); renderSidebarPermissions(); loadRefCodes(); 
+                showApp(); renderSidebarPermissions(); loadRefCodes(); checkAIAccess(); // AI CHECK ADDED
                 const lastState = JSON.parse(sessionStorage.getItem('simas_last_state') || "{}");
                 if(lastState.tabId) {
                     if(lastState.tabId.includes('arsip-masuk')) openArsipPage('masuk', lastState.context, null);
@@ -363,6 +410,66 @@
             if (isMobile && !sidebar.hasClass('toggled')) { sidebar.addClass('toggled'); content.addClass('toggled'); }
             $(document).off('click.mobileOutside').on('click.mobileOutside', function(e) {
                 if ($(window).width() <= 768 && !sidebar.hasClass('toggled') && !$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length) { sidebar.addClass('toggled'); content.addClass('toggled'); }
+            });
+        }
+
+        // --- AI CHAT LOGIC ---
+        function checkAIAccess() {
+            const role = sessionStorage.getItem('userRole');
+            const perms = JSON.parse(sessionStorage.getItem('userPermissions') || "[]");
+            if (role === 'Super Admin' || perms.includes('access_ai_assistant')) {
+                $('#ai-fab').css('display', 'flex'); // Show button
+            }
+        }
+
+        function toggleAIChat() {
+            const win = $('#ai-chat-window');
+            if (win.css('display') === 'none') {
+                win.css('display', 'flex');
+                setTimeout(() => $('#aiInput').focus(), 100);
+            } else {
+                win.hide();
+            }
+        }
+
+        function sendAIChat() {
+            const txt = $('#aiInput').val().trim();
+            if(!txt) return;
+            
+            // UI Update: Add User Message
+            $('#aiChatBody').append(`<div class="ai-msg user">${txt}</div>`);
+            $('#aiInput').val('');
+            
+            // Loading
+            const loadId = 'ai-load-' + Date.now();
+            $('#aiChatBody').append(`<div class="ai-msg bot" id="${loadId}"><i class="fas fa-spinner fa-spin"></i> Sedang berpikir...</div>`);
+            $('#aiChatBody').scrollTop($('#aiChatBody')[0].scrollHeight);
+
+            // API Call
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'ai_chat_smart',
+                    email: currentUserEmail,
+                    senderName: sessionStorage.getItem('userName'),
+                    prompt: txt
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                $(`#${loadId}`).remove();
+                if(r.status === 'success') {
+                    // Use Marked.js to parse markdown safely
+                    const html = marked.parse(r.data.text);
+                    $('#aiChatBody').append(`<div class="ai-msg bot">${html}</div>`);
+                } else {
+                    $('#aiChatBody').append(`<div class="ai-msg bot text-danger">Error: ${r.message}</div>`);
+                }
+                $('#aiChatBody').scrollTop($('#aiChatBody')[0].scrollHeight);
+            })
+            .catch(e => {
+                $(`#${loadId}`).remove();
+                $('#aiChatBody').append(`<div class="ai-msg bot text-danger">Koneksi Gagal.</div>`);
             });
         }
 
@@ -401,6 +508,7 @@
                     sessionStorage.setItem('userName',res.data.name); sessionStorage.setItem('userBidang', res.data.bidang); sessionStorage.setItem('userJabatan', res.data.jabatan || "");
                     currentUserEmail=res.data.email; showApp(); renderSidebarPermissions(); loadRefCodes(); 
                     if(res.data.profileIncomplete) openUpdateProfileModal(res.data.email, res.data.name, true); updateSidebarBadges();
+                    checkAIAccess(); // RE-CHECK AFTER LOGIN
                 } else { Swal.fire('Login Gagal',res.message,'error') } 
             }).catch(e=>{ showLoading(false); Swal.fire('Error Koneksi', 'Gagal terhubung ke server.\n1. Cek URL Deployment di Code.\n2. Pastikan Deploy sebagai "Anyone".', 'error') }) 
         }
@@ -435,7 +543,6 @@
             else { 
                 if (userJabatan) { 
                     if (userJabatan.includes("Direktur")) { $('[data-perm="inbox_direktur"]').removeClass('restricted-feature'); $('[data-perm="arsip_masuk_direktur"]').removeClass('restricted-feature'); $('[data-perm="arsip_keluar_direktur"]').removeClass('restricted-feature'); }
-                    // ... (Simplifikasi: Logika Jabatan lainnya sama dengan versi sebelumnya)
                     if (userJabatan.includes("Wadir")) { $('[data-perm*="wadir"]').removeClass('restricted-feature'); }
                     if (userJabatan.includes("Kabag") || userJabatan.includes("Kabid")) { $('[data-perm*="kabag"], [data-perm*="kabid"]').each(function(){ if($(this).data('perm').includes(userJabatan.toLowerCase().replace(/kepala bagian|kabag/,'kabag').replace(/kepala bidang|kabid/,'kabid').split(' ')[1])) $(this).removeClass('restricted-feature'); }); }
                 }
@@ -503,8 +610,30 @@
         async function saveEditKeluar(){const f=$('#ek_file')[0].files[0]; let fd="",fn="";if(f){fd=await readFile(f);fn=f.name;}const d={type:'edit_surat_keluar', email:currentUserEmail, noAgenda:$('#ek_noAgenda').val(), noSurat:$('#ek_noSurat').val(), tglSurat:$('#ek_tglSurat').val(), tujuan:$('#ek_tujuan').val(), perihal:$('#ek_perihal').val(), fileData:fd, fileName:fn}; bootstrap.Modal.getInstance(document.getElementById('modalEditSuratKeluar')).hide(); sendData(d, ()=>{Swal.fire('OK','Updated','success'); loadArsipKeluar();});}
         function formatDateInput(d){if(!d||d==='-')return ''; const p=d.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:'';}
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList=r.data||[]; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
+        
         function openEditUser(u){ $('#editUserEmail').val(u.email); $('#editUserName').val(u.name); $('#editUserRole').val(u.role); $('#editUserStatus').val(u.status); $('#editUserBidang').val(u.bidang||''); $('#editUserWA').val(u.wa||''); $('#editUserJabatan').val(u.jabatan||''); const isSuper=sessionStorage.getItem('userRole')==='Super Admin'; $('#editUserName, #editUserBidang, #editUserWA').prop('readonly', !isSuper); $('.perm-check').prop('checked',false); try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) }catch(e){} $('#searchSubs, #searchDelegations').val(''); const ld=$('#listCandidates'); ld.empty(); const cs=JSON.parse(u.subordinates||"[]"); allUsersList.forEach(user=>{ if(user.email!==u.email) ld.append(`<div class="user-list-item"><input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${cs.includes(user.name)?'checked':''}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); }); const dd=$('#listDelegations'); dd.empty(); let cd=[]; try{ cd = typeof u.delegations === 'string' ? JSON.parse(u.delegations||"[]") : u.delegations; }catch(e){cd=[]} allUsersList.forEach(user=>{ if(user.email!==u.email) dd.append(`<div class="user-list-item delegation-item"><input class="form-check-input me-2 delegation-check" type="checkbox" value="${user.email}" ${cd.includes(user.email)?'checked':''}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); }); renderPermissions(u); new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
-        function renderPermissions(u){ const c=$('#permissionContainer'); c.empty(); const perms = [ {cat:"Input", items:[{v:"input_masuk",l:"Input Masuk"},{v:"input_keluar",l:"Input Keluar"}]}, {cat:"Inbox", items:[{v:"inbox_staf",l:"Inbox Staf"},{v:"inbox_direktur",l:"Direktur"},{v:"inbox_wadir_adm",l:"Wadir Umum"},{v:"inbox_wadir_pel",l:"Wadir Pel"},{v:"inbox_kabag_umum",l:"Kabag Umum"},{v:"inbox_kabag_keu",l:"Kabag Keu"},{v:"inbox_kabag_prog",l:"Kabag Prog"},{v:"inbox_kabid_yanmed",l:"Yanmed"},{v:"inbox_kabid_penunjang",l:"Penunjang"},{v:"inbox_kabid_kep",l:"Keperawatan"}]}, {cat:"Arsip Masuk", items:[{v:"arsip_masuk_all",l:"ALL"},{v:"arsip_masuk_direktur",l:"Direktur"}]}, {cat:"Arsip Keluar", items:[{v:"arsip_keluar_all",l:"ALL"},{v:"arsip_keluar_direktur",l:"Direktur"}]}, {cat:"Edit", items:[{v:"edit_surat_masuk",l:"Edit Masuk"},{v:"edit_surat_keluar",l:"Edit Keluar"},{v:"edit_tujuan_disposisi",l:"Edit Disposisi"},{v:"edit_status_approval",l:"Edit Approval"}]}, {cat:"Admin", items:[{v:"search_advanced",l:"Cari Adv"},{v:"edit_profil",l:"Edit Profil"},{v:"setting_user",l:"Setting User"}]} ]; perms.forEach(grp=>{ c.append(`<div class="perm-category">${grp.cat}</div>`); grp.items.forEach(p=>{ const isChecked = u && u.permissions && JSON.parse(u.permissions).includes(p.v); c.append(`<div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="${p.v}" ${isChecked?'checked':''}><label class="form-check-label">${p.l}</label></div>`); }); }); }
+        
+        // MODIFIED: Added 'access_ai_assistant' permission logic
+        function renderPermissions(u){ 
+            const c=$('#permissionContainer'); c.empty(); 
+            const perms = [ 
+                {cat:"Input", items:[{v:"input_masuk",l:"Input Masuk"},{v:"input_keluar",l:"Input Keluar"}]}, 
+                {cat:"Inbox", items:[{v:"inbox_staf",l:"Inbox Staf"},{v:"inbox_direktur",l:"Direktur"},{v:"inbox_wadir_adm",l:"Wadir Umum"},{v:"inbox_wadir_pel",l:"Wadir Pel"},{v:"inbox_kabag_umum",l:"Kabag Umum"},{v:"inbox_kabag_keu",l:"Kabag Keu"},{v:"inbox_kabag_prog",l:"Kabag Prog"},{v:"inbox_kabid_yanmed",l:"Yanmed"},{v:"inbox_kabid_penunjang",l:"Penunjang"},{v:"inbox_kabid_kep",l:"Keperawatan"}]}, 
+                {cat:"Arsip Masuk", items:[{v:"arsip_masuk_all",l:"ALL"},{v:"arsip_masuk_direktur",l:"Direktur"}]}, 
+                {cat:"Arsip Keluar", items:[{v:"arsip_keluar_all",l:"ALL"},{v:"arsip_keluar_direktur",l:"Direktur"}]}, 
+                {cat:"Edit", items:[{v:"edit_surat_masuk",l:"Edit Masuk"},{v:"edit_surat_keluar",l:"Edit Keluar"},{v:"edit_tujuan_disposisi",l:"Edit Disposisi"},{v:"edit_status_approval",l:"Edit Approval"}]}, 
+                {cat:"Admin", items:[{v:"search_advanced",l:"Cari Adv"},{v:"edit_profil",l:"Edit Profil"},{v:"setting_user",l:"Setting User"}]},
+                {cat:"AI System", items:[{v:"access_ai_assistant",l:"Akses AI Assistant"}]} 
+            ]; 
+            perms.forEach(grp=>{ 
+                c.append(`<div class="perm-category">${grp.cat}</div>`); 
+                grp.items.forEach(p=>{ 
+                    const isChecked = u && u.permissions && JSON.parse(u.permissions).includes(p.v); 
+                    c.append(`<div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="${p.v}" ${isChecked?'checked':''}><label class="form-check-label">${p.l}</label></div>`); 
+                }); 
+            }); 
+        }
+
         function filterSubs() { const t=$('#searchSubs').val().toLowerCase(); $('#listCandidates .user-list-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
         function filterDelegations() { const t=$('#searchDelegations').val().toLowerCase(); $('#listDelegations .user-list-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
         function saveUserPermissions(){ const p=[]; $('.perm-check:checked').each(function(){p.push($(this).val())}); const sl=[]; $('.sub-check:checked').each(function(){sl.push($(this).val())}); const dl=[]; $('.delegation-check:checked').each(function(){dl.push($(this).val())}); const d={ type:'update_user_permissions', requestor:currentUserEmail, targetEmail:$('#editUserEmail').val(), role:$('#editUserRole').val(), status:$('#editUserStatus').val(), permissions:JSON.stringify(p), subordinates:JSON.stringify(sl), delegations:JSON.stringify(dl), name:$('#editUserName').val(), bidang:$('#editUserBidang').val(), wa:$('#editUserWA').val(), jabatan:$('#editUserJabatan').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Saved','success');loadUsers()}else Swal.fire('Err',r.message,'error')}); }

@@ -23,8 +23,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Markdown Parser for AI Chat -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-light: #f8f9fa; --emerald-accent: #f97316; --blue-accent: #3b82f6; --sidebar-width: 310px; }
@@ -62,7 +60,6 @@
         @media (max-width: 768px) {
             #sidebar { box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
             #content { margin-left: 0 !important; padding: 15px; }
-            .ai-chat-window { width: 95% !important; bottom: 80px !important; right: 2.5% !important; height: 60vh !important; }
         }
 
         .nav-link { color: rgba(255,255,255,0.8); border-radius: 6px; padding: 10px 15px; margin-bottom: 4px; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; }
@@ -103,49 +100,12 @@
         /* AI Button */
         .btn-ai-sparkle { background: linear-gradient(45deg, #6b21a8, #d946ef); color: white; border: none; transition: all 0.3s ease; }
         .btn-ai-sparkle:hover { background: linear-gradient(45deg, #581c87, #c026d3); color: white; box-shadow: 0 0 15px rgba(217, 70, 239, 0.5); transform: translateY(-1px); }
-
-        /* AI Chat Widget */
-        .ai-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f97316 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); color: white; font-size: 24px; border: none; cursor: pointer; z-index: 9990; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; }
-        .ai-chat-btn:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6); }
-        .ai-chat-window { position: fixed; bottom: 100px; right: 30px; width: 380px; height: 500px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 9991; display: none; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.5); animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .ai-header { background: linear-gradient(90deg, #f97316, #ec4899); padding: 15px; color: white; display: flex; justify-content: between; align-items: center; }
-        .ai-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
-        .ai-msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; position: relative; word-wrap: break-word; }
-        .ai-msg.user { align-self: flex-end; background: #3b82f6; color: white; border-bottom-right-radius: 2px; }
-        .ai-msg.bot { align-self: flex-start; background: white; color: #333; border: 1px solid #e5e7eb; border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .ai-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; }
-        .ai-input-area input { border-radius: 20px; padding-left: 15px; border: 1px solid #ddd; background: #f8f9fa; }
-        .ai-input-area input:focus { outline: none; border-color: #f97316; background: white; }
-        .typing-indicator { font-size: 12px; color: #888; font-style: italic; margin-left: 10px; display: none; }
-        .ai-markdown table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 5px 0; }
-        .ai-markdown th, .ai-markdown td { border: 1px solid #ddd; padding: 4px; }
-        .ai-markdown th { background-color: #f1f5f9; }
     </style>
 </head>
 <body>
     <div id="tsparticles"></div>
     <div id="door-overlay"><div id="door-left" class="door-panel"></div><div id="door-right" class="door-panel"></div></div>
     <div id="loadingOverlay"><div class="text-center"><div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="text-white">Memproses Data...</h5></div></div>
-
-    <!-- AI Chat Floating Button & Window -->
-    <button class="ai-chat-btn restricted-feature" data-perm="chat_ai" onclick="toggleAIChat()" title="Tanya AI Database">
-        <i class="fas fa-robot"></i>
-    </button>
-    <div class="ai-chat-window" id="aiChatWindow">
-        <div class="ai-header">
-            <div class="d-flex align-items-center gap-2"><i class="fas fa-sparkles"></i> <strong>Asisten SIMAS</strong></div>
-            <button class="btn btn-sm text-white" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="ai-messages" id="aiMessages">
-            <div class="ai-msg bot">Halo! Saya asisten AI SIMAS. Anda bisa bertanya tentang data surat atau cara penggunaan aplikasi.</div>
-        </div>
-        <div class="typing-indicator" id="aiTyping">AI sedang mengetik...</div>
-        <div class="ai-input-area">
-            <input type="text" id="aiInput" class="form-control form-control-sm" placeholder="Ketik pertanyaan..." onkeypress="handleAiEnter(event)">
-            <button class="btn btn-primary btn-sm rounded-circle" onclick="sendAiMessage()"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
 
     <datalist id="listKodeKlarifikasi"></datalist>
     <datalist id="listBagian">
@@ -402,7 +362,7 @@
             const isMobile = $(window).width() <= 768; const sidebar = $('#sidebar'); const content = $('#content');
             if (isMobile && !sidebar.hasClass('toggled')) { sidebar.addClass('toggled'); content.addClass('toggled'); }
             $(document).off('click.mobileOutside').on('click.mobileOutside', function(e) {
-                if ($(window).width() <= 768 && !sidebar.hasClass('toggled') && !$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length && !$(e.target).closest('.ai-chat-btn').length) { sidebar.addClass('toggled'); content.addClass('toggled'); }
+                if ($(window).width() <= 768 && !sidebar.hasClass('toggled') && !$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length) { sidebar.addClass('toggled'); content.addClass('toggled'); }
             });
         }
 
@@ -468,10 +428,6 @@
         function renderSidebarPermissions(){ 
             const r=sessionStorage.getItem('userRole'); const p=JSON.parse(sessionStorage.getItem('userPermissions')||"[]"); const delegations = JSON.parse(sessionStorage.getItem('userDelegations')||"[]"); const userJabatan = sessionStorage.getItem('userJabatan'); 
             $('.restricted-feature').addClass('restricted-feature'); $('#btnArsipMasukParent').addClass('restricted-feature'); $('#btnArsipKeluarParent').addClass('restricted-feature'); $('#personalArsipContainer').empty();
-            
-            // AI Chat Button Logic
-            if(r === 'Super Admin' || p.includes('chat_ai')) { $('.ai-chat-btn').removeClass('restricted-feature'); }
-
             const userFirstName = (sessionStorage.getItem('userName') || 'User').split(' ')[0];
             if (userJabatan && userJabatan !== "") { $('#btnInboxStaf').hide(); $('#btnArsipku').hide(); } else { $('#btnInboxStaf').show().html(`<i class="fas fa-inbox"></i> Inbox ${userFirstName} <span class="badge-count" id="count-staf">0</span>`); $('#btnArsipku').show().html(`<i class="fas fa-archive"></i> Arsip ${userFirstName} <span class="badge-count" id="count-arsipku">0</span>`); }
             let hasAnyArsipMasuk = false, hasAnyArsipKeluar = false; 
@@ -479,6 +435,7 @@
             else { 
                 if (userJabatan) { 
                     if (userJabatan.includes("Direktur")) { $('[data-perm="inbox_direktur"]').removeClass('restricted-feature'); $('[data-perm="arsip_masuk_direktur"]').removeClass('restricted-feature'); $('[data-perm="arsip_keluar_direktur"]').removeClass('restricted-feature'); }
+                    // ... (Simplifikasi: Logika Jabatan lainnya sama dengan versi sebelumnya)
                     if (userJabatan.includes("Wadir")) { $('[data-perm*="wadir"]').removeClass('restricted-feature'); }
                     if (userJabatan.includes("Kabag") || userJabatan.includes("Kabid")) { $('[data-perm*="kabag"], [data-perm*="kabid"]').each(function(){ if($(this).data('perm').includes(userJabatan.toLowerCase().replace(/kepala bagian|kabag/,'kabag').replace(/kepala bidang|kabid/,'kabid').split(' ')[1])) $(this).removeClass('restricted-feature'); }); }
                 }
@@ -547,10 +504,7 @@
         function formatDateInput(d){if(!d||d==='-')return ''; const p=d.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:'';}
         function loadUsers(){showLoading(true);fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);allUsersList=r.data||[]; const dt=$('#tableUsers').DataTable({destroy:true});dt.clear();if(r.data)r.data.forEach(u=>dt.row.add([u.email,u.name,u.role,u.status,`<button class="btn btn-sm btn-info" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>`]));dt.draw()});}
         function openEditUser(u){ $('#editUserEmail').val(u.email); $('#editUserName').val(u.name); $('#editUserRole').val(u.role); $('#editUserStatus').val(u.status); $('#editUserBidang').val(u.bidang||''); $('#editUserWA').val(u.wa||''); $('#editUserJabatan').val(u.jabatan||''); const isSuper=sessionStorage.getItem('userRole')==='Super Admin'; $('#editUserName, #editUserBidang, #editUserWA').prop('readonly', !isSuper); $('.perm-check').prop('checked',false); try{ JSON.parse(u.permissions).forEach(x=>$(`input[value="${x}"]`).prop('checked',true)) }catch(e){} $('#searchSubs, #searchDelegations').val(''); const ld=$('#listCandidates'); ld.empty(); const cs=JSON.parse(u.subordinates||"[]"); allUsersList.forEach(user=>{ if(user.email!==u.email) ld.append(`<div class="user-list-item"><input class="form-check-input me-2 sub-check" type="checkbox" value="${user.name}" ${cs.includes(user.name)?'checked':''}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); }); const dd=$('#listDelegations'); dd.empty(); let cd=[]; try{ cd = typeof u.delegations === 'string' ? JSON.parse(u.delegations||"[]") : u.delegations; }catch(e){cd=[]} allUsersList.forEach(user=>{ if(user.email!==u.email) dd.append(`<div class="user-list-item delegation-item"><input class="form-check-input me-2 delegation-check" type="checkbox" value="${user.email}" ${cd.includes(user.email)?'checked':''}><div><div class="fw-bold small">${user.name}</div><div class="text-muted" style="font-size:0.75rem">${user.email}</div></div></div>`); }); renderPermissions(u); new bootstrap.Modal(document.getElementById('modalEditUser')).show(); }
-        
-        // MODIFIED: Tambahkan permission 'chat_ai'
-        function renderPermissions(u){ const c=$('#permissionContainer'); c.empty(); const perms = [ {cat:"Input", items:[{v:"input_masuk",l:"Input Masuk"},{v:"input_keluar",l:"Input Keluar"}]}, {cat:"Inbox", items:[{v:"inbox_staf",l:"Inbox Staf"},{v:"inbox_direktur",l:"Direktur"},{v:"inbox_wadir_adm",l:"Wadir Umum"},{v:"inbox_wadir_pel",l:"Wadir Pel"},{v:"inbox_kabag_umum",l:"Kabag Umum"},{v:"inbox_kabag_keu",l:"Kabag Keu"},{v:"inbox_kabag_prog",l:"Kabag Prog"},{v:"inbox_kabid_yanmed",l:"Yanmed"},{v:"inbox_kabid_penunjang",l:"Penunjang"},{v:"inbox_kabid_kep",l:"Keperawatan"}]}, {cat:"Arsip Masuk", items:[{v:"arsip_masuk_all",l:"ALL"},{v:"arsip_masuk_direktur",l:"Direktur"}]}, {cat:"Arsip Keluar", items:[{v:"arsip_keluar_all",l:"ALL"},{v:"arsip_keluar_direktur",l:"Direktur"}]}, {cat:"Edit", items:[{v:"edit_surat_masuk",l:"Edit Masuk"},{v:"edit_surat_keluar",l:"Edit Keluar"},{v:"edit_tujuan_disposisi",l:"Edit Disposisi"},{v:"edit_status_approval",l:"Edit Approval"}]}, {cat:"Admin", items:[{v:"search_advanced",l:"Cari Adv"},{v:"edit_profil",l:"Edit Profil"},{v:"setting_user",l:"Setting User"}]}, {cat:"Fitur AI", items:[{v:"chat_ai",l:"Akses Chat AI"}]} ]; perms.forEach(grp=>{ c.append(`<div class="perm-category">${grp.cat}</div>`); grp.items.forEach(p=>{ const isChecked = u && u.permissions && JSON.parse(u.permissions).includes(p.v); c.append(`<div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="${p.v}" ${isChecked?'checked':''}><label class="form-check-label">${p.l}</label></div>`); }); }); }
-        
+        function renderPermissions(u){ const c=$('#permissionContainer'); c.empty(); const perms = [ {cat:"Input", items:[{v:"input_masuk",l:"Input Masuk"},{v:"input_keluar",l:"Input Keluar"}]}, {cat:"Inbox", items:[{v:"inbox_staf",l:"Inbox Staf"},{v:"inbox_direktur",l:"Direktur"},{v:"inbox_wadir_adm",l:"Wadir Umum"},{v:"inbox_wadir_pel",l:"Wadir Pel"},{v:"inbox_kabag_umum",l:"Kabag Umum"},{v:"inbox_kabag_keu",l:"Kabag Keu"},{v:"inbox_kabag_prog",l:"Kabag Prog"},{v:"inbox_kabid_yanmed",l:"Yanmed"},{v:"inbox_kabid_penunjang",l:"Penunjang"},{v:"inbox_kabid_kep",l:"Keperawatan"}]}, {cat:"Arsip Masuk", items:[{v:"arsip_masuk_all",l:"ALL"},{v:"arsip_masuk_direktur",l:"Direktur"}]}, {cat:"Arsip Keluar", items:[{v:"arsip_keluar_all",l:"ALL"},{v:"arsip_keluar_direktur",l:"Direktur"}]}, {cat:"Edit", items:[{v:"edit_surat_masuk",l:"Edit Masuk"},{v:"edit_surat_keluar",l:"Edit Keluar"},{v:"edit_tujuan_disposisi",l:"Edit Disposisi"},{v:"edit_status_approval",l:"Edit Approval"}]}, {cat:"Admin", items:[{v:"search_advanced",l:"Cari Adv"},{v:"edit_profil",l:"Edit Profil"},{v:"setting_user",l:"Setting User"}]} ]; perms.forEach(grp=>{ c.append(`<div class="perm-category">${grp.cat}</div>`); grp.items.forEach(p=>{ const isChecked = u && u.permissions && JSON.parse(u.permissions).includes(p.v); c.append(`<div class="form-check"><input class="form-check-input perm-check" type="checkbox" value="${p.v}" ${isChecked?'checked':''}><label class="form-check-label">${p.l}</label></div>`); }); }); }
         function filterSubs() { const t=$('#searchSubs').val().toLowerCase(); $('#listCandidates .user-list-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
         function filterDelegations() { const t=$('#searchDelegations').val().toLowerCase(); $('#listDelegations .user-list-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
         function saveUserPermissions(){ const p=[]; $('.perm-check:checked').each(function(){p.push($(this).val())}); const sl=[]; $('.sub-check:checked').each(function(){sl.push($(this).val())}); const dl=[]; $('.delegation-check:checked').each(function(){dl.push($(this).val())}); const d={ type:'update_user_permissions', requestor:currentUserEmail, targetEmail:$('#editUserEmail').val(), role:$('#editUserRole').val(), status:$('#editUserStatus').val(), permissions:JSON.stringify(p), subordinates:JSON.stringify(sl), delegations:JSON.stringify(dl), name:$('#editUserName').val(), bidang:$('#editUserBidang').val(), wa:$('#editUserWA').val(), jabatan:$('#editUserJabatan').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Saved','success');loadUsers()}else Swal.fire('Err',r.message,'error')}); }
@@ -652,70 +606,6 @@
                 }
             } catch (e) { Swal.fire('Gagal', 'Tidak dapat membaca file.', 'error'); }
             btn.innerHTML = org; btn.disabled = false;
-        }
-
-        // ==========================================
-        // FITUR CHAT AI (DATABASE)
-        // ==========================================
-
-        function toggleAIChat() {
-            const win = $('#aiChatWindow');
-            if(win.is(':visible')) { win.fadeOut(); } else { win.css('display','flex').fadeIn(); $('#aiInput').focus(); }
-        }
-
-        function handleAiEnter(e) { if(e.key === 'Enter') sendAiMessage(); }
-
-        async function sendAiMessage() {
-            const input = $('#aiInput');
-            const msg = input.val().trim();
-            if(!msg) return;
-
-            // 1. Tambahkan pesan user ke UI
-            addAiMessage(msg, 'user');
-            input.val('');
-            $('#aiTyping').show();
-            
-            try {
-                // 2. Kirim ke Backend (Simas30.gs)
-                const payload = {
-                    type: 'ai_chat_database',
-                    prompt: msg,
-                    email: currentUserEmail
-                };
-                
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                $('#aiTyping').hide();
-
-                if(result.status === 'success') {
-                    addAiMessage(result.data, 'bot');
-                } else {
-                    addAiMessage("Maaf, terjadi kesalahan saat menghubungi AI: " + result.message, 'bot');
-                }
-
-            } catch(e) {
-                $('#aiTyping').hide();
-                addAiMessage("Error koneksi jaringan.", 'bot');
-            }
-        }
-
-        function addAiMessage(text, sender) {
-            const container = $('#aiMessages');
-            // Render Markdown jika bot
-            let content = text;
-            if(sender === 'bot') {
-                content = marked.parse(text); // Gunakan library marked.js
-            }
-            
-            const div = $(`<div class="ai-msg ${sender} ai-markdown">${content}</div>`);
-            container.append(div);
-            
-            // Auto scroll ke bawah
-            container.scrollTop(container[0].scrollHeight);
         }
     </script>
 </body>

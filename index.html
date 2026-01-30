@@ -468,20 +468,21 @@
             }
         }
 
+        // FUNGSI SEND AI CHAT YANG DIPERBARUI
         function sendAIChat() {
             const txt = $('#aiInput').val().trim();
             if(!txt) return;
             
-            // UI Update: Add User Message
+            // UI Update: User Message
             $('#aiChatBody').append(`<div class="ai-msg user">${txt}</div>`);
             $('#aiInput').val('');
             
             // Loading
             const loadId = 'ai-load-' + Date.now();
-            $('#aiChatBody').append(`<div class="ai-msg bot" id="${loadId}"><i class="fas fa-spinner fa-spin"></i> Mencari data...</div>`);
+            $('#aiChatBody').append(`<div class="ai-msg bot" id="${loadId}"><i class="fas fa-spinner fa-spin"></i> Sedang menganalisis data...</div>`);
             $('#aiChatBody').scrollTop($('#aiChatBody')[0].scrollHeight);
 
-            // API Call dengan HISTORY
+            // API Call
             fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -489,20 +490,59 @@
                     email: currentUserEmail,
                     senderName: sessionStorage.getItem('userName'),
                     prompt: txt,
-                    history: aiHistory // KIRIM HISTORY KE SERVER
+                    history: aiHistory 
                 })
             })
             .then(r => r.json())
             .then(r => {
                 $(`#${loadId}`).remove();
                 if(r.status === 'success') {
-                    // Update History Lokal (Simpan max 3 pasang terakhir)
-                    aiHistory.push({ user: txt, ai: r.data.text });
-                    if (aiHistory.length > 3) aiHistory.shift(); // Hapus yang terlama
+                    const rawText = r.data.text;
+                    let displayContent = "";
+                    let chartConfig = null;
 
-                    // Use Marked.js to parse markdown safely
-                    const html = marked.parse(r.data.text);
+                    // 1. Cek apakah respon adalah JSON Chart
+                    try {
+                        const jsonData = JSON.parse(rawText);
+                        if (jsonData.type === "CHART_RESPONSE") {
+                            // Jika Chart, ambil narasi dan config
+                            displayContent = jsonData.ai_narrative;
+                            chartConfig = jsonData.chart_config;
+                        } else {
+                            // Jika JSON tapi bukan chart (kasus langka), anggap text
+                            displayContent = rawText; 
+                        }
+                    } catch (e) {
+                        // Jika bukan JSON valid, berarti Text biasa (Markdown)
+                        displayContent = rawText;
+                    }
+
+                    // 2. Render Teks (Markdown)
+                    const html = marked.parse(displayContent);
                     $('#aiChatBody').append(`<div class="ai-msg bot">${html}</div>`);
+
+                    // 3. Render Chart (Jika ada)
+                    if (chartConfig) {
+                        const chartId = 'ai-chart-' + Date.now();
+                        // Container canvas dengan background putih sedikit transparan agar chart terbaca
+                        const chartContainer = `
+                            <div class="ai-msg bot" style="width: 95%; background: rgba(255,255,255,0.05);">
+                                <canvas id="${chartId}" style="max-height: 250px;"></canvas>
+                            </div>`;
+                        
+                        $('#aiChatBody').append(chartContainer);
+                        
+                        // Tambahkan styling text agar cocok dengan dark theme
+                        Chart.defaults.color = '#cbd5e1'; 
+                        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+                        
+                        new Chart(document.getElementById(chartId), chartConfig);
+                    }
+
+                    // Update History (Simpan teks saja untuk konteks)
+                    aiHistory.push({ user: txt, ai: displayContent });
+                    if (aiHistory.length > 3) aiHistory.shift(); 
+
                 } else {
                     $('#aiChatBody').append(`<div class="ai-msg bot text-danger">Error: ${r.message}</div>`);
                 }
@@ -511,6 +551,7 @@
             .catch(e => {
                 $(`#${loadId}`).remove();
                 $('#aiChatBody').append(`<div class="ai-msg bot text-danger">Koneksi Gagal.</div>`);
+                console.error(e);
             });
         }
 

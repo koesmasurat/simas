@@ -106,27 +106,43 @@
         /* --- AI FLOATING BUTTON & CHAT --- */
         #ai-fab {
             position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #10b981, #059669); /* Warna Hijau Islami */
             border-radius: 50%; display: none; /* Default Hidden */
             justify-content: center; align-items: center;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
             cursor: pointer; z-index: 9999; transition: transform 0.3s;
         }
         #ai-fab:hover { transform: scale(1.1); }
         #ai-fab i { color: white; font-size: 28px; }
 
         #ai-chat-window {
-            position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px;
-            background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+            position: fixed; bottom: 90px; right: 20px;
+            /* Default Mobile Size */
+            width: 350px; 
+            height: 500px;
+            background: rgba(20, 30, 40, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px;
             display: none; flex-direction: column; z-index: 9999;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
         }
-        .ai-header { background: linear-gradient(90deg, #6366f1, #a855f7); padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- PC SPECIFIC: DOUBLE SIZE --- */
+        @media (min-width: 992px) {
+            #ai-chat-window {
+                width: 700px; /* 2x Lebar */
+                height: 80vh; /* Tinggi menyesuaikan layar (sekitar 2x lipat dari 500px pada layar FHD) */
+                max-height: 900px;
+            }
+            .ai-body {
+                font-size: 1.05rem; /* Text sedikit lebih besar agar proporsional */
+            }
+        }
+
+        .ai-header { background: linear-gradient(90deg, #10b981, #047857); padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .ai-body { flex: 1; padding: 15px; overflow-y: auto; color: #e2e8f0; font-size: 0.9rem; }
         .ai-footer { padding: 15px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; }
         .ai-msg { margin-bottom: 12px; max-width: 85%; padding: 10px; border-radius: 12px; word-wrap: break-word; }
-        .ai-msg.user { background: #3b82f6; color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+        .ai-msg.user { background: #10b981; color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; } 
         .ai-msg.bot { background: #334155; color: #f1f5f9; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
         .ai-msg.bot ul { padding-left: 20px; margin-bottom: 5px; }
     </style>
@@ -142,15 +158,15 @@
     </div>
     <div id="ai-chat-window">
         <div class="ai-header">
-            <span><i class="fas fa-sparkles me-2"></i>SIMAS AI Assistant</span>
+            <span><i class="fas fa-mosque me-2"></i>SIMAS AI Assistant</span>
             <button class="btn btn-sm btn-link text-white p-0" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
         </div>
         <div class="ai-body" id="aiChatBody">
-            <div class="ai-msg bot">Halo! Saya asisten pintar SIMAS. Anda bisa tanya soal surat masuk/keluar, misal: <br><i>"Cari surat dari Dinas Kesehatan bulan lalu"</i></div>
+            <!-- Pesan awal diisi Javascript -->
         </div>
         <div class="ai-footer">
-            <input type="text" id="aiInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Ketik tanya..." onkeypress="if(event.key==='Enter') sendAIChat()">
-            <button class="btn btn-sm btn-primary" onclick="sendAIChat()"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="aiInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Ketik pertanyaan..." onkeypress="if(event.key==='Enter') sendAIChat()">
+            <button class="btn btn-sm btn-success" onclick="sendAIChat()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -425,10 +441,36 @@
             }
         }
 
+        let isChatInitialized = false;
+
+        function getTimeGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 0 && hour < 10) return "Selamat Pagi";
+            if (hour >= 10 && hour < 15) return "Selamat Siang";
+            if (hour >= 15 && hour < 18) return "Selamat Sore";
+            return "Selamat Malam";
+        }
+
         function toggleAIChat() {
             const win = $('#ai-chat-window');
             if (win.css('display') === 'none') {
                 win.css('display', 'flex');
+                
+                // Set Sapaan Islami + Waktu Dinamis
+                if (!isChatInitialized) {
+                    const namaUser = sessionStorage.getItem('userName') || "Hamba Allah";
+                    const firstName = namaUser.split(' ')[0]; 
+                    const timeGreeting = getTimeGreeting();
+                    
+                    const greeting = `
+                        <div class="ai-msg bot">
+                            ${timeGreeting}, Assalamu'alaikum <b>${firstName}</b>! 🙏<br><br>
+                            Saya Asisten Virtual SIMAS. Ada yang bisa saya bantu terkait pencarian surat atau data arsip hari ini?
+                        </div>`;
+                    $('#aiChatBody').html(greeting);
+                    isChatInitialized = true;
+                }
+
                 setTimeout(() => $('#aiInput').focus(), 100);
             } else {
                 win.hide();

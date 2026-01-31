@@ -782,20 +782,73 @@
             }
         }
 
+        // PERBAIKAN: AI SUGGESTION DENGAN GAYA KOMANDO (PADAT & TEGAS)
         async function aiSuggestDisposition() {
-            const p = $('#dispPerihal').text(); if (!p || p === '...') return Swal.fire('Info', 'Perihal belum dimuat.', 'info');
-            const btn = event.currentTarget; const org = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-            const res = await callGeminiAPI(`Saya ${sessionStorage.getItem('userRole')}. Surat perihal: "${p}". Buatkan instruksi disposisi singkat & tegas (1 kalimat).`);
-            if (res) { const c = $('#dispInstruksi').val(); $('#dispInstruksi').val(c ? c + " " + res.trim() : res.trim()); }
-            btn.innerHTML = org; btn.disabled = false;
-        }
+            const agenda = $('#dispIdSurat').val();
+            const p = $('#dispPerihal').text();
+            
+            if (!p || p === '...') return Swal.fire('Info', 'Perihal belum dimuat.', 'info');
+            
+            const btn = event.currentTarget; 
+            const org = btn.innerHTML; 
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisa...'; 
+            btn.disabled = true;
 
-        async function aiRefinePerihal() {
-            const t = $('#outPerihal').val(); if (!t || t.length < 3) return Swal.fire('Info', 'Ketik draft dulu.', 'info');
-            const btn = event.currentTarget; const org = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-            const res = await callGeminiAPI(`Ubah ke bahasa surat dinas resmi RSUD (baku, formal): "${t}". Hanya hasil revisi.`);
-            if (res) $('#outPerihal').val(res.trim());
-            btn.innerHTML = org; btn.disabled = false;
+            try {
+                // 1. AMBIL DATA SUMBER (RINGKASAN/OCR) DARI SERVER
+                let ringkasanSurat = "";
+                try {
+                    const resHistory = await fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`);
+                    const jsonHistory = await resHistory.json();
+                    if (jsonHistory.status === 'success') {
+                        // Ambil data OCR/Ringkasan yang ada di database
+                        ringkasanSurat = jsonHistory.data.ringkasan || "";
+                    }
+                } catch (e) { console.log("Gagal ambil ringkasan disposisi"); }
+
+                const userRole = sessionStorage.getItem('userRole');
+                
+                // 2. PROMPT KHUSUS: GAYA KOMANDO / DISPOSISI BIROKRAT
+                // Instruksi dibuat sangat ketat agar output pendek.
+                const promptSystem = `
+                Bertindak sebagai Pimpinan Tertinggi.
+                
+                SUMBER DATA:
+                - Perihal: "${p}"
+                - Isi/Ringkasan Surat: "${ringkasanSurat}"
+                - Peran Saya: ${userRole}
+                
+                TUGAS:
+                Buatkan ISI DISPOSISI (Perintah Tindakan) berdasarkan data di atas.
+                
+                ATURAN SANGAT KETAT:
+                1. WAJIB SANGAT SINGKAT (Maksimal 1 Kalimat pendek).
+                2. GAYA BAHASA: Komando, Tegas, Tanpa Basa-basi (Langsung Kata Kerja).
+                3. JANGAN mengulang perihal surat.
+                4. Tentukan target aksi spesifik berdasarkan isinya (misal: Yanmed, Umum, Keuangan, atau Hadiri).
+                
+                Contoh Output yang Benar:
+                - "Segera tindak lanjuti sesuai SOP dan laporkan."
+                - "Koordinasikan dengan Bidang Keperawatan untuk teknis pelaksanaan."
+                - "Pelajari dan berikan telaah staf paling lambat besok."
+                - "Wakili saya untuk menghadiri undangan ini."
+                `;
+
+                // 3. KIRIM KE AI
+                const res = await callGeminiAPI(promptSystem);
+                
+                if (res) { 
+                    const c = $('#dispInstruksi').val(); 
+                    // Tambahkan spasi/newline jika sudah ada teks sebelumnya
+                    $('#dispInstruksi').val(c ? c + "\n" + res.trim() : res.trim()); 
+                }
+            } catch (e) {
+                console.error(e);
+                Swal.fire('Gagal', 'AI sedang sibuk.', 'error');
+            } finally {
+                btn.innerHTML = org; 
+                btn.disabled = false;
+            }
         }
 
         async function autoFillSuratMasuk() {

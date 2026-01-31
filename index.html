@@ -837,7 +837,6 @@
             }
         }
 
-        // PERBAIKAN: AI SUGGESTION DENGAN GAYA KOMANDO (PADAT & TEGAS)
         async function aiSuggestDisposition() {
             const agenda = $('#dispIdSurat').val();
             const p = $('#dispPerihal').text();
@@ -892,16 +891,13 @@
                 // 3. KIRIM KE AI
                 const res = await callGeminiAPI(promptSystem);
                 
-                
                 if (res) { 
-                    // >>> TAMBAHKAN BARIS INI DI SINI (Baris 952) <<<
-                    // Hapus tanda bintang (*) markdown agar teks bersih
+                    // PERBAIKAN: Hapus tanda bintang (*) markdown agar teks bersih
+                    // replace(/\*/g, '') artinya hapus semua simbol *
                     const cleanRes = res.replace(/\*/g, '').trim(); 
 
                     const c = $('#dispInstruksi').val(); 
                     // Tambahkan spasi/newline jika sudah ada teks sebelumnya
-                    
-                    // >>> UBAH 'res.trim()' MENJADI 'cleanRes' DI BAWAH INI <<<
                     $('#dispInstruksi').val(c ? c + "\n" + cleanRes : cleanRes); 
                 }
             } catch (e) {

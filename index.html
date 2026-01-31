@@ -361,6 +361,18 @@
                     <div class="tab-pane white-panel p-4" id="settings-content">
                         <h3 class="fw-bold m-0 text-danger mb-3 border-bottom pb-2">Pengaturan</h3>
                         <div class="d-flex gap-2 mb-3"><button class="btn btn-primary btn-sm" onclick="loadUsers()">Reload User</button><button class="btn btn-warning btn-sm" onclick="loadStorageStats()">Cek Storage</button></div>
+                        
+                        <!-- ADDED: MONITORING AI TOGGLE -->
+                        <div class="card mb-4 border-info shadow-sm restricted-feature" data-perm="setting_user">
+                            <div class="card-header bg-info text-white fw-bold">Pengaturan AI System</div>
+                            <div class="card-body">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="switchAIMonitoring" onchange="saveAIMonitoring()">
+                                    <label class="form-check-label fw-bold" for="switchAIMonitoring">Monitoring AI Disposisi (Kirim Log ke Telegram Admin)</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card mb-4 border-warning shadow-sm"><div class="card-header bg-warning text-dark fw-bold">Infrastruktur Penyimpanan</div><div class="card-body"><div class="row g-3 text-center mb-3"><div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Server Utama (A)</h6><h5 id="disp-quota-A">...</h5><div class="progress" style="height:5px"><div id="prog-A" class="progress-bar bg-primary" style="width:0%"></div></div></div></div><div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Gudang 1 (B)</h6><h5 id="disp-quota-B">...</h5><div class="progress" style="height:5px"><div id="prog-B" class="progress-bar bg-success" style="width:0%"></div></div></div></div><div class="col-md-4"><div class="p-2 border rounded bg-light"><h6>Gudang 2 (C)</h6><h5 id="disp-quota-C">...</h5><div class="progress" style="height:5px"><div id="prog-C" class="progress-bar bg-warning" style="width:0%"></div></div></div></div></div><div class="d-flex justify-content-between align-items-center bg-light p-2 rounded"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="switchFailover" onchange="saveStorageSettings()"><label class="form-check-label fw-bold" for="switchFailover">Failover Otomatis</label></div><select class="form-select form-select-sm w-auto" id="selectActiveNode" onchange="saveStorageSettings()"><option value="0">Server Utama</option><option value="1">Gudang 1</option><option value="2">Gudang 2</option></select></div><div class="mt-2 text-end"><button class="btn btn-dark btn-sm" onclick="backupDatabase()"><i class="fas fa-download me-1"></i>Backup Database (XLSX)</button></div></div></div>
                         <h5 class="fw-bold mb-3">Daftar Pengguna</h5>
                         <div class="table-responsive"><table id="tableUsers" class="table table-striped w-100 align-middle"><thead class="table-dark"><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
@@ -505,6 +517,59 @@
             
             // 4. Focus Input
             $('#aiInput').focus();
+        }
+
+        // --- ADDED: FUNCTIONS FOR AI MONITORING SETTINGS ---
+        function loadAISettings() {
+            fetch(`${GAS_URL}?type=get_ai_monitoring&action=get_quota`, {method:'POST', body:JSON.stringify({type:'get_ai_monitoring'})}) // Workaround: use POST for everything 
+            .then(r => r.json())
+            .then(r => {
+                if (r.status === 'success') {
+                    $('#switchAIMonitoring').prop('checked', r.enabled);
+                }
+            })
+            .catch(e => console.log('Gagal load AI settings'));
+        }
+
+        function saveAIMonitoring() {
+            const status = $('#switchAIMonitoring').is(':checked');
+            showLoading(true);
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'update_ai_monitoring',
+                    status: status,
+                    requestor: currentUserEmail
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') Swal.fire('Sukses', 'Pengaturan Monitoring AI tersimpan', 'success');
+                else Swal.fire('Gagal', r.message, 'error');
+            });
+        }
+
+        // UPDATE CALLGEMINIAPI TO ACCEPT META DATA (User info etc)
+        async function callGeminiAPI(prompt, img=null, meta={}){
+            try {
+                // Merge meta data into payload
+                const payload = { 
+                    type: 'ai_task', 
+                    prompt: prompt, 
+                    image: img,
+                    ...meta // Spread syntax to add user info
+                };
+
+                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const r = await res.json();
+                if (r.status === 'success') return r.data.text;
+                throw new Error(r.message || "AI Error");
+            } catch (e) {
+                console.error("AI Error:", e);
+                Swal.fire('AI Gagal', 'Pastikan URL Backend benar & Quota tersedia.', 'error');
+                return null;
+            }
         }
 
         // FUNGSI SEND AI CHAT YANG DIPERBARUI (HANDLE DOWNLOAD)
@@ -725,8 +790,6 @@
         function renderSettingTujuanList() { const c=$('#listSettingTujuan'); c.empty(); const mySubs = JSON.parse(sessionStorage.getItem('userSubordinates')||"[]"); allUsersList.forEach(u=>{ c.append(`<div class="user-list-item setting-tujuan-item"><input class="form-check-input me-3 st-check" type="checkbox" value="${u.name}" ${mySubs.includes(u.name)?'checked':''}><div><div class="fw-bold small text-dark">${u.name}</div><div class="text-muted" style="font-size:0.75rem">${u.bidang||'-'} | ${u.role}</div></div></div>`); }); }
         function saveSettingTujuan() { const s=[]; $('.st-check:checked').each(function(){s.push($(this).val())}); fetch(GAS_URL, {method:'POST', body:JSON.stringify({type: 'update_my_subordinates', email: currentUserEmail, subordinates: JSON.stringify(s)})}).then(r=>r.json()).then(r=>{ if(r.status==='success') { Swal.fire('Berhasil', 'Tujuan disimpan', 'success'); sessionStorage.setItem('userSubordinates', JSON.stringify(s)); currentContextSubordinates = s; bootstrap.Modal.getInstance(document.getElementById('modalSettingTujuan')).hide(); } }); }
         function filterSettingTujuan() { const t=$('#searchSettingTujuan').val().toLowerCase(); $('#listSettingTujuan .setting-tujuan-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
-        
-        // MODIFIKASI FUNGSI OPEN MODAL DISPOSISI
         function openDisposisiModal(id, p) { 
             $('#dispIdSurat').val(id); 
             $('#dispPerihal').text(p); 
@@ -811,7 +874,7 @@
         function saveUserPermissions(){ const p=[]; $('.perm-check:checked').each(function(){p.push($(this).val())}); const sl=[]; $('.sub-check:checked').each(function(){sl.push($(this).val())}); const dl=[]; $('.delegation-check:checked').each(function(){dl.push($(this).val())}); const d={ type:'update_user_permissions', requestor:currentUserEmail, targetEmail:$('#editUserEmail').val(), role:$('#editUserRole').val(), status:$('#editUserStatus').val(), permissions:JSON.stringify(p), subordinates:JSON.stringify(sl), delegations:JSON.stringify(dl), name:$('#editUserName').val(), bidang:$('#editUserBidang').val(), wa:$('#editUserWA').val(), jabatan:$('#editUserJabatan').val() }; bootstrap.Modal.getInstance(document.getElementById('modalEditUser')).hide(); showLoading(true); fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){Swal.fire('OK','Saved','success');loadUsers()}else Swal.fire('Err',r.message,'error')}); }
         function loadStorageStats(){showLoading(true);fetch(`${GAS_URL}?action=get_storage_stats&requestor=${currentUserEmail}`).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){const d=r.data;$('#disp-quota-A').text(d.nodeA.percentage+'%');$('#prog-A').css('width',d.nodeA.percentage+'%');$('#disp-quota-B').text(d.nodeB.percentage+'%');$('#prog-B').css('width',d.nodeB.percentage+'%');$('#disp-quota-C').text(d.nodeC.percentage+'%');$('#prog-C').css('width',d.nodeC.percentage+'%');$('#switchFailover').prop('checked',d.settings.failover);$('#selectActiveNode').val(d.settings.activeNode)}else Swal.fire('Akses Ditolak','Hanya Admin','warning')})}
         function saveStorageSettings(){const f=$('#switchFailover').is(':checked');const a=$('#selectActiveNode').val();showLoading(true);fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'update_storage_settings',failover:f,activeNode:a,requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success')Swal.fire('OK','Disimpan','success');else Swal.fire('Err',r.message,'error')})}
-        function openSettingsPage(e){activateTab('settings-content',e,()=>{loadUsers();if(sessionStorage.getItem('userRole')!=='User')loadStorageStats()})}
+        function openSettingsPage(e){activateTab('settings-content',e,()=>{loadUsers();if(sessionStorage.getItem('userRole')!=='User')loadStorageStats(); loadAISettings(); })} // ADDED loadAISettings here
         $('#formSuratMasuk').on('submit',async function(e){ e.preventDefault(); const ts=new Date($('input[name="tglSurat"]').val()); const tt=new Date($('input[name="tglTerima"]').val()); if(ts>tt) return Swal.fire('Error','Tgl Surat > Tgl Terima','warning'); showLoading(true); let f="",n=""; const fi=$('#fileSuratMasuk')[0].files[0]; if(fi){f=await readFile(fi);n=fi.name} const d={type:'simpan_masuk',fileData:f,fileName:n,email:currentUserEmail}; $(this).serializeArray().forEach(x=>d[x.name]=x.value); sendData(d,()=>{ Swal.fire('OK','Masuk Tersimpan','success'); autoFillAgendaMasuk(); }); });
         function sendData(d,cb){fetch(GAS_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success'){cb();$('form').trigger('reset'); setDefaultDatesMasuk();}else Swal.fire('Err',r.message,'error')}).catch(e=>{showLoading(false);Swal.fire('Error','Gagal Kirim Data. Cek URL.','error')})}
         function readFile(f){return new Promise((resolve,reject)=>{if(f.type.match(/image.*/)){const r=new FileReader();r.readAsDataURL(f);r.onload=(e)=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const mw=1024;let w=i.width;let h=i.height;if(w>mw){h=Math.round(h*(mw/w));w=mw;}c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(i,0,0,w,h);resolve(c.toDataURL('image/jpeg',0.7));}};r.onerror=reject;}else{const r=new FileReader();r.readAsDataURL(f);r.onload=()=>resolve(r.result);r.onerror=reject;}});}
@@ -824,9 +887,17 @@
         function setDefaultDatesKeluar(){const t=new Date().toISOString().split('T')[0];if(!$('#sk_tglSurat').val())$('#sk_tglSurat').val(t);}
 
         // AI FUNCTIONS
-        async function callGeminiAPI(prompt, img=null){
+        async function callGeminiAPI(prompt, img=null, meta={}){ // UPDATED SIGNATURE
             try {
-                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type: 'ai_task', prompt: prompt, image: img }) });
+                // Merge meta data into payload
+                const payload = { 
+                    type: 'ai_task', 
+                    prompt: prompt, 
+                    image: img,
+                    ...meta 
+                };
+
+                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const r = await res.json();
                 if (r.status === 'success') return r.data.text;
                 throw new Error(r.message || "AI Error");
@@ -837,6 +908,7 @@
             }
         }
 
+        // PERBAIKAN: AI SUGGESTION DENGAN GAYA KOMANDO & AUDIT TRAIL
         async function aiSuggestDisposition() {
             const agenda = $('#dispIdSurat').val();
             const p = $('#dispPerihal').text();
@@ -855,15 +927,14 @@
                     const resHistory = await fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`);
                     const jsonHistory = await resHistory.json();
                     if (jsonHistory.status === 'success') {
-                        // Ambil data OCR/Ringkasan yang ada di database
                         ringkasanSurat = jsonHistory.data.ringkasan || "";
                     }
                 } catch (e) { console.log("Gagal ambil ringkasan disposisi"); }
 
                 const userRole = sessionStorage.getItem('userRole');
+                const userName = sessionStorage.getItem('userName'); // Get user name for audit
                 
-                // 2. PROMPT KHUSUS: GAYA KOMANDO / DISPOSISI BIROKRAT
-                // Instruksi dibuat sangat ketat agar output pendek.
+                // 2. PROMPT KHUSUS
                 const promptSystem = `
                 Bertindak sebagai Pimpinan Tertinggi.
                 
@@ -879,25 +950,21 @@
                 1. WAJIB SANGAT SINGKAT (Maksimal 1 Kalimat pendek).
                 2. GAYA BAHASA: Komando, Tegas, Tanpa Basa-basi (Langsung Kata Kerja).
                 3. JANGAN mengulang perihal surat.
-                4. Tentukan target aksi spesifik berdasarkan isinya (misal: Yanmed, Umum, Keuangan, atau Hadiri).
-                
-                Contoh Output yang Benar:
-                - "Segera tindak lanjuti sesuai SOP dan laporkan."
-                - "Koordinasikan dengan Bidang Keperawatan untuk teknis pelaksanaan."
-                - "Pelajari dan berikan telaah staf paling lambat besok."
-                - "Wakili saya untuk menghadiri undangan ini."
+                4. Tentukan target aksi spesifik berdasarkan isinya.
                 `;
 
-                // 3. KIRIM KE AI
-                const res = await callGeminiAPI(promptSystem);
+                // 3. KIRIM KE AI DENGAN METADATA MONITORING
+                const res = await callGeminiAPI(promptSystem, null, {
+                    context: 'disposisi',
+                    agenda: agenda,
+                    perihal: p,
+                    user_name: userName,
+                    user_role: userRole
+                });
                 
                 if (res) { 
-                    // PERBAIKAN: Hapus tanda bintang (*) markdown agar teks bersih
-                    // replace(/\*/g, '') artinya hapus semua simbol *
                     const cleanRes = res.replace(/\*/g, '').trim(); 
-
                     const c = $('#dispInstruksi').val(); 
-                    // Tambahkan spasi/newline jika sudah ada teks sebelumnya
                     $('#dispInstruksi').val(c ? c + "\n" + cleanRes : cleanRes); 
                 }
             } catch (e) {
@@ -971,6 +1038,37 @@
                 }
             } catch (e) { Swal.fire('Gagal', 'Tidak dapat membaca file.', 'error'); }
             btn.innerHTML = org; btn.disabled = false;
+        }
+        
+        // --- ADDED: FUNCTIONS FOR AI MONITORING SETTINGS ---
+        function loadAISettings() {
+            fetch(`${GAS_URL}?type=get_ai_monitoring&action=get_quota`, {method:'POST', body:JSON.stringify({type:'get_ai_monitoring'})}) 
+            .then(r => r.json())
+            .then(r => {
+                if (r.status === 'success') {
+                    $('#switchAIMonitoring').prop('checked', r.enabled);
+                }
+            })
+            .catch(e => console.log('Gagal load AI settings'));
+        }
+
+        function saveAIMonitoring() {
+            const status = $('#switchAIMonitoring').is(':checked');
+            showLoading(true);
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'update_ai_monitoring',
+                    status: status,
+                    requestor: currentUserEmail
+                })
+            })
+            .then(r => r.json())
+            .then(r => {
+                showLoading(false);
+                if (r.status === 'success') Swal.fire('Sukses', 'Pengaturan Monitoring AI tersimpan', 'success');
+                else Swal.fire('Gagal', r.message, 'error');
+            });
         }
     </script>
 </body>

@@ -712,14 +712,58 @@
         function saveStatusApproval() {const d = {type: 'update_status_approval',email: currentUserEmail,agenda: $('#esa_agenda').val(),tanggal: $('#esa_tanggal').val()};bootstrap.Modal.getInstance(document.getElementById('modalStatusApproval')).hide();showLoading(true);fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{showLoading(false);if(r.status==='success') { Swal.fire('Sukses', 'Status Updated', 'success'); loadArsipKeluar(); }else Swal.fire('Gagal', r.message, 'error');});}
         function openSettingTujuan() { if(allUsersList.length === 0) fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})}).then(r=>r.json()).then(r=>{ if(r.status==='success') { allUsersList = r.data||[]; renderSettingTujuanList(); } }); else renderSettingTujuanList(); new bootstrap.Modal(document.getElementById('modalSettingTujuan')).show(); }
         function renderSettingTujuanList() { const c=$('#listSettingTujuan'); c.empty(); const mySubs = JSON.parse(sessionStorage.getItem('userSubordinates')||"[]"); allUsersList.forEach(u=>{ c.append(`<div class="user-list-item setting-tujuan-item"><input class="form-check-input me-3 st-check" type="checkbox" value="${u.name}" ${mySubs.includes(u.name)?'checked':''}><div><div class="fw-bold small text-dark">${u.name}</div><div class="text-muted" style="font-size:0.75rem">${u.bidang||'-'} | ${u.role}</div></div></div>`); }); }
+
         function saveSettingTujuan() { const s=[]; $('.st-check:checked').each(function(){s.push($(this).val())}); fetch(GAS_URL, {method:'POST', body:JSON.stringify({type: 'update_my_subordinates', email: currentUserEmail, subordinates: JSON.stringify(s)})}).then(r=>r.json()).then(r=>{ if(r.status==='success') { Swal.fire('Berhasil', 'Tujuan disimpan', 'success'); sessionStorage.setItem('userSubordinates', JSON.stringify(s)); currentContextSubordinates = s; bootstrap.Modal.getInstance(document.getElementById('modalSettingTujuan')).hide(); } }); }
         function filterSettingTujuan() { const t=$('#searchSettingTujuan').val().toLowerCase(); $('#listSettingTujuan .setting-tujuan-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
-        function openDisposisiModal(id, p) { $('#dispIdSurat').val(id); $('#dispPerihal').text(p); $('#dispInstruksi').val(''); $('#dispTglDisposisi').val(new Date().toISOString().split('T')[0]); const c=$('#dispTargetContainer'); c.empty(); let t=[]; if(currentInboxLevel==='direktur') t=['Wadir Umum & Keuangan','Wadir Pelayanan']; else if(currentInboxLevel==='wadir_adm') t=['Bagian Administrasi & Umum','Bagian Keuangan','Bagian Program & Pelaporan']; else if(currentInboxLevel==='wadir_pel') t=['Bidang Pelayanan Medik','Bidang Pelayanan Penunjang','Bidang Pelayanan Keperawatan']; else if(currentContextSubordinates.length>0) t=currentContextSubordinates; if(t.length===0) c.html('<span class="text-muted small">Tidak ada tujuan. Gunakan Setting Tujuan.</span>'); else t.forEach(x=>{ c.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}"><label class="form-check-label small">${x}</label></div>`); }); new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); }
+        
+        // MODIFIKASI FUNGSI OPEN MODAL DISPOSISI
+        function openDisposisiModal(id, p) { 
+            $('#dispIdSurat').val(id); 
+            $('#dispPerihal').text(p); 
+            $('#dispInstruksi').val(''); 
+            $('#dispTglDisposisi').val(new Date().toISOString().split('T')[0]); 
+            
+            // --- LOGIKA BARU: TAMPILKAN SUMMARY OTOMATIS ---
+            // Reset tampilan summary
+            $('#dispSummaryContainer').hide();
+            $('#dispSummaryText').text('Memuat ringkasan...');
+            
+            // Fetch Data Surat (termasuk Ringkasan)
+            fetch(`${GAS_URL}?action=get_history_surat&agenda=${id}`)
+                .then(r => r.json())
+                .then(r => {
+                    if (r.status === 'success') {
+                        const summary = r.data.ringkasan || "-";
+                        if(summary && summary !== "-" && summary.trim() !== "") {
+                            $('#dispSummaryText').text(summary);
+                            $('#dispSummaryContainer').slideDown(); // Munculkan otomatis
+                        } else {
+                            // Opsional: Tampilkan pesan jika tidak ada ringkasan
+                            // $('#dispSummaryText').text("Tidak ada ringkasan tersedia.");
+                            // $('#dispSummaryContainer').slideDown();
+                        }
+                    }
+                })
+                .catch(e => console.log("Gagal load summary otomatis: " + e));
+            // -----------------------------------------------
+
+            const c=$('#dispTargetContainer'); c.empty(); 
+            let t=[]; 
+            if(currentInboxLevel==='direktur') t=['Wadir Umum & Keuangan','Wadir Pelayanan']; 
+            else if(currentInboxLevel==='wadir_adm') t=['Bagian Administrasi & Umum','Bagian Keuangan','Bagian Program & Pelaporan']; 
+            else if(currentInboxLevel==='wadir_pel') t=['Bidang Pelayanan Medik','Bidang Pelayanan Penunjang','Bidang Pelayanan Keperawatan']; 
+            else if(currentContextSubordinates.length>0) t=currentContextSubordinates; 
+            
+            if(t.length===0) c.html('<span class="text-muted small">Tidak ada tujuan. Gunakan Setting Tujuan.</span>'); 
+            else t.forEach(x=>{ c.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}"><label class="form-check-label small">${x}</label></div>`); }); 
+            
+            new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
+        }
+
         function submitDisposisi() { const s=[]; $('.target-check:checked').each(function(){s.push($(this).val())}); if(s.length===0) return Swal.fire('!','Pilih tujuan','warning'); const p={type:'submit_disposisi', idSurat:$('#dispIdSurat').val(), levelAsal:currentInboxLevel, target:s.join(', '), instruksi:$('#dispInstruksi').val(), tglDisposisi:$('#dispTglDisposisi').val(), sender:currentUserEmail, senderName:sessionStorage.getItem('userName')}; if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) { p.onBehalfOf=currentInboxContextEmail; p.onBehalfOfName=currentInboxContextName; } bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('OK','Terkirim','success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else Swal.fire('Err',r.message,'error'); }); }
         
         function openAdvancedSearch(){ new bootstrap.Modal(document.getElementById('modalSearchAdvanced')).show(); }
-        function submitSearchAdvanced(){ const d={type:'search_advanced', category:$('#sa_category').val(), keyword:$('#sa_keyword').val(), startDate:$('#sa_start').val(), endDate:$('#sa_end').val()}; bootstrap.Modal.getInstance(document.getElementById('modalSearchAdvanced')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success'){ activateTab('search-content',null); const dt=$('#tableSearch').DataTable({destroy:true}); dt.clear(); r.data.results.forEach(d=>{ let perihalHtml = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal}</a>` : d.perihal; dt.row.add([d.tgl, d.agenda, d.ref, perihalHtml, `<button class="btn btn-sm btn-outline-info" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`]); }); dt.draw(); } }); }
-        
+
         function loadRefCodes() {fetch(`${GAS_URL}?action=get_ref_codes`).then(r => r.json()).then(r => {if (r.status === 'success' && r.data) {$('#listKodeKlarifikasi').empty(); r.data.forEach(i => $('#listKodeKlarifikasi').append(`<option value="${i.code}">${i.desc}</option>`));}});}
         function openEditMasuk(row){ $('#em_noAgenda').val(row.agenda); $('#em_displayAgenda').val(row.agenda); $('#em_noSurat').val(row.noSurat); $('#em_tglSurat').val(formatDateInput(row.tglSurat)); $('#em_tglTerima').val(formatDateInput(row.tglTerima)); $('#em_pengirim').val(row.pengirim); $('#em_perihal').val(row.perihal); $('#em_kodeKlarifikasi').val(row.kode); $('#em_file').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratMasuk')).show(); }
         function openEditKeluar(row){ $('#ek_noAgenda').val(row.agenda); $('#ek_displayAgenda').val(row.agenda); $('#ek_noSurat').val(row.noSurat); $('#ek_tglSurat').val(formatDateInput(row.tglSurat)); $('#ek_tujuan').val(row.tujuan); $('#ek_perihal').val(row.perihal); $('#ek_file').val(''); new bootstrap.Modal(document.getElementById('modalEditSuratKeluar')).show(); }

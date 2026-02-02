@@ -1067,7 +1067,7 @@
                     - no_surat
                     - tgl_surat (Format YYYY-MM-DD)
                     - pengirim
-                    - perihal
+                    - perihal (Cari teks yang diawali "Perihal" atau "Hal". Ambil intinya saja, batasi MAKSIMAL 1 KALIMAT)
                     - ringkasan (Maksimal 2 kalimat)
                     - kode_klarifikasi (Pilih dari daftar di bawah berdasarkan isi surat)
                     ${codeContext}
@@ -1117,7 +1117,14 @@
                     img = cvs.toDataURL('image/jpeg', 0.8);
                 } else if (f.type.match(/image.*/)) { img = await readFile(f); } else throw new Error("Format salah");
 
-                const res = await callGeminiAPI(`Analisa surat keluar ini. Ekstrak ke JSON: {"tujuan": "...", "perihal": "...", "tgl_surat": "YYYY-MM-DD", "format_nomor": "ambil nomor surat lengkap termasuk bagian kosong/titik", "ringkasan": "..."}`, img);
+                const res = await callGeminiAPI(`Analisa gambar surat keluar ini. Ekstrak ke JSON valid:
+{
+  "tujuan": "...", 
+  "perihal": "Cari teks 'Perihal' atau 'Hal'. Ambil intinya saja, batasi MAKSIMAL 1 KALIMAT", 
+  "tgl_surat": "YYYY-MM-DD", 
+  "format_nomor": "ambil nomor surat lengkap", 
+  "ringkasan": "..."
+}`, img);
                 if (res) {
                     const d = JSON.parse(res.replace(/```json/g, '').replace(/```/g, '').trim());
                     if (d.tgl_surat) $('#sk_tglSurat').val(d.tgl_surat);

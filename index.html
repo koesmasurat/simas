@@ -908,7 +908,7 @@
             }
         }
 
-        // PERBAIKAN: AI SUGGESTION DENGAN GAYA KOMANDO & AUDIT TRAIL
+        // PERBAIKAN: AI SUGGESTION DENGAN AUTO-CHECK TUJUAN DISPOSISI
         async function aiSuggestDisposition() {
             const agenda = $('#dispIdSurat').val();
             const p = $('#dispPerihal').text();
@@ -921,7 +921,13 @@
             btn.disabled = true;
 
             try {
-                // 1. AMBIL DATA SUMBER (RINGKASAN/OCR) DARI SERVER
+                // 1. AMBIL DAFTAR TUJUAN YANG TERSEDIA DI UI
+                const availableTargets = [];
+                $('.target-check').each(function() {
+                    availableTargets.push($(this).val());
+                });
+
+                // 2. AMBIL DATA SUMBER (RINGKASAN/OCR) DARI SERVER
                 let ringkasanSurat = "";
                 try {
                     const resHistory = await fetch(`${GAS_URL}?action=get_history_surat&agenda=${agenda}`);
@@ -932,28 +938,32 @@
                 } catch (e) { console.log("Gagal ambil ringkasan disposisi"); }
 
                 const userRole = sessionStorage.getItem('userRole');
-                const userName = sessionStorage.getItem('userName'); // Get user name for audit
+                const userName = sessionStorage.getItem('userName');
                 
-                // 2. PROMPT KHUSUS
+                // 3. PROMPT KHUSUS DENGAN OUTPUT JSON
                 const promptSystem = `
-                Bertindak sebagai Pimpinan Tertinggi.
+                Bertindak sebagai Pimpinan Tertinggi RSUD.
                 
                 SUMBER DATA:
                 - Perihal: "${p}"
                 - Isi/Ringkasan Surat: "${ringkasanSurat}"
                 - Peran Saya: ${userRole}
                 
-                TUGAS:
-                Buatkan ISI DISPOSISI (Perintah Tindakan) berdasarkan data di atas.
+                DAFTAR TUJUAN DISPOSISI YANG TERSEDIA:
+                [${availableTargets.join(', ')}]
                 
-                ATURAN SANGAT KETAT:
-                1. WAJIB SANGAT SINGKAT (Maksimal 1 Kalimat pendek).
-                2. GAYA BAHASA: Komando, Tegas, Tanpa Basa-basi (Langsung Kata Kerja).
-                3. JANGAN mengulang perihal surat.
-                4. Tentukan target aksi spesifik berdasarkan isinya.
+                TUGAS ANDA:
+                1. Pilih tujuan disposisi yang paling relevan dari daftar di atas (Bisa lebih dari satu).
+                2. Buat instruksi disposisi (Gaya Komando, Singkat, Padat).
+                
+                OUTPUT WAJIB DALAM FORMAT JSON SAJA (Tanpa markdown):
+                {
+                  "tujuan": ["Nama Tujuan 1", "Nama Tujuan 2"],
+                  "instruksi": "Isi instruksi..."
+                }
                 `;
 
-                // 3. KIRIM KE AI DENGAN METADATA MONITORING
+                // 4. KIRIM KE AI
                 const res = await callGeminiAPI(promptSystem, null, {
                     context: 'disposisi',
                     agenda: agenda,
@@ -963,9 +973,47 @@
                 });
                 
                 if (res) { 
-                    const cleanRes = res.replace(/\*/g, '').trim(); 
-                    const c = $('#dispInstruksi').val(); 
-                    $('#dispInstruksi').val(c ? c + "\n" + cleanRes : cleanRes); 
+                    try {
+                        // Bersihkan Markdown JSON jika ada
+                        const cleanRes = res.replace(/```json/g, '').replace(/```/g, '').trim();
+                        const jsonRes = JSON.parse(cleanRes);
+
+                        // A. Isi Textarea Instruksi
+                        const currentInstruksi = $('#dispInstruksi').val();
+                        const newInstruksi = jsonRes.instruksi || "";
+                        $('#dispInstruksi').val(currentInstruksi ? currentInstruksi + "\n" + newInstruksi : newInstruksi);
+
+                        // B. Auto-Check Tujuan Disposisi
+                        if (jsonRes.tujuan && Array.isArray(jsonRes.tujuan)) {
+                            // Reset dulu (opsional, tergantung preferensi, di sini kita biarkan yang sudah dicentang tetap dicentang atau reset?)
+                            // Kita reset agar hasil AI fresh
+                            $('.target-check').prop('checked', false); 
+
+                            jsonRes.tujuan.forEach(targetName => {
+                                // Cari checkbox dengan value yang cocok (Case Insensitive untuk keamanan)
+                                $('.target-check').each(function() {
+                                    if ($(this).val().toLowerCase() === targetName.toLowerCase()) {
+                                        $(this).prop('checked', true);
+                                    }
+                                });
+                            });
+                        }
+                        
+                        Swal.fire({
+                            title: 'Saran AI Diterapkan',
+                            text: `Target: ${jsonRes.tujuan.join(', ')}`,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                    } catch (parseError) {
+                        // Fallback jika AI gagal generate JSON valid (kembali ke teks biasa)
+                        console.warn("AI JSON Parse Error, Fallback to Text:", parseError);
+                        const cleanText = res.replace(/\*/g, '').trim(); 
+                        const c = $('#dispInstruksi').val(); 
+                        $('#dispInstruksi').val(c ? c + "\n" + cleanText : cleanText); 
+                    }
                 }
             } catch (e) {
                 console.error(e);

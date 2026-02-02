@@ -1036,6 +1036,15 @@
             const f = document.getElementById('fileSuratMasuk').files[0]; if (!f) return Swal.fire('Info', 'Pilih file dulu.', 'info');
             const btn = event.currentTarget; const org = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca...'; btn.disabled = true;
             try {
+                // 1. AMBIL DAFTAR KODE DINAMIS DARI SERVER (MASTER + HISTORY)
+                let availableCodes = [];
+                try {
+                    const codeRes = await fetch(`${GAS_URL}?action=get_dynamic_codes`);
+                    const codeJson = await codeRes.json();
+                    if(codeJson.status === 'success') availableCodes = codeJson.data;
+                } catch(err) { console.log("Gagal ambil dynamic codes"); }
+
+                // 2. PROSES IMAGE FILE
                 let img = null;
                 if (f.type === 'application/pdf') {
                     const pdf = await pdfjsLib.getDocument(await f.arrayBuffer()).promise;
@@ -1046,17 +1055,51 @@
                     img = cvs.toDataURL('image/jpeg', 0.8);
                 } else if (f.type.match(/image.*/)) { img = await readFile(f); } else throw new Error("Format salah");
 
-                const res = await callGeminiAPI(`Analisa gambar surat ini. Ekstrak ke JSON valid: {"no_surat": "...", "tgl_surat": "YYYY-MM-DD", "pengirim": "...", "perihal": "...", "ringkasan": "..."}. Tgl harus YYYY-MM-DD.`, img);
+                // 3. KONSTRUKSI PROMPT DENGAN KAMUS KODE
+                const codeContext = availableCodes.length > 0 
+                    ? `\n\nDAFTAR KODE KLASIFIKASI KANTOR (PILIH SATU YANG PALING COCOK DARI SINI): \n${JSON.stringify(availableCodes)}\nJika tidak ada yang cocok, kosongkan.` 
+                    : "";
+
+                const prompt = `
+                    Analisa gambar surat ini. Ekstrak data ke format JSON valid.
+                    
+                    Field yang wajib diisi:
+                    - no_surat
+                    - tgl_surat (Format YYYY-MM-DD)
+                    - pengirim
+                    - perihal
+                    - ringkasan (Maksimal 2 kalimat)
+                    - kode_klarifikasi (Pilih dari daftar di bawah berdasarkan isi surat)
+                    ${codeContext}
+                    
+                    Output JSON Only.
+                `;
+
+                // 4. PANGGIL AI
+                const res = await callGeminiAPI(prompt, img);
                 if (res) {
-                    const d = JSON.parse(res.replace(/```json/g, '').replace(/```/g, '').trim());
+                    const cleanRes = res.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const d = JSON.parse(cleanRes);
+                    
                     if (d.no_surat) $('#sm_noSurat').val(d.no_surat);
                     if (d.tgl_surat) $('#sm_tglSurat').val(d.tgl_surat);
                     if (d.pengirim) $('#sm_pengirim').val(d.pengirim);
                     if (d.perihal) $('#sm_perihal').val(d.perihal);
+                    
+                    // Isi Kode Klarifikasi dari Saran AI
+                    if (d.kode_klarifikasi) {
+                        $('input[name="kodeKlarifikasi"]').val(d.kode_klarifikasi);
+                        // Optional: Berikan feedback visual bahwa ini saran AI
+                        $('input[name="kodeKlarifikasi"]').addClass('is-valid');
+                    }
+
                     if (d.ringkasan) { $('#sm_ringkasan').val(d.ringkasan); $('#divRingkasanMasuk').slideDown(); }
-                    Swal.fire('Selesai', 'Data diekstrak.', 'success');
+                    Swal.fire('Selesai', 'Data diekstrak & Kode disarankan.', 'success');
                 }
-            } catch (e) { Swal.fire('Gagal', 'Tidak dapat membaca file.', 'error'); }
+            } catch (e) { 
+                console.error(e);
+                Swal.fire('Gagal', 'Tidak dapat membaca file atau parsing error.', 'error'); 
+            }
             btn.innerHTML = org; btn.disabled = false;
         }
 

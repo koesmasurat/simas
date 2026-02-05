@@ -391,6 +391,27 @@
     <!-- MODAL DISPOSISI (UPDATED WITH SUMMARY & AUTO FETCH) -->
     <div class="modal fade" id="modalDisposisi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title">Kirim Disposisi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formDisposisi"><input type="hidden" id="dispIdSurat"><div class="alert alert-light border shadow-sm mb-3"><small class="text-muted d-block fw-bold">Perihal:</small><span id="dispPerihal" class="fs-6 text-dark">...</span></div><div class="mb-3"><label class="fw-bold small mb-1">Tanggal:</label><input type="date" class="form-control" id="dispTglDisposisi"></div><div class="mb-3"><label class="fw-bold small mb-1">Tujuan:</label><div id="dispTargetContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"></div></div>
     
+    <!-- BAGIAN BARU: KHUSUS DIREKTUR (PPK & KOMITE) -->
+    <div id="dispExtraDirektur" style="display:none;" class="mb-3 border-top pt-2">
+        <label class="fw-bold small mb-1 text-primary"><i class="fas fa-bullhorn me-1"></i> Tembusan / Instruksi Langsung (PPK/Komite)</label>
+        <div class="d-flex gap-3 mb-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkPPK" onchange="toggleStaffSearch()">
+                <label class="form-check-label small fw-bold" for="chkPPK">PPK</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkKomite" onchange="toggleStaffSearch()">
+                <label class="form-check-label small fw-bold" for="chkKomite">Komite</label>
+            </div>
+        </div>
+        <!-- Search User untuk PPK/Komite -->
+        <div id="divSearchStaff" style="display:none;" class="bg-light p-2 rounded border">
+            <input type="text" id="searchStaffDirect" class="form-control form-control-sm mb-2" placeholder="Cari Nama Staf / Dokter..." onkeyup="filterDirectStaff()">
+            <div id="listStaffDirect" class="bg-white border rounded" style="max-height: 100px; overflow-y: auto;"></div>
+            <div id="selectedDirectStaff" class="mt-1 small fw-bold text-success"></div>
+        </div>
+    </div>
+
     <!-- TAMBAHAN: CONTAINER SUMMARY SURAT -->
     <div id="dispSummaryContainer" class="alert alert-info small mb-2 p-2" style="display:none; max-height: 120px; overflow-y: auto; background-color: #e0f7fa; border-color: #b2ebf2; color: #006064;">
         <i class="fas fa-file-alt me-1"></i> <strong>Ringkasan Surat:</strong>
@@ -790,6 +811,52 @@
         function renderSettingTujuanList() { const c=$('#listSettingTujuan'); c.empty(); const mySubs = JSON.parse(sessionStorage.getItem('userSubordinates')||"[]"); allUsersList.forEach(u=>{ c.append(`<div class="user-list-item setting-tujuan-item"><input class="form-check-input me-3 st-check" type="checkbox" value="${u.name}" ${mySubs.includes(u.name)?'checked':''}><div><div class="fw-bold small text-dark">${u.name}</div><div class="text-muted" style="font-size:0.75rem">${u.bidang||'-'} | ${u.role}</div></div></div>`); }); }
         function saveSettingTujuan() { const s=[]; $('.st-check:checked').each(function(){s.push($(this).val())}); fetch(GAS_URL, {method:'POST', body:JSON.stringify({type: 'update_my_subordinates', email: currentUserEmail, subordinates: JSON.stringify(s)})}).then(r=>r.json()).then(r=>{ if(r.status==='success') { Swal.fire('Berhasil', 'Tujuan disimpan', 'success'); sessionStorage.setItem('userSubordinates', JSON.stringify(s)); currentContextSubordinates = s; bootstrap.Modal.getInstance(document.getElementById('modalSettingTujuan')).hide(); } }); }
         function filterSettingTujuan() { const t=$('#searchSettingTujuan').val().toLowerCase(); $('#listSettingTujuan .setting-tujuan-item').each(function(){ $(this).toggle($(this).text().toLowerCase().includes(t)); }); }
+        
+        // --- MODIFIKASI: FUNGSI PENCARIAN STAFF UNTUK DIREKTUR (PPK/KOMITE) ---
+        function toggleStaffSearch() {
+            const isPPK = $('#chkPPK').is(':checked');
+            const isKomite = $('#chkKomite').is(':checked');
+            
+            if (isPPK || isKomite) {
+                $('#divSearchStaff').slideDown();
+                // Load user list jika belum ada
+                if(allUsersList.length === 0) {
+                     fetch(`${GAS_URL}?type=get_users_list`,{method:'POST',body:JSON.stringify({type:'get_users_list',requestor:currentUserEmail})})
+                     .then(r=>r.json())
+                     .then(r=>{ if(r.status==='success') allUsersList = r.data||[]; });
+                }
+            } else {
+                $('#divSearchStaff').slideUp();
+                $('#searchStaffDirect').val('');
+                $('#listStaffDirect').empty();
+                $('#selectedDirectStaff').text('');
+            }
+        }
+
+        function filterDirectStaff() {
+            const term = $('#searchStaffDirect').val().toLowerCase();
+            const list = $('#listStaffDirect');
+            list.empty();
+            
+            if (term.length < 2) return;
+
+            const filtered = allUsersList.filter(u => u.name.toLowerCase().includes(term));
+            
+            filtered.forEach(u => {
+                const item = $(`<div class="p-2 border-bottom user-list-item" style="cursor:pointer">
+                                    <div class="fw-bold small">${u.name}</div>
+                                    <div class="text-muted" style="font-size:0.75rem">${u.bidang || '-'}</div>
+                                </div>`);
+                item.click(function() {
+                    $('#searchStaffDirect').val(u.name);
+                    $('#selectedDirectStaff').html(`<i class="fas fa-check-circle"></i> Terpilih: <b>${u.name}</b>`);
+                    list.empty();
+                });
+                list.append(item);
+            });
+        }
+        // -------------------------------------------------------------
+
         function openDisposisiModal(id, p) { 
             $('#dispIdSurat').val(id); 
             $('#dispPerihal').text(p); 
@@ -797,11 +864,8 @@
             $('#dispTglDisposisi').val(new Date().toISOString().split('T')[0]); 
             
             // --- LOGIKA BARU: TAMPILKAN SUMMARY OTOMATIS ---
-            // Reset tampilan summary
             $('#dispSummaryContainer').hide();
             $('#dispSummaryText').text('Memuat ringkasan...');
-            
-            // Fetch Data Surat (termasuk Ringkasan)
             fetch(`${GAS_URL}?action=get_history_surat&agenda=${id}`)
                 .then(r => r.json())
                 .then(r => {
@@ -809,23 +873,29 @@
                         const summary = r.data.ringkasan || "-";
                         if(summary && summary !== "-" && summary.trim() !== "") {
                             $('#dispSummaryText').text(summary);
-                            $('#dispSummaryContainer').slideDown(); // Munculkan otomatis
-                        } else {
-                            // Opsional: Tampilkan pesan jika tidak ada ringkasan
-                            // $('#dispSummaryText').text("Tidak ada ringkasan tersedia.");
-                            // $('#dispSummaryContainer').slideDown();
+                            $('#dispSummaryContainer').slideDown(); 
                         }
                     }
                 })
                 .catch(e => console.log("Gagal load summary otomatis: " + e));
-            // -----------------------------------------------
 
             const c=$('#dispTargetContainer'); c.empty(); 
             let t=[]; 
-            if(currentInboxLevel==='direktur') t=['Wadir Umum & Keuangan','Wadir Pelayanan']; 
-            else if(currentInboxLevel==='wadir_adm') t=['Bagian Administrasi & Umum','Bagian Keuangan','Bagian Program & Pelaporan']; 
-            else if(currentInboxLevel==='wadir_pel') t=['Bidang Pelayanan Medik','Bidang Pelayanan Penunjang','Bidang Pelayanan Keperawatan']; 
-            else if(currentContextSubordinates.length>0) t=currentContextSubordinates; 
+            
+            // UI Logic untuk Direktur (Menampilkan Opsi Tambahan)
+            if(currentInboxLevel==='direktur') {
+                t=['Wadir Umum & Keuangan','Wadir Pelayanan'];
+                $('#dispExtraDirektur').show(); // Tampilkan bagian PPK/Komite
+                // Reset Checkbox Extra
+                $('#chkPPK').prop('checked', false);
+                $('#chkKomite').prop('checked', false);
+                toggleStaffSearch();
+            } else {
+                $('#dispExtraDirektur').hide(); // Sembunyikan untuk level lain
+                if(currentInboxLevel==='wadir_adm') t=['Bagian Administrasi & Umum','Bagian Keuangan','Bagian Program & Pelaporan']; 
+                else if(currentInboxLevel==='wadir_pel') t=['Bidang Pelayanan Medik','Bidang Pelayanan Penunjang','Bidang Pelayanan Keperawatan']; 
+                else if(currentContextSubordinates.length>0) t=currentContextSubordinates; 
+            }
             
             if(t.length===0) c.html('<span class="text-muted small">Tidak ada tujuan. Gunakan Setting Tujuan.</span>'); 
             else t.forEach(x=>{ c.append(`<div class="form-check"><input class="form-check-input target-check" type="checkbox" value="${x}"><label class="form-check-label small">${x}</label></div>`); }); 
@@ -833,7 +903,35 @@
             new bootstrap.Modal(document.getElementById('modalDisposisi')).show(); 
         }
 
-        function submitDisposisi() { const s=[]; $('.target-check:checked').each(function(){s.push($(this).val())}); if(s.length===0) return Swal.fire('!','Pilih tujuan','warning'); const p={type:'submit_disposisi', idSurat:$('#dispIdSurat').val(), levelAsal:currentInboxLevel, target:s.join(', '), instruksi:$('#dispInstruksi').val(), tglDisposisi:$('#dispTglDisposisi').val(), sender:currentUserEmail, senderName:sessionStorage.getItem('userName')}; if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) { p.onBehalfOf=currentInboxContextEmail; p.onBehalfOfName=currentInboxContextName; } bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('OK','Terkirim','success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else Swal.fire('Err',r.message,'error'); }); }
+        function submitDisposisi() { 
+            const s=[]; 
+            // 1. Ambil Tujuan Utama (Checkbox Wadir/Kabid/Staf)
+            $('.target-check:checked').each(function(){s.push($(this).val())}); 
+
+            // 2. Ambil Tujuan Tambahan Direktur (PPK/Komite)
+            if (currentInboxLevel === 'direktur') {
+                const targetStaffName = $('#searchStaffDirect').val();
+                
+                if ($('#chkPPK').is(':checked')) {
+                    if (!targetStaffName) return Swal.fire('Perhatian', 'Anda mencentang PPK, harap pilih nama staf di kolom pencarian.', 'warning');
+                    s.push(`PPK: ${targetStaffName}`);
+                }
+                
+                if ($('#chkKomite').is(':checked')) {
+                    if (!targetStaffName) return Swal.fire('Perhatian', 'Anda mencentang Komite, harap pilih nama staf di kolom pencarian.', 'warning');
+                    s.push(`Komite: ${targetStaffName}`);
+                }
+            }
+
+            if(s.length===0) return Swal.fire('!','Pilih tujuan','warning'); 
+
+            const p={type:'submit_disposisi', idSurat:$('#dispIdSurat').val(), levelAsal:currentInboxLevel, target:s.join(', '), instruksi:$('#dispInstruksi').val(), tglDisposisi:$('#dispTglDisposisi').val(), sender:currentUserEmail, senderName:sessionStorage.getItem('userName')}; 
+            if(currentInboxContextEmail && currentInboxContextEmail !== currentUserEmail) { p.onBehalfOf=currentInboxContextEmail; p.onBehalfOfName=currentInboxContextName; } 
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalDisposisi')).hide(); 
+            showLoading(true); 
+            fetch(GAS_URL, {method:'POST', body:JSON.stringify(p)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success') { Swal.fire('OK','Terkirim','success'); refreshCurrentDisposisi(); updateSidebarBadges(); } else Swal.fire('Err',r.message,'error'); }); 
+        }
         
         function openAdvancedSearch(){ new bootstrap.Modal(document.getElementById('modalSearchAdvanced')).show(); }
         function submitSearchAdvanced(){ const d={type:'search_advanced', category:$('#sa_category').val(), keyword:$('#sa_keyword').val(), startDate:$('#sa_start').val(), endDate:$('#sa_end').val()}; bootstrap.Modal.getInstance(document.getElementById('modalSearchAdvanced')).hide(); showLoading(true); fetch(GAS_URL, {method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{ showLoading(false); if(r.status==='success'){ activateTab('search-content',null); const dt=$('#tableSearch').DataTable({destroy:true}); dt.clear(); r.data.results.forEach(d=>{ let perihalHtml = d.file ? `<a href="${d.file}" target="_blank" class="fw-bold text-decoration-none text-primary">${d.perihal}</a>` : d.perihal; dt.row.add([d.tgl, d.agenda, d.ref, perihalHtml, `<button class="btn btn-sm btn-outline-info" onclick="viewHistory('${d.agenda}', '${d.file||""}', '${d.tgl}')"><i class="fas fa-eye"></i></button>`]); }); dt.draw(); } }); }
